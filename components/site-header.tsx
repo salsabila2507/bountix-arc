@@ -12,7 +12,7 @@ export function SiteHeader() {
           TASKOPS
         </span>
       </Link>
-      <ButtonLink href="#join" className="hidden min-h-10 px-4 py-2 sm:inline-flex">
+      <ButtonLink href="/waitlist" className="hidden min-h-10 px-4 py-2 sm:inline-flex">
         Join Waitlist
       </ButtonLink>
     </header>

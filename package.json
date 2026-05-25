@@ -9,6 +9,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@supabase/ssr": "latest",
+    "@supabase/supabase-js": "latest",
     "clsx": "latest",
     "framer-motion": "latest",
     "lucide-react": "latest",

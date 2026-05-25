@@ -33,7 +33,7 @@ export function FinalCtaSection() {
                 Get early access as TaskOps opens its first coordination loops.
               </p>
             </div>
-            <ButtonLink href="#top" className="shrink-0">
+            <ButtonLink href="/waitlist" className="shrink-0">
               Join Waitlist
             </ButtonLink>
           </div>

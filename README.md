@@ -8,6 +8,7 @@ Phase 1 waitlist landing page for [taskops.xyz](https://taskops.xyz).
 - TypeScript
 - Tailwind CSS
 - Framer Motion
+- Supabase waitlist storage
 - Vercel-ready deployment
 
 ## Local Setup
@@ -26,11 +27,53 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Environment Variables
+
+Create `.env.local` for local development:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+```
+
+`NEXT_PUBLIC_SUPABASE_ANON_KEY` is also supported if your Supabase dashboard
+uses the older key naming.
+
+## Supabase Setup
+
+Create this table in the Supabase SQL Editor:
+
+```sql
+create table if not exists public.waitlist (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text unique not null,
+  role text not null,
+  specialty text,
+  created_at timestamp with time zone default now()
+);
+
+alter table public.waitlist enable row level security;
+
+create policy "Allow public waitlist inserts"
+on public.waitlist
+for insert
+to anon
+with check (true);
+```
+
 ## Deploying to Vercel
 
 1. Push this project to a Git repository.
 2. Import the repository in Vercel.
-3. Deploy. No environment variables are required for this static Phase 1 landing page.
+3. Add the Supabase environment variables:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+```
+
+4. Deploy.
 
 ## Scripts
 

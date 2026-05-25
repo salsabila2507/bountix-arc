@@ -32,7 +32,7 @@ export function HeroSection() {
 
         <MotionReveal delay={0.2}>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <ButtonLink href="#join">Join Waitlist</ButtonLink>
+            <ButtonLink href="/waitlist">Join Waitlist</ButtonLink>
             <div className="flex items-center gap-2 text-sm text-white/50">
               <CircleDot aria-hidden="true" className="h-4 w-4 text-acid-400" />
               Phase 1 opens with a focused operator waitlist
