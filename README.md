@@ -1,6 +1,6 @@
-# TaskOps
+# Bountix
 
-Phase 1 waitlist landing page for [taskops.xyz](https://taskops.xyz).
+Phase 1 waitlist landing page for [bountix.xyz](https://bountix.xyz).
 
 ## Stack
 

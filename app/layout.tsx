@@ -2,24 +2,30 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://taskops.xyz"),
+  metadataBase: new URL("https://bountix.xyz"),
   title: {
-    default: "TaskOps | Internet work needs better coordination",
-    template: "%s | TaskOps",
+    default: "Bountix | Internet work needs better coordination",
+    template: "%s | Bountix",
   },
   description:
-    "TaskOps is the reputation layer for internet work. Create tasks, prove execution, and build public operator reputation.",
+    "Bountix is the premium coordination layer for internet work. Post tasks, prove execution, and build public operator reputation.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
   openGraph: {
-    title: "TaskOps",
-    description: "Create tasks. Prove execution. Build reputation.",
-    url: "https://taskops.xyz",
-    siteName: "TaskOps",
+    title: "Bountix",
+    description: "Post tasks. Prove execution. Earn anywhere.",
+    url: "https://bountix.xyz",
+    siteName: "Bountix",
     type: "website",
+    images: ["/logo.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "TaskOps",
-    description: "Create tasks. Prove execution. Build reputation.",
+    title: "Bountix",
+    description: "Post tasks. Prove execution. Earn anywhere.",
+    images: ["/logo.png"],
   },
 };
 

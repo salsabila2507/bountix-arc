@@ -23,7 +23,7 @@ export function SolutionSection() {
   return (
     <section className="container-page py-16 sm:py-24">
       <MotionReveal className="max-w-2xl">
-        <p className="text-sm font-medium uppercase tracking-[0.18em] text-acid-300">
+        <p className="text-sm font-medium uppercase tracking-[0.18em] text-aurora-300">
           The solution
         </p>
         <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
@@ -36,7 +36,7 @@ export function SolutionSection() {
           <MotionReveal key={step.title} delay={index * 0.08}>
             <div className="panel h-full rounded-lg p-6">
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-md border border-acid-400/25 bg-acid-400/10 text-sm font-semibold text-acid-300">
+                <span className="flex h-10 w-10 items-center justify-center rounded-md border border-cyan-200/20 bg-gradient-to-br from-aurora-600/25 via-aurora-500/20 to-aurora-300/20 text-sm font-semibold text-aurora-300 shadow-aurora-soft">
                   {index + 1}
                 </span>
                 <ArrowRight aria-hidden="true" className="h-4 w-4 text-white/35" />

@@ -22,7 +22,7 @@ function OperatorProfileCard() {
             Verified execution record across internet-native teams.
           </p>
         </div>
-        <div className="rounded-md border border-acid-400/25 bg-acid-400/10 p-2 text-acid-300">
+        <div className="rounded-md border border-cyan-200/20 bg-aurora-500/10 p-2 text-aurora-300 shadow-aurora-soft">
           <Layers3 aria-hidden="true" className="h-5 w-5" />
         </div>
       </div>
@@ -31,9 +31,9 @@ function OperatorProfileCard() {
         {stats.map(({ label, value, icon: Icon }) => (
           <div
             key={label}
-            className="rounded-md border border-white/10 bg-graphite-950/70 p-3"
+            className="rounded-md border border-cyan-200/10 bg-graphite-950/70 p-3"
           >
-            <Icon aria-hidden="true" className="h-4 w-4 text-acid-400" />
+            <Icon aria-hidden="true" className="h-4 w-4 text-aurora-300" />
             <p className="mt-3 text-lg font-semibold text-white">{value}</p>
             <p className="mt-1 text-[0.7rem] uppercase tracking-[0.12em] text-white/42">
               {label}
@@ -50,7 +50,7 @@ function OperatorProfileCard() {
           {specialties.map((specialty) => (
             <span
               key={specialty}
-              className="rounded-md border border-white/10 bg-white/[0.055] px-3 py-1.5 text-xs font-medium text-white/76"
+              className="rounded-md border border-cyan-200/10 bg-white/[0.055] px-3 py-1.5 text-xs font-medium text-white/76"
             >
               {specialty}
             </span>
@@ -66,18 +66,18 @@ export function OperatorProfileSection() {
     <section className="container-page py-16 sm:py-24">
       <div className="grid gap-8 lg:grid-cols-[1fr_0.9fr] lg:items-center">
         <MotionReveal>
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-acid-300">
+          <p className="text-sm font-medium uppercase tracking-[0.18em] text-aurora-300">
             Operator profile preview
           </p>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
             Execution history should be portable.
           </h2>
           <p className="mt-5 max-w-xl text-base leading-8 text-white/62">
-            TaskOps profiles turn completed tasks into a visible record:
+            Bountix profiles turn completed tasks into a visible record:
             scores, approvals, specialties, and the work trail behind them.
           </p>
           <div className="mt-7 flex items-center gap-3 text-sm text-white/58">
-            <ShieldCheck aria-hidden="true" className="h-5 w-5 text-acid-400" />
+            <ShieldCheck aria-hidden="true" className="h-5 w-5 text-aurora-300" />
             Reputation grows from accepted work, not self-written claims.
           </div>
         </MotionReveal>

@@ -13,7 +13,7 @@ export function ButtonLink({ href, children, className }: ButtonLinkProps) {
     <Link
       href={href}
       className={cn(
-        "inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-acid-400/40 bg-acid-400 px-5 py-3 text-sm font-semibold text-graphite-950 shadow-acid-soft transition hover:bg-acid-300 focus:outline-none focus:ring-2 focus:ring-acid-300 focus:ring-offset-2 focus:ring-offset-graphite-950",
+        "inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-cyan-200/20 bg-gradient-to-r from-aurora-600 via-aurora-500 to-aurora-300 px-5 py-3 text-sm font-semibold text-white shadow-aurora-violet transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-aurora-300 focus:ring-offset-2 focus:ring-offset-graphite-950",
         className,
       )}
     >

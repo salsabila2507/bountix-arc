@@ -11,7 +11,7 @@ export function ProblemSection() {
     <section className="container-page py-16 sm:py-24">
       <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
         <MotionReveal>
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-acid-300">
+          <p className="text-sm font-medium uppercase tracking-[0.18em] text-aurora-300">
             The problem
           </p>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
@@ -21,7 +21,7 @@ export function ProblemSection() {
         <MotionReveal delay={0.08}>
           <p className="text-base leading-8 text-white/62">
             The current workflow is scattered across chat rooms, private
-            messages, spreadsheets, and fragile trust. TaskOps starts by making
+            messages, spreadsheets, and fragile trust. Bountix starts by making
             work easier to define, review, and remember.
           </p>
         </MotionReveal>

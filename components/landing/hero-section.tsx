@@ -13,8 +13,8 @@ export function HeroSection() {
 
       <div className="relative z-10 mx-auto max-w-5xl text-center">
         <MotionReveal>
-          <p className="mx-auto inline-flex rounded-md border border-acid-400/25 bg-acid-400/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-acid-300">
-            TaskOps for internet work
+          <p className="mx-auto inline-flex rounded-md border border-cyan-200/15 bg-white/[0.055] px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-aurora-300">
+            Bountix for internet work
           </p>
         </MotionReveal>
 
@@ -26,7 +26,7 @@ export function HeroSection() {
 
         <MotionReveal delay={0.14}>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-white/68 sm:text-xl">
-            Create tasks. Prove execution. Build reputation.
+            Post tasks. Prove execution. Earn anywhere.
           </p>
         </MotionReveal>
 
@@ -34,7 +34,7 @@ export function HeroSection() {
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <ButtonLink href="/waitlist">Join Waitlist</ButtonLink>
             <div className="flex items-center gap-2 text-sm text-white/50">
-              <CircleDot aria-hidden="true" className="h-4 w-4 text-acid-400" />
+              <CircleDot aria-hidden="true" className="h-4 w-4 text-aurora-400" />
               Phase 1 opens with a focused operator waitlist
             </div>
           </div>

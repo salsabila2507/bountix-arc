@@ -22,7 +22,7 @@ export function WaitlistForm() {
   if (state.status === "success") {
     return (
       <div className="panel rounded-lg p-6">
-        <div className="flex h-12 w-12 items-center justify-center rounded-md border border-acid-400/30 bg-acid-400/10 text-acid-300">
+        <div className="flex h-12 w-12 items-center justify-center rounded-md border border-cyan-200/20 bg-aurora-500/10 text-aurora-300">
           <CheckCircle2 aria-hidden="true" className="h-6 w-6" />
         </div>
         <h2 className="mt-6 text-2xl font-semibold text-white">
@@ -36,14 +36,14 @@ export function WaitlistForm() {
   return (
     <form action={formAction} className="panel rounded-lg p-5 sm:p-6">
       <div>
-        <p className="text-xs uppercase tracking-[0.18em] text-acid-300">
+        <p className="text-xs uppercase tracking-[0.18em] text-aurora-300">
           Early access
         </p>
         <h1 className="mt-3 text-2xl font-semibold text-white">
-          Join the TaskOps waitlist
+          Join the Bountix waitlist
         </h1>
         <p className="mt-3 text-sm leading-6 text-white/60">
-          Tell us how you plan to use TaskOps. We are onboarding the first
+          Tell us how you plan to use Bountix. We are onboarding the first
           creators and operators in focused waves.
         </p>
       </div>
@@ -68,7 +68,7 @@ export function WaitlistForm() {
             required
             minLength={2}
             placeholder="Your name or operator handle"
-            className="mt-2 h-12 w-full rounded-md border border-white/10 bg-graphite-950/80 px-3 text-white placeholder:text-white/28 outline-none transition focus:border-acid-400 focus:ring-2 focus:ring-acid-400/30"
+            className="mt-2 h-12 w-full rounded-md border border-cyan-200/10 bg-graphite-950/80 px-3 text-white placeholder:text-white/28 outline-none transition focus:border-aurora-300 focus:ring-2 focus:ring-aurora-300/25"
           />
           <FieldError message={state.errors?.name} />
         </label>
@@ -81,7 +81,7 @@ export function WaitlistForm() {
             autoComplete="email"
             required
             placeholder="you@example.com"
-            className="mt-2 h-12 w-full rounded-md border border-white/10 bg-graphite-950/80 px-3 text-white placeholder:text-white/28 outline-none transition focus:border-acid-400 focus:ring-2 focus:ring-acid-400/30"
+            className="mt-2 h-12 w-full rounded-md border border-cyan-200/10 bg-graphite-950/80 px-3 text-white placeholder:text-white/28 outline-none transition focus:border-aurora-300 focus:ring-2 focus:ring-aurora-300/25"
           />
           <FieldError message={state.errors?.email} />
         </label>
@@ -92,14 +92,14 @@ export function WaitlistForm() {
             {roles.map((role) => (
               <label
                 key={role}
-                className="flex min-h-12 cursor-pointer items-center gap-3 rounded-md border border-white/10 bg-graphite-950/70 px-3 text-sm text-white/72 transition has-[:checked]:border-acid-400/60 has-[:checked]:bg-acid-400/10 has-[:checked]:text-white"
+                className="flex min-h-12 cursor-pointer items-center gap-3 rounded-md border border-cyan-200/10 bg-graphite-950/70 px-3 text-sm text-white/72 transition has-[:checked]:border-aurora-300/60 has-[:checked]:bg-aurora-500/12 has-[:checked]:text-white"
               >
                 <input
                   name="role"
                   type="radio"
                   value={role}
                   required
-                  className="h-4 w-4 border-white/25 bg-transparent text-acid-400 focus:ring-acid-400"
+                  className="h-4 w-4 border-white/25 bg-transparent text-aurora-400 focus:ring-aurora-300"
                 />
                 {role}
               </label>
@@ -117,7 +117,7 @@ export function WaitlistForm() {
             type="text"
             maxLength={120}
             placeholder="Research, design, growth, data, ops..."
-            className="mt-2 h-12 w-full rounded-md border border-white/10 bg-graphite-950/80 px-3 text-white placeholder:text-white/28 outline-none transition focus:border-acid-400 focus:ring-2 focus:ring-acid-400/30"
+            className="mt-2 h-12 w-full rounded-md border border-cyan-200/10 bg-graphite-950/80 px-3 text-white placeholder:text-white/28 outline-none transition focus:border-aurora-300 focus:ring-2 focus:ring-aurora-300/25"
           />
           <FieldError message={state.errors?.specialty} />
         </label>
@@ -126,7 +126,7 @@ export function WaitlistForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md border border-acid-400/40 bg-acid-400 px-5 py-3 text-sm font-semibold text-graphite-950 shadow-acid-soft transition hover:bg-acid-300 focus:outline-none focus:ring-2 focus:ring-acid-300 focus:ring-offset-2 focus:ring-offset-graphite-950 disabled:cursor-not-allowed disabled:opacity-70"
+        className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md border border-cyan-200/20 bg-gradient-to-r from-aurora-600 via-aurora-500 to-aurora-300 px-5 py-3 text-sm font-semibold text-white shadow-aurora-violet transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-aurora-300 focus:ring-offset-2 focus:ring-offset-graphite-950 disabled:cursor-not-allowed disabled:opacity-70"
       >
         {isPending ? (
           <>

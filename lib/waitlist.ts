@@ -36,7 +36,7 @@ export function validateWaitlistForm(formData: FormData) {
   }
 
   if (!roles.includes(role as WaitlistRole)) {
-    errors.role = "Choose how you want to use TaskOps.";
+    errors.role = "Choose how you want to use Bountix.";
   }
 
   if (specialty.length > 120) {
