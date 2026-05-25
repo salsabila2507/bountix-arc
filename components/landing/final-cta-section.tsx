@@ -1,6 +1,8 @@
 import { MotionReveal } from "@/components/motion-reveal";
 import { ButtonLink } from "@/components/ui/button";
 
+const telegramGroupUrl = "https://t.me/+V78fuYlQNvcxYTNl";
+
 export function FinalCtaSection() {
   return (
     <>
@@ -33,9 +35,19 @@ export function FinalCtaSection() {
                 Get early access as Bountix opens its first coordination loops.
               </p>
             </div>
-            <ButtonLink href="/waitlist" className="shrink-0">
-              Join Waitlist
-            </ButtonLink>
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+              <ButtonLink href="/waitlist" className="shrink-0">
+                Join Waitlist
+              </ButtonLink>
+              <ButtonLink
+                href={telegramGroupUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="shrink-0 border-white/10 bg-white/[0.055] bg-none shadow-none hover:bg-white/[0.085]"
+              >
+                Join Telegram
+              </ButtonLink>
+            </div>
           </div>
           <footer className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-white/45 sm:flex-row sm:items-center sm:justify-between">
             <span className="font-medium text-white/68">Bountix</span>

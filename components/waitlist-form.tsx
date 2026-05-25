@@ -1,9 +1,11 @@
 "use client";
 
 import { useActionState } from "react";
-import { CheckCircle2, LoaderCircle, TriangleAlert } from "lucide-react";
+import { CheckCircle2, LoaderCircle, Send, TriangleAlert } from "lucide-react";
 import { joinWaitlist } from "@/app/waitlist/actions";
 import { initialWaitlistState, roles } from "@/lib/waitlist";
+
+const telegramGroupUrl = "https://t.me/+V78fuYlQNvcxYTNl";
 
 function FieldError({ message }: { message?: string }) {
   if (!message) {
@@ -29,6 +31,15 @@ export function WaitlistForm() {
           You are on the waitlist.
         </h2>
         <p className="mt-3 text-sm leading-6 text-white/64">{state.message}</p>
+        <a
+          href={telegramGroupUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md border border-cyan-200/20 bg-gradient-to-r from-aurora-600 via-aurora-500 to-aurora-300 px-5 py-3 text-sm font-semibold text-white shadow-aurora-violet transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-aurora-300 focus:ring-offset-2 focus:ring-offset-graphite-950"
+        >
+          <Send aria-hidden="true" className="h-4 w-4" />
+          Join the Telegram group
+        </a>
       </div>
     );
   }
@@ -44,7 +55,8 @@ export function WaitlistForm() {
         </h1>
         <p className="mt-3 text-sm leading-6 text-white/60">
           Tell us how you plan to use Bountix. We are onboarding the first
-          creators and operators in focused waves.
+          creators and operators in focused waves. Add your Telegram username
+          so we can match your application to the operator group.
         </p>
       </div>
 
@@ -84,6 +96,21 @@ export function WaitlistForm() {
             className="mt-2 h-12 w-full rounded-md border border-cyan-200/10 bg-graphite-950/80 px-3 text-white placeholder:text-white/28 outline-none transition focus:border-aurora-300 focus:ring-2 focus:ring-aurora-300/25"
           />
           <FieldError message={state.errors?.email} />
+        </label>
+
+        <label className="block">
+          <span className="text-sm font-medium text-white/82">
+            Telegram username
+          </span>
+          <input
+            name="telegram"
+            type="text"
+            autoComplete="off"
+            required
+            placeholder="@yourusername"
+            className="mt-2 h-12 w-full rounded-md border border-cyan-200/10 bg-graphite-950/80 px-3 text-white placeholder:text-white/28 outline-none transition focus:border-aurora-300 focus:ring-2 focus:ring-aurora-300/25"
+          />
+          <FieldError message={state.errors?.telegram} />
         </label>
 
         <fieldset>
@@ -137,6 +164,10 @@ export function WaitlistForm() {
           "Join Waitlist"
         )}
       </button>
+
+      <p className="mt-4 text-center text-sm leading-6 text-white/48">
+        After joining, enter the private Telegram group for launch updates.
+      </p>
     </form>
   );
 }

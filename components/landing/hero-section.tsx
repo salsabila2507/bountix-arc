@@ -3,6 +3,8 @@ import { CoordinationField } from "@/components/landing/coordination-field";
 import { MotionReveal } from "@/components/motion-reveal";
 import { ButtonLink } from "@/components/ui/button";
 
+const telegramGroupUrl = "https://t.me/+V78fuYlQNvcxYTNl";
+
 export function HeroSection() {
   return (
     <section
@@ -33,6 +35,14 @@ export function HeroSection() {
         <MotionReveal delay={0.2}>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <ButtonLink href="/waitlist">Join Waitlist</ButtonLink>
+            <ButtonLink
+              href={telegramGroupUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="border-white/10 bg-white/[0.055] bg-none shadow-none hover:bg-white/[0.085]"
+            >
+              Join Telegram
+            </ButtonLink>
             <div className="flex items-center gap-2 text-sm text-white/50">
               <CircleDot aria-hidden="true" className="h-4 w-4 text-aurora-400" />
               Phase 1 opens with a focused operator waitlist

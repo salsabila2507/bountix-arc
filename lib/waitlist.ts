@@ -5,6 +5,7 @@ export type WaitlistRole = (typeof roles)[number];
 export type FieldErrors = {
   name?: string;
   email?: string;
+  telegram?: string;
   role?: string;
   specialty?: string;
 };
@@ -23,8 +24,12 @@ export const initialWaitlistState: WaitlistFormState = {
 export function validateWaitlistForm(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const telegramInput = String(formData.get("telegram") ?? "").trim();
   const role = String(formData.get("role") ?? "");
   const specialty = String(formData.get("specialty") ?? "").trim();
+  const telegram = telegramInput.startsWith("@")
+    ? telegramInput
+    : `@${telegramInput}`;
   const errors: FieldErrors = {};
 
   if (name.length < 2) {
@@ -33,6 +38,10 @@ export function validateWaitlistForm(formData: FormData) {
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     errors.email = "Enter a valid email address.";
+  }
+
+  if (!/^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(telegram)) {
+    errors.telegram = "Enter a valid Telegram username, like @bountixoperator.";
   }
 
   if (!roles.includes(role as WaitlistRole)) {
@@ -47,6 +56,7 @@ export function validateWaitlistForm(formData: FormData) {
     data: {
       name,
       email,
+      telegram_username: telegram,
       role: role as WaitlistRole,
       specialty: specialty || null,
     },

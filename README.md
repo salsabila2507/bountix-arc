@@ -48,6 +48,7 @@ create table if not exists public.waitlist (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   email text unique not null,
+  telegram_username text not null,
   role text not null,
   specialty text,
   created_at timestamp with time zone default now()
