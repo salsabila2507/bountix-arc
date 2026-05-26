@@ -18,6 +18,8 @@ html {
 }
 
 body {
+  position: relative;
+  isolation: isolate;
   margin: 0;
   min-height: 100vh;
   overflow-x: hidden;
@@ -39,9 +41,43 @@ body {
     sans-serif;
 }
 
+body::before,
+body::after {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  content: "";
+}
+
+body::before {
+  background:
+    radial-gradient(58rem 30rem at 16% -8%, rgba(156, 45, 255, 0.22), transparent 62%),
+    radial-gradient(46rem 30rem at 84% 0%, rgba(56, 231, 255, 0.16), transparent 58%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.035), transparent 34%, rgba(45, 136, 255, 0.05));
+  filter: blur(0.2px);
+}
+
+body::after {
+  background:
+    conic-gradient(from 210deg at 50% 42%, transparent 0deg, rgba(108, 85, 255, 0.1) 52deg, transparent 110deg, rgba(56, 231, 255, 0.08) 168deg, transparent 250deg, rgba(156, 45, 255, 0.08) 318deg, transparent 360deg);
+  opacity: 0.68;
+  animation: aurora-drift 18s ease-in-out infinite alternate;
+}
+
 ::selection {
   background: rgba(56, 231, 255, 0.32);
   color: #ffffff;
+}
+
+@keyframes aurora-drift {
+  from {
+    transform: translate3d(-1.5%, -1%, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(1.5%, 1%, 0) scale(1.04);
+  }
 }
 
 @layer utilities {
@@ -49,7 +85,59 @@ body {
     @apply mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8;
   }
 
+  .comic-page {
+    background:
+      radial-gradient(#140625 1px, transparent 1.4px),
+      linear-gradient(135deg, rgba(255, 80, 184, 0.24), transparent 28%),
+      linear-gradient(225deg, rgba(56, 231, 255, 0.28), transparent 32%),
+      linear-gradient(180deg, #fff8f1 0%, #f3e9ff 48%, #e6f7ff 100%);
+    background-size: 18px 18px, 100% 100%, 100% 100%, 100% 100%;
+    color: #140625;
+  }
+
+  .comic-band {
+    @apply border-y-2 border-[#140625] bg-[#fffaf4];
+  }
+
+  .comic-card {
+    @apply rounded-lg border-2 border-[#140625] bg-white shadow-[8px_8px_0_#140625];
+  }
+
+  .comic-card-soft {
+    @apply rounded-lg border-2 border-[#140625] bg-white shadow-[5px_5px_0_#140625];
+  }
+
+  .comic-chip {
+    @apply inline-flex items-center gap-2 rounded-lg border-2 border-[#140625] px-3 py-1.5 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625];
+  }
+
+  .speech-bubble {
+    @apply relative rounded-lg border-2 border-[#140625] bg-white shadow-[6px_6px_0_#140625];
+  }
+
+  .speech-bubble::after {
+    position: absolute;
+    right: 1.5rem;
+    bottom: -0.75rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-right: 2px solid #140625;
+    border-bottom: 2px solid #140625;
+    background: inherit;
+    content: "";
+    transform: rotate(45deg);
+  }
+
+  .halftone-mask {
+    background-image: radial-gradient(rgba(20, 6, 37, 0.38) 1px, transparent 1.5px);
+    background-size: 12px 12px;
+  }
+
   .panel {
-    @apply border border-cyan-200/10 bg-white/[0.05] shadow-panel backdrop-blur-xl;
+    @apply border border-cyan-200/10 bg-white/[0.06] shadow-panel backdrop-blur-2xl;
+  }
+
+  .glass-ring {
+    @apply border border-white/10 bg-white/[0.045] shadow-panel backdrop-blur-2xl;
   }
 }

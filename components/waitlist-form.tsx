@@ -1,18 +1,26 @@
 "use client";
 
-import { useActionState } from "react";
-import { CheckCircle2, LoaderCircle, Send, TriangleAlert } from "lucide-react";
+import { useActionState, useState } from "react";
+import {
+  Check,
+  CheckCircle2,
+  ExternalLink,
+  LoaderCircle,
+  Send,
+  TriangleAlert,
+} from "lucide-react";
 import { joinWaitlist } from "@/app/waitlist/actions";
 import { initialWaitlistState, roles } from "@/lib/waitlist";
 
 const telegramGroupUrl = "https://t.me/+V78fuYlQNvcxYTNl";
+const xUrl = "https://x.com/bountixofc";
 
 function FieldError({ message }: { message?: string }) {
   if (!message) {
     return null;
   }
 
-  return <p className="mt-2 text-sm text-red-300">{message}</p>;
+  return <p className="mt-2 text-sm font-bold text-[#c42463]">{message}</p>;
 }
 
 export function WaitlistForm() {
@@ -20,51 +28,64 @@ export function WaitlistForm() {
     joinWaitlist,
     initialWaitlistState,
   );
+  const [joinedTelegram, setJoinedTelegram] = useState(false);
+  const [followedX, setFollowedX] = useState(false);
+  const canSubmit = joinedTelegram && followedX && !isPending;
 
   if (state.status === "success") {
     return (
-      <div className="panel rounded-lg p-6">
-        <div className="flex h-12 w-12 items-center justify-center rounded-md border border-cyan-200/20 bg-aurora-500/10 text-aurora-300">
+      <div className="comic-card bg-white p-6">
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg border-2 border-[#140625] bg-[#23b26d] text-white shadow-[3px_3px_0_#140625]">
           <CheckCircle2 aria-hidden="true" className="h-6 w-6" />
         </div>
-        <h2 className="mt-6 text-2xl font-semibold text-white">
+        <h2 className="mt-6 text-2xl font-black text-[#140625]">
           You are on the waitlist.
         </h2>
-        <p className="mt-3 text-sm leading-6 text-white/64">{state.message}</p>
-        <a
-          href={telegramGroupUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md border border-cyan-200/20 bg-gradient-to-r from-aurora-600 via-aurora-500 to-aurora-300 px-5 py-3 text-sm font-semibold text-white shadow-aurora-violet transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-aurora-300 focus:ring-offset-2 focus:ring-offset-graphite-950"
-        >
-          <Send aria-hidden="true" className="h-4 w-4" />
-          Join the Telegram group
-        </a>
+        <p className="mt-3 text-sm font-medium leading-6 text-[#5a3b66]">
+          {state.message}
+        </p>
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <a
+            href={telegramGroupUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-5 py-3 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625] transition hover:bg-[#ffdd3d]"
+          >
+            <Send aria-hidden="true" className="h-4 w-4" />
+            Telegram
+          </a>
+          <a
+            href={xUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ff4fb8] px-5 py-3 text-sm font-black uppercase text-white shadow-[4px_4px_0_#140625] transition hover:bg-[#7c3cff]"
+          >
+            <ExternalLink aria-hidden="true" className="h-4 w-4" />
+            Follow X
+          </a>
+        </div>
       </div>
     );
   }
 
   return (
-    <form action={formAction} className="panel rounded-lg p-5 sm:p-6">
+    <form action={formAction} className="comic-card bg-white p-5 sm:p-6">
       <div>
-        <p className="text-xs uppercase tracking-[0.18em] text-aurora-300">
-          Early access
-        </p>
-        <h1 className="mt-3 text-2xl font-semibold text-white">
+        <p className="comic-chip bg-[#38e7ff]">Early access</p>
+        <h1 className="mt-5 text-2xl font-black text-[#140625]">
           Join the Bountix waitlist
         </h1>
-        <p className="mt-3 text-sm leading-6 text-white/60">
+        <p className="mt-3 text-sm font-medium leading-6 text-[#5a3b66]">
           Tell us how you plan to use Bountix. We are onboarding the first
-          creators and operators in focused waves. Add your Telegram username
-          so we can match your application to the operator group.
+          creators and operators in focused waves.
         </p>
       </div>
 
       {state.status === "error" && state.message ? (
-        <div className="mt-6 flex gap-3 rounded-md border border-red-400/25 bg-red-400/10 p-3 text-sm text-red-100">
+        <div className="mt-6 flex gap-3 rounded-lg border-2 border-[#140625] bg-[#ffe1ed] p-3 text-sm font-bold text-[#8a1742]">
           <TriangleAlert
             aria-hidden="true"
-            className="mt-0.5 h-4 w-4 shrink-0 text-red-300"
+            className="mt-0.5 h-4 w-4 shrink-0"
           />
           <p>{state.message}</p>
         </div>
@@ -72,7 +93,7 @@ export function WaitlistForm() {
 
       <div className="mt-6 grid gap-5">
         <label className="block">
-          <span className="text-sm font-medium text-white/82">Name</span>
+          <span className="text-sm font-black text-[#140625]">Name</span>
           <input
             name="name"
             type="text"
@@ -80,26 +101,26 @@ export function WaitlistForm() {
             required
             minLength={2}
             placeholder="Your name or operator handle"
-            className="mt-2 h-12 w-full rounded-md border border-cyan-200/10 bg-graphite-950/80 px-3 text-white placeholder:text-white/28 outline-none transition focus:border-aurora-300 focus:ring-2 focus:ring-aurora-300/25"
+            className="mt-2 h-12 w-full rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 font-medium text-[#140625] placeholder:text-[#5a3b66]/45 outline-none transition focus:bg-white focus:ring-2 focus:ring-[#38e7ff]"
           />
           <FieldError message={state.errors?.name} />
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-white/82">Email</span>
+          <span className="text-sm font-black text-[#140625]">Email</span>
           <input
             name="email"
             type="email"
             autoComplete="email"
             required
             placeholder="you@example.com"
-            className="mt-2 h-12 w-full rounded-md border border-cyan-200/10 bg-graphite-950/80 px-3 text-white placeholder:text-white/28 outline-none transition focus:border-aurora-300 focus:ring-2 focus:ring-aurora-300/25"
+            className="mt-2 h-12 w-full rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 font-medium text-[#140625] placeholder:text-[#5a3b66]/45 outline-none transition focus:bg-white focus:ring-2 focus:ring-[#38e7ff]"
           />
           <FieldError message={state.errors?.email} />
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-white/82">
+          <span className="text-sm font-black text-[#140625]">
             Telegram username
           </span>
           <input
@@ -108,25 +129,25 @@ export function WaitlistForm() {
             autoComplete="off"
             required
             placeholder="@yourusername"
-            className="mt-2 h-12 w-full rounded-md border border-cyan-200/10 bg-graphite-950/80 px-3 text-white placeholder:text-white/28 outline-none transition focus:border-aurora-300 focus:ring-2 focus:ring-aurora-300/25"
+            className="mt-2 h-12 w-full rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 font-medium text-[#140625] placeholder:text-[#5a3b66]/45 outline-none transition focus:bg-white focus:ring-2 focus:ring-[#38e7ff]"
           />
           <FieldError message={state.errors?.telegram} />
         </label>
 
         <fieldset>
-          <legend className="text-sm font-medium text-white/82">Role</legend>
+          <legend className="text-sm font-black text-[#140625]">Role</legend>
           <div className="mt-2 grid gap-2 sm:grid-cols-3">
             {roles.map((role) => (
               <label
                 key={role}
-                className="flex min-h-12 cursor-pointer items-center gap-3 rounded-md border border-cyan-200/10 bg-graphite-950/70 px-3 text-sm text-white/72 transition has-[:checked]:border-aurora-300/60 has-[:checked]:bg-aurora-500/12 has-[:checked]:text-white"
+                className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 text-sm font-black text-[#140625] transition has-[:checked]:bg-[#ffdd3d]"
               >
                 <input
                   name="role"
                   type="radio"
                   value={role}
                   required
-                  className="h-4 w-4 border-white/25 bg-transparent text-aurora-400 focus:ring-aurora-300"
+                  className="h-4 w-4 border-[#140625] bg-transparent text-[#7c3cff] focus:ring-[#38e7ff]"
                 />
                 {role}
               </label>
@@ -136,24 +157,72 @@ export function WaitlistForm() {
         </fieldset>
 
         <label className="block">
-          <span className="text-sm font-medium text-white/82">
-            Specialty <span className="text-white/35">optional</span>
+          <span className="text-sm font-black text-[#140625]">
+            Specialty <span className="text-[#5a3b66]">optional</span>
           </span>
           <input
             name="specialty"
             type="text"
             maxLength={120}
             placeholder="Research, design, growth, data, ops..."
-            className="mt-2 h-12 w-full rounded-md border border-cyan-200/10 bg-graphite-950/80 px-3 text-white placeholder:text-white/28 outline-none transition focus:border-aurora-300 focus:ring-2 focus:ring-aurora-300/25"
+            className="mt-2 h-12 w-full rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 font-medium text-[#140625] placeholder:text-[#5a3b66]/45 outline-none transition focus:bg-white focus:ring-2 focus:ring-[#38e7ff]"
           />
           <FieldError message={state.errors?.specialty} />
         </label>
       </div>
 
+      <div className="mt-6 grid gap-3 rounded-lg border-2 border-dashed border-[#140625] bg-[#f2e6ff] p-4">
+        <p className="text-sm font-black uppercase text-[#140625]">
+          Social confirmation required
+        </p>
+        <label className="flex cursor-pointer gap-3 text-sm font-bold leading-6 text-[#140625]">
+          <input
+            type="checkbox"
+            checked={joinedTelegram}
+            onChange={(event) => setJoinedTelegram(event.target.checked)}
+            required
+            className="mt-1 h-4 w-4 shrink-0 rounded border-[#140625] text-[#7c3cff] focus:ring-[#38e7ff]"
+          />
+          <span>
+            I have joined the Bountix Telegram group{" "}
+            <a
+              href={telegramGroupUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-[#7c3cff] underline decoration-2 underline-offset-2"
+            >
+              open
+              <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
+            </a>
+          </span>
+        </label>
+        <label className="flex cursor-pointer gap-3 text-sm font-bold leading-6 text-[#140625]">
+          <input
+            type="checkbox"
+            checked={followedX}
+            onChange={(event) => setFollowedX(event.target.checked)}
+            required
+            className="mt-1 h-4 w-4 shrink-0 rounded border-[#140625] text-[#7c3cff] focus:ring-[#38e7ff]"
+          />
+          <span>
+            I have followed @bountixofc on X{" "}
+            <a
+              href={xUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-[#7c3cff] underline decoration-2 underline-offset-2"
+            >
+              open
+              <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
+            </a>
+          </span>
+        </label>
+      </div>
+
       <button
         type="submit"
-        disabled={isPending}
-        className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md border border-cyan-200/20 bg-gradient-to-r from-aurora-600 via-aurora-500 to-aurora-300 px-5 py-3 text-sm font-semibold text-white shadow-aurora-violet transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-aurora-300 focus:ring-offset-2 focus:ring-offset-graphite-950 disabled:cursor-not-allowed disabled:opacity-70"
+        disabled={!canSubmit}
+        className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ff4fb8] px-5 py-3 text-sm font-black uppercase text-white shadow-[5px_5px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#7c3cff] active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[#38e7ff] focus:ring-offset-2 focus:ring-offset-white disabled:cursor-not-allowed disabled:bg-[#c9c0d3] disabled:text-[#5a3b66] disabled:shadow-[3px_3px_0_#140625] disabled:hover:translate-y-0"
       >
         {isPending ? (
           <>
@@ -161,12 +230,15 @@ export function WaitlistForm() {
             Joining...
           </>
         ) : (
-          "Join Waitlist"
+          <>
+            <Check aria-hidden="true" className="h-4 w-4" />
+            Join Waitlist
+          </>
         )}
       </button>
 
-      <p className="mt-4 text-center text-sm leading-6 text-white/48">
-        After joining, enter the private Telegram group for launch updates.
+      <p className="mt-4 text-center text-sm font-medium leading-6 text-[#5a3b66]">
+        Both social confirmations must be checked before the form can submit.
       </p>
     </form>
   );
