@@ -14,14 +14,14 @@ export default function PostServicePage() {
       <section className="container-page grid min-h-[calc(100vh-5rem)] gap-8 py-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <div>
           <p className="comic-chip bg-[#ffdd3d]">
-            Creator workflow
+            Creator workflow preview
           </p>
           <h1 className="mt-5 max-w-2xl text-4xl font-black leading-tight text-[#140625] sm:text-6xl">
             Package your skill into a service offer.
           </h1>
           <p className="mt-5 max-w-xl text-base font-semibold leading-8 text-[#5a3b66]">
-            Service offers make repeatable internet work easier to discover,
-            negotiate, and convert into structured deals.
+            This is an early access preview of how creators will package
+            repeatable work. Listing opens to waitlist members at launch.
           </p>
           <div className="mt-8 grid max-w-xl gap-3 text-sm font-black text-[#140625] sm:grid-cols-3">
             {["Scope", "Starting price", "Inquiry flow"].map((item) => (

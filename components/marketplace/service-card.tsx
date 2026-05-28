@@ -4,6 +4,7 @@ import {
   NegotiableBadge,
   PaymentBadge,
   TaskTypeBadge,
+  WaitlistOnlyBadge,
 } from "@/components/marketplace/badges";
 import type { Service } from "@/lib/marketplace";
 
@@ -38,6 +39,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
           <TaskTypeBadge type="service" />
           <PaymentBadge type={service.paymentType} />
           <NegotiableBadge negotiable={service.negotiable} />
+          <WaitlistOnlyBadge variant="early" />
         </div>
         <div className="mt-5 flex items-start justify-between gap-4">
           <div className="flex min-w-0 items-start gap-3">
@@ -71,13 +73,16 @@ export function ServiceCard({ service }: ServiceCardProps) {
           </span>
           <button
             type="button"
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-3 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5"
+            disabled
+            aria-disabled="true"
+            title="Bountix is in waitlist-only preview"
+            className="inline-flex min-h-10 cursor-not-allowed items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-3 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] opacity-90"
           >
             <MessageSquareText
               aria-hidden="true"
               className="h-4 w-4 text-[#7c3cff]"
             />
-            Request service
+            Join waitlist to request
           </button>
         </div>
       </div>

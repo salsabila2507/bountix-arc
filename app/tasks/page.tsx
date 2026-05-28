@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { LockKeyhole, Radio } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Hourglass, LockKeyhole, Sparkles } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { TaskCard } from "@/components/marketplace/task-card";
 import { TaskFilters } from "@/components/marketplace/filters";
@@ -8,9 +9,9 @@ import { tasks } from "@/lib/marketplace";
 const assetBase = "/bountix-comic/bountix_assets_ready";
 
 export const metadata = {
-  title: "Browse Tasks",
+  title: "Bounty Preview",
   description:
-    "Browse Bountix tasks across research, growth, operations, QA, and execution work.",
+    "Preview examples of Bountix bounties across research, growth, operations, QA, and execution work. Waitlist-only early access.",
 };
 
 export default function TasksPage() {
@@ -32,20 +33,34 @@ export default function TasksPage() {
           </div>
           <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="comic-chip bg-[#38e7ff]">
-                <Radio aria-hidden="true" className="h-3.5 w-3.5" />
-                Live bounty board
+              <p className="comic-chip bg-[#ff4fb8] text-white">
+                <Hourglass aria-hidden="true" className="h-3.5 w-3.5" />
+                Waitlist-only preview
               </p>
               <h1 className="mt-5 max-w-3xl text-5xl font-black leading-[0.95] text-[#140625] sm:text-7xl">
-                Featured Bounties
+                Bounty Preview
               </h1>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-8 text-[#3c214b] sm:text-xl">
-                Pick a task, submit proof, and earn rewards.
+                Bountix marketplace is currently in waitlist-only preview. Join
+                the waitlist to get early access when bounties go live.
               </p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link
+                  href="/waitlist"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ff4fb8] px-4 py-2 text-sm font-black uppercase text-white shadow-[4px_4px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#7c3cff]"
+                >
+                  Join Waitlist
+                  <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                </Link>
+                <span className="inline-flex min-h-11 items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-4 py-2 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625]">
+                  <Sparkles aria-hidden="true" className="h-4 w-4 text-[#7c3cff]" />
+                  Early Access Preview
+                </span>
+              </div>
             </div>
             <div className="grid gap-3 text-sm font-bold leading-6 text-[#5a3b66] sm:grid-cols-3 lg:max-w-md lg:grid-cols-1">
               {[
-                ["Open tasks", String(tasks.length)],
+                ["Preview tasks", String(tasks.length)],
                 ["Negotiable", "2"],
                 ["Escrow-ready", "2"],
               ].map(([label, value]) => (
@@ -64,7 +79,7 @@ export default function TasksPage() {
                   aria-hidden="true"
                   className="mb-2 h-4 w-4 text-[#7c3cff]"
                 />
-                Funds will be locked before work starts and released after
+                Funds will lock in escrow before work starts and release after
                 approval.
               </div>
             </div>

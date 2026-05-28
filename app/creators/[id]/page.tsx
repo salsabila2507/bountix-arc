@@ -140,16 +140,16 @@ export default async function CreatorDetailPage({
                 Request a service
               </h2>
               <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-                Send the creator your scope, timing, and budget to start a clear
-                deal.
+                Bountix marketplace is currently in waitlist-only preview. Join
+                the waitlist to send scope, timing, and budget when it opens.
               </p>
-              <button
-                type="button"
+              <Link
+                href="/waitlist"
                 className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-4 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#ffdd3d]"
               >
                 <MessageSquareText aria-hidden="true" className="h-4 w-4" />
-                Request service
-              </button>
+                Join waitlist to request
+              </Link>
             </div>
 
             <div className="comic-card-soft bg-[#fffaf4] p-5">

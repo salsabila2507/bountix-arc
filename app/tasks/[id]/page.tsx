@@ -12,6 +12,7 @@ import {
   PaymentBadge,
   StatusBadge,
   TaskTypeBadge,
+  WaitlistOnlyBadge,
 } from "@/components/marketplace/badges";
 import { SubmissionForm } from "@/components/marketplace/submission-form";
 import { SiteHeader } from "@/components/site-header";
@@ -68,6 +69,12 @@ export default async function TaskDetailPage({
               <PaymentBadge type={task.paymentType} />
               <StatusBadge status={task.status} />
               <NegotiableBadge negotiable={task.negotiable} />
+              <WaitlistOnlyBadge />
+            </div>
+
+            <div className="mt-5 rounded-lg border-2 border-[#140625] bg-[#f1d8ff] px-4 py-3 text-sm font-black leading-6 text-[#140625] shadow-[4px_4px_0_#140625]">
+              Bountix marketplace is currently in waitlist-only preview. Join
+              the waitlist to get early access.
             </div>
 
             <p className="mt-8 text-xs font-black uppercase text-[#7c3cff]">
@@ -147,17 +154,20 @@ export default async function TaskDetailPage({
 
           <aside className="grid h-fit gap-4">
             <div className="comic-card-soft bg-white p-5">
-              <h2 className="text-lg font-black text-[#140625]">Apply to task</h2>
+              <h2 className="text-lg font-black text-[#140625]">
+                Apply to this preview
+              </h2>
               <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-                Share your approach, timeline, and proof of relevant work.
+                Applications open after early access. Join the waitlist to be
+                first in line when this bounty type goes live.
               </p>
-              <button
-                type="button"
+              <Link
+                href="/waitlist"
                 className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ffdd3d] px-4 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#38e7ff]"
               >
                 <Users aria-hidden="true" className="h-4 w-4" />
-                Start deal
-              </button>
+                Join waitlist to start
+              </Link>
             </div>
 
             <div className="comic-card-soft bg-[#fffaf4] p-5">

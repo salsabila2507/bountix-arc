@@ -2,6 +2,7 @@ import {
   BadgeCheck,
   CircleDollarSign,
   Handshake,
+  Hourglass,
   LockKeyhole,
   RotateCcw,
   Sparkles,
@@ -92,6 +93,37 @@ export function FutureBadge({ children }: { children: React.ReactNode }) {
     <Badge className="bg-[#fff8ed] text-[#5a3b66]">
       <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
       {children}
+    </Badge>
+  );
+}
+
+export function WaitlistOnlyBadge({
+  variant = "waitlist",
+}: {
+  variant?: "waitlist" | "preview" | "early";
+}) {
+  if (variant === "preview") {
+    return (
+      <Badge className="bg-[#38e7ff]">
+        <Sparkles aria-hidden="true" className="h-3.5 w-3.5 text-[#7c3cff]" />
+        Preview
+      </Badge>
+    );
+  }
+
+  if (variant === "early") {
+    return (
+      <Badge className="bg-[#f1d8ff]">
+        <Hourglass aria-hidden="true" className="h-3.5 w-3.5 text-[#7c3cff]" />
+        Early Access
+      </Badge>
+    );
+  }
+
+  return (
+    <Badge className="bg-[#ff4fb8] text-white">
+      <LockKeyhole aria-hidden="true" className="h-3.5 w-3.5" />
+      Waitlist Only
     </Badge>
   );
 }

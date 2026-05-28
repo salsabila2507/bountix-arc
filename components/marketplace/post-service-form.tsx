@@ -70,9 +70,12 @@ export function PostServiceForm() {
 
       <button
         type="button"
-        className="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-5 py-3 text-sm font-black uppercase text-[#140625] shadow-[5px_5px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#ffdd3d]"
+        disabled
+        aria-disabled="true"
+        title="Bountix is in waitlist-only preview"
+        className="mt-6 inline-flex min-h-12 w-full cursor-not-allowed items-center justify-center rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-5 py-3 text-sm font-black uppercase text-[#140625] shadow-[5px_5px_0_#140625] opacity-90"
       >
-        Request service
+        Join waitlist to request
       </button>
     </form>
   );

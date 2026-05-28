@@ -133,6 +133,77 @@ body::after {
     background-size: 12px 12px;
   }
 
+  .task-carousel-wrap {
+    width: 100%;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 6%,
+      #000 94%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 6%,
+      #000 94%,
+      transparent 100%
+    );
+  }
+
+  .task-carousel-track {
+    width: max-content;
+    animation: task-carousel-scroll 48s linear infinite;
+    will-change: transform;
+  }
+
+  .task-carousel-wrap:hover .task-carousel-track {
+    animation-play-state: paused;
+  }
+
+  .task-carousel-card {
+    transition: transform 0.2s ease;
+  }
+
+  .task-carousel-card:hover {
+    transform: translateY(-3px) rotate(-1deg);
+  }
+
+  .task-carousel-fade {
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 56px;
+    z-index: 2;
+  }
+
+  .task-carousel-fade-left {
+    left: 0;
+    background: linear-gradient(to right, rgba(124, 60, 255, 1), rgba(124, 60, 255, 0));
+  }
+
+  .task-carousel-fade-right {
+    right: 0;
+    background: linear-gradient(to left, rgba(124, 60, 255, 1), rgba(124, 60, 255, 0));
+  }
+
+  @keyframes task-carousel-scroll {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .task-carousel-track {
+      animation: none;
+    }
+  }
+
   .panel {
     @apply border border-cyan-200/10 bg-white/[0.06] shadow-panel backdrop-blur-2xl;
   }

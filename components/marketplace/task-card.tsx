@@ -6,6 +6,7 @@ import {
   PaymentBadge,
   StatusBadge,
   TaskTypeBadge,
+  WaitlistOnlyBadge,
 } from "@/components/marketplace/badges";
 import type { Task } from "@/lib/marketplace";
 
@@ -45,6 +46,7 @@ export function TaskCard({ task }: TaskCardProps) {
           <PaymentBadge type={task.paymentType} />
           <StatusBadge status={task.status} />
           <NegotiableBadge negotiable={task.negotiable} />
+          <WaitlistOnlyBadge />
         </div>
 
         <div className="mt-5 flex items-start justify-between gap-4">
@@ -101,7 +103,7 @@ export function TaskCard({ task }: TaskCardProps) {
         </div>
 
         <span className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#7c3cff]">
-          View bounty
+          Preview bounty
           <ArrowRight
             aria-hidden="true"
             className="h-4 w-4 transition group-hover:translate-x-0.5"

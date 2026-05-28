@@ -183,7 +183,7 @@ export function HeroSection() {
                 href="/tasks"
                 className="bg-[#ffdd3d] text-[#140625] hover:bg-[#38e7ff]"
               >
-                Explore Bounties
+                Explore Preview
               </ButtonLink>
             </div>
 
@@ -219,7 +219,7 @@ export function HeroSection() {
               <div className="relative mx-auto flex aspect-[1.06] max-h-[520px] min-h-[300px] items-center justify-center rounded-lg border-2 border-[#140625] bg-[#fffaf4] shadow-[10px_10px_0_#140625]">
                 <div className="halftone-mask absolute inset-0 opacity-18" />
                 <div className="absolute left-4 top-4 rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-3 py-2 text-xs font-black text-[#140625] shadow-[3px_3px_0_#140625]">
-                  LIVE BOUNTIES
+                  BOUNTY PREVIEW
                 </div>
                 <Image
                   src={`${assetBase}/bountix-hero-emblem.png`}

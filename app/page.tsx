@@ -13,6 +13,7 @@ import {
   Zap,
 } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button";
+import { TaskCarousel } from "@/components/landing/task-carousel";
 
 const assetBase = "/bountix-comic/bountix_assets_ready";
 const telegramGroupUrl = "https://t.me/+V78fuYlQNvcxYTNl";
@@ -205,7 +206,10 @@ function BountyCard({ bounty }: { bounty: (typeof bountyCards)[number] }) {
           className="h-12 w-12 shrink-0 object-contain"
         />
       </div>
-      <h3 className="relative mt-5 min-h-14 text-xl font-black leading-tight text-[#17072b]">
+      <span className="relative mt-3 inline-flex items-center gap-1 rounded-md border-2 border-[#17072b] bg-[#ff4fb8] px-2 py-0.5 text-[0.65rem] font-black uppercase text-white shadow-[2px_2px_0_#17072b]">
+        Waitlist Only
+      </span>
+      <h3 className="relative mt-3 min-h-14 text-xl font-black leading-tight text-[#17072b]">
         {bounty.title}
       </h3>
       <p className="relative mt-3 line-clamp-3 min-h-[4.5rem] text-sm font-bold leading-6 text-[#5a3b66]">
@@ -342,7 +346,7 @@ export default function Home() {
               <div className="mt-5 grid gap-3 sm:flex">
                 <ComicButton href="/waitlist">Join Waitlist</ComicButton>
                 <ComicButton href="/tasks" variant="yellow">
-                  Explore Bounties
+                  Explore Preview
                 </ComicButton>
               </div>
             </div>
@@ -388,22 +392,27 @@ export default function Home() {
           </div>
         </section>
 
+        <TaskCarousel />
+
         <section id="explore" className="bg-[#fff7e8] px-4 py-8 sm:px-6 lg:px-10">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="inline-flex items-center gap-2 rounded-lg border-2 border-[#17072b] bg-[#38e7ff] px-3 py-1.5 text-xs font-black uppercase shadow-[3px_3px_0_#17072b]">
                 <Bolt aria-hidden="true" className="h-4 w-4" />
-                Featured
+                Featured · Preview
               </p>
               <h2 className="mt-3 text-4xl font-black uppercase leading-none sm:text-5xl">
                 FEATURED BOUNTIES
               </h2>
+              <p className="mt-3 max-w-2xl text-sm font-bold leading-6 text-[#5a3b66] sm:text-base">
+                Preview examples of what people will be able to post on Bountix.
+              </p>
             </div>
             <Link
               href="/tasks"
               className="hidden items-center gap-2 text-sm font-black uppercase text-[#6f3cff] md:inline-flex"
             >
-              View all bounties
+              View bounty preview
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </Link>
           </div>

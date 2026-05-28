@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, Clock3, Sparkles } from "lucide-react";
-import { PaymentBadge } from "@/components/marketplace/badges";
+import { PaymentBadge, WaitlistOnlyBadge } from "@/components/marketplace/badges";
 import type { Creator } from "@/lib/marketplace";
 
 type CreatorCardProps = {
@@ -44,6 +44,10 @@ export function CreatorCard({ creator }: CreatorCardProps) {
           ) : (
             <PaymentBadge type="regular" />
           )}
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          <WaitlistOnlyBadge variant="preview" />
         </div>
 
         <p className="mt-5 text-xs font-black uppercase text-[#7c3cff]">
@@ -95,7 +99,7 @@ export function CreatorCard({ creator }: CreatorCardProps) {
         </div>
 
         <span className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#7c3cff]">
-          Start deal
+          Preview profile
           <ArrowRight
             aria-hidden="true"
             className="h-4 w-4 transition group-hover:translate-x-0.5"
