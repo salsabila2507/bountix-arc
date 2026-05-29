@@ -2,30 +2,42 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://bountix.xyz"),
+  metadataBase: new URL("https://www.bountix.xyz"),
   title: {
-    default: "Bountix | Internet work needs better coordination",
+    default: "Bountix | Global Tasks. Real-World Help.",
     template: "%s | Bountix",
   },
   description:
-    "Bountix is the premium coordination layer for internet work. Post tasks, prove execution, and build public operator reputation.",
+    "Bountix is a global task marketplace where anyone can post tasks, request real-world help, and join the waitlist for early access.",
+  keywords: [
+    "Bountix",
+    "global task marketplace",
+    "task rewards",
+    "USDC",
+    "Base",
+    "online tasks",
+    "local help",
+    "creator marketplace",
+  ],
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: "/bountix-comic/bountix_assets_ready/bountix-app-icon.png",
+    apple: "/bountix-comic/bountix_assets_ready/bountix-app-icon.png",
   },
   openGraph: {
-    title: "Bountix",
-    description: "Post tasks. Prove execution. Earn anywhere.",
-    url: "https://bountix.xyz",
+    title: "Bountix | Global Tasks. Real-World Help.",
+    description:
+      "Post tasks, complete gigs, and earn rewards. Bountix is building a global task marketplace for online tasks, local help, and real-world requests.",
+    url: "https://www.bountix.xyz",
     siteName: "Bountix",
     type: "website",
-    images: ["/logo.png"],
+    images: ["/bountix-comic/hero-logo-latest.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bountix",
-    description: "Post tasks. Prove execution. Earn anywhere.",
-    images: ["/logo.png"],
+    title: "Bountix | Global Tasks. Real-World Help.",
+    description:
+      "Ask people to do almost anything, from anywhere. Join the Bountix waitlist.",
+    images: ["/bountix-comic/hero-logo-latest.png"],
   },
 };
 
