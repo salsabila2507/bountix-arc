@@ -44,6 +44,10 @@ export default function TasksPage() {
                 Bountix marketplace is currently in waitlist-only preview. Join
                 the waitlist to get early access when bounties go live.
               </p>
+              <p className="mt-3 max-w-2xl text-sm font-bold leading-6 text-[#3c214b]">
+                Early access preview — USDC payments on Base are planned for
+                future task rewards.
+              </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link
                   href="/waitlist"

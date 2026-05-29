@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Coins } from "lucide-react";
 import { WaitlistForm } from "@/components/waitlist-form";
 
 const assetBase = "/bountix-comic/bountix_assets_ready";
@@ -55,6 +55,23 @@ export default function WaitlistPage() {
               </div>
               <div className="comic-card-soft bg-[#f2e6ff] p-4">
                 Portable reputation
+              </div>
+            </div>
+
+            <div className="mt-6 max-w-xl rounded-lg border-2 border-[#140625] bg-white p-4 shadow-[5px_5px_0_#140625]">
+              <div className="flex items-start gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border-2 border-[#140625] bg-[#0d3a86] text-white shadow-[3px_3px_0_#140625]">
+                  <Coins aria-hidden="true" className="h-5 w-5" />
+                </span>
+                <div>
+                  <p className="text-sm font-black uppercase leading-tight text-[#140625]">
+                    Interested in USDC payments on Base?
+                  </p>
+                  <p className="mt-2 text-xs font-bold leading-6 text-[#3c214b]">
+                    Join the waitlist to follow Bountix&apos;s path toward
+                    Base-powered task rewards.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

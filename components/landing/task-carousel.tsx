@@ -17,7 +17,7 @@ const carouselTasks: CarouselTask[] = [
   {
     title: "Follow & repost a launch post",
     category: "SOCIAL",
-    reward: "15 USDT",
+    reward: "15 USDC",
     badge: "Waitlist Only",
     cardColor: "bg-[#fff7e8]",
     badgeColor: "bg-[#38e7ff]",
@@ -35,7 +35,7 @@ const carouselTasks: CarouselTask[] = [
   {
     title: "Find my missing dog",
     category: "LOCAL",
-    reward: "150 USDT",
+    reward: "150 USDC",
     badge: "Waitlist Only",
     cardColor: "bg-[#fff7e8]",
     badgeColor: "bg-[#ffdd3d]",
@@ -44,7 +44,7 @@ const carouselTasks: CarouselTask[] = [
   {
     title: "Buy & ship an item from Tokyo",
     category: "JASTIP",
-    reward: "45 USDT",
+    reward: "45 USDC",
     badge: "Preview",
     cardColor: "bg-[#e7f9ff]",
     badgeColor: "bg-[#7c3cff] text-white",
@@ -62,7 +62,7 @@ const carouselTasks: CarouselTask[] = [
   {
     title: "Create a meme for Bountix",
     category: "CREATIVE",
-    reward: "40 USDT",
+    reward: "40 USDC",
     badge: "Preview",
     cardColor: "bg-[#f5e8ff]",
     badgeColor: "bg-[#f0d7ff]",
@@ -80,7 +80,7 @@ const carouselTasks: CarouselTask[] = [
   {
     title: "Find a local event venue",
     category: "LOCAL",
-    reward: "60 USDT",
+    reward: "60 USDC",
     badge: "Preview",
     cardColor: "bg-[#fff7e8]",
     badgeColor: "bg-[#ffdd3d]",
@@ -118,8 +118,15 @@ function CarouselCard({ task }: { task: CarouselTask }) {
         </h3>
       </div>
       <div className="mt-auto flex items-center justify-between gap-2 border-t-2 border-dashed border-[#17072b]/30 pt-3">
-        <span className="rounded-md border-2 border-[#17072b] bg-[#ffdd3d] px-2.5 py-1 text-xs font-black text-[#17072b] shadow-[2px_2px_0_#17072b]">
+        <span className="inline-flex items-center gap-1.5 rounded-md border-2 border-[#17072b] bg-[#ffdd3d] px-2.5 py-1 text-xs font-black text-[#17072b] shadow-[2px_2px_0_#17072b]">
           {task.reward}
+          <Image
+            src="/bountix-comic/base-icon.png"
+            alt="Base"
+            width={14}
+            height={14}
+            className="h-3.5 w-3.5 object-contain"
+          />
         </span>
         <span className="text-[0.65rem] font-black uppercase text-[#7c3cff]">
           Reward

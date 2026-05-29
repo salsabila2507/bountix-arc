@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -75,6 +76,9 @@ export default async function TaskDetailPage({
             <div className="mt-5 rounded-lg border-2 border-[#140625] bg-[#f1d8ff] px-4 py-3 text-sm font-black leading-6 text-[#140625] shadow-[4px_4px_0_#140625]">
               Bountix marketplace is currently in waitlist-only preview. Join
               the waitlist to get early access.
+              <span className="mt-2 block text-xs font-bold leading-5 text-[#3c214b]">
+                USDC payments on Base are planned for future task rewards.
+              </span>
             </div>
 
             <p className="mt-8 text-xs font-black uppercase text-[#7c3cff]">
@@ -101,8 +105,17 @@ export default async function TaskDetailPage({
                   <p className="text-xs font-black uppercase text-[#5a3b66]">
                     {label}
                   </p>
-                  <p className="mt-2 text-lg font-black text-[#140625]">
+                  <p className="mt-2 inline-flex items-center gap-1.5 text-lg font-black text-[#140625]">
                     {value}
+                    {label === "Budget" && (
+                      <Image
+                        src="/bountix-comic/base-icon.png"
+                        alt="Base"
+                        width={18}
+                        height={18}
+                        className="h-[18px] w-[18px] object-contain"
+                      />
+                    )}
                   </p>
                 </div>
               ))}

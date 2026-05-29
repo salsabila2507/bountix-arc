@@ -5,6 +5,8 @@ import {
   Bolt,
   CheckCircle2,
   Clock3,
+  Coins,
+  Globe2,
   LockKeyhole,
   MessageCircle,
   Rocket,
@@ -64,7 +66,7 @@ const bountyCards = [
     title: "Follow & repost a launch post",
     description:
       "Help a new project get visibility by following and reposting the launch post.",
-    reward: "15 USDT",
+    reward: "15 USDC",
     category: "SOCIAL",
     icon: `${assetBase}/icon-marketing.png`,
     color: "bg-[#38e7ff]",
@@ -84,7 +86,7 @@ const bountyCards = [
     title: "Find my missing dog",
     description:
       "Help spread the word, check nearby areas, and report useful leads.",
-    reward: "150 USDT",
+    reward: "150 USDC",
     category: "LOCAL",
     icon: `${assetBase}/icon-community.png`,
     color: "bg-[#ffdd3d]",
@@ -93,7 +95,7 @@ const bountyCards = [
   {
     title: "Create a meme for Bountix",
     description: "Make a funny meme that explains Bountix in one image.",
-    reward: "40 USDT",
+    reward: "40 USDC",
     category: "CREATIVE",
     icon: `${assetBase}/icon-writing.png`,
     color: "bg-[#f0d7ff]",
@@ -216,9 +218,22 @@ function BountyCard({ bounty }: { bounty: (typeof bountyCards)[number] }) {
         {bounty.description}
       </p>
       <div className="relative mt-5 flex items-center justify-between gap-3 border-t-2 border-dashed border-[#17072b]/25 pt-4">
-        <span className="rounded-lg border-2 border-[#17072b] bg-[#ffdd3d] px-3 py-2 text-sm font-black text-[#17072b]">
-          {bounty.reward}
-        </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-lg border-2 border-[#17072b] bg-[#ffdd3d] px-3 py-2 text-sm font-black text-[#17072b]">
+            {bounty.reward}
+            <Image
+              src="/bountix-comic/base-icon.png"
+              alt="Base"
+              width={16}
+              height={16}
+              className="h-4 w-4 object-contain"
+            />
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-md border-2 border-[#17072b] bg-[#0d3a86] px-2 py-1 text-[0.6rem] font-black uppercase tracking-wide text-white shadow-[2px_2px_0_#17072b]">
+            <Coins aria-hidden="true" className="h-3 w-3" />
+            USDC-ready
+          </span>
+        </div>
         <span className="flex items-center gap-2 text-xs font-black text-[#5a3b66]">
           <span className="flex -space-x-2">
             <span className="h-6 w-6 rounded-full border-2 border-[#17072b] bg-[#38e7ff]" />
@@ -358,8 +373,8 @@ export default function Home() {
               <div className="absolute right-2 top-2 z-10 h-[210px] w-[210px] rounded-[1rem] border-2 border-[#17072b] bg-white shadow-[8px_8px_0_#000] sm:right-14 sm:top-8 sm:h-[330px] sm:w-[330px] lg:right-16 lg:h-[430px] lg:w-[430px]">
                 <div className="absolute inset-0 bg-[radial-gradient(rgba(23,7,43,0.16)_1px,transparent_1.6px)] bg-[length:13px_13px]" />
                 <Image
-                  src={`${assetBase}/bountix-hero-emblem.png`}
-                  alt="Bountix hero emblem"
+                  src="/bountix-comic/hero-logo-latest.png"
+                  alt="Bountix"
                   width={520}
                   height={520}
                   priority
@@ -435,6 +450,89 @@ export default function Home() {
             {bountyCards.map((bounty) => (
               <BountyCard key={bounty.title} bounty={bounty} />
             ))}
+          </div>
+        </section>
+
+        <section
+          id="base-ready"
+          className="relative overflow-hidden border-y-2 border-[#17072b] bg-[#0d3a86] px-4 py-10 text-white sm:px-6 sm:py-12 lg:px-10"
+        >
+          <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.18)_1px,transparent_1.6px)] bg-[length:14px_14px] opacity-50" />
+          <div className="relative mx-auto max-w-[1180px]">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="inline-flex items-center gap-2 rounded-lg border-2 border-[#17072b] bg-[#38e7ff] px-3 py-1.5 text-xs font-black uppercase text-[#17072b] shadow-[3px_3px_0_#17072b]">
+                  <Coins aria-hidden="true" className="h-4 w-4" />
+                  Base-ready roadmap
+                </p>
+                <h2 className="mt-3 text-3xl font-black uppercase leading-none drop-shadow-[3px_3px_0_#17072b] sm:text-5xl">
+                  Base-ready rewards are coming
+                </h2>
+                <p className="mt-3 max-w-2xl text-sm font-bold leading-7 text-white/90 sm:text-base">
+                  Bountix is exploring Base as the payment layer for global
+                  internet work, starting with USDC task rewards and future
+                  escrow-protected deals.
+                </p>
+              </div>
+              <div className="hidden items-center gap-2 rounded-lg border-2 border-[#17072b] bg-white px-3 py-2 text-xs font-black uppercase text-[#17072b] shadow-[3px_3px_0_#17072b] sm:inline-flex">
+                <Globe2 aria-hidden="true" className="h-4 w-4" />
+                Bringing internet work onchain
+              </div>
+            </div>
+
+            <div className="mt-7 grid gap-4 lg:grid-cols-3">
+              <article className="rounded-[1rem] border-2 border-[#17072b] bg-[#fff7e8] p-5 text-[#17072b] shadow-[6px_6px_0_#17072b]">
+                <span className="flex h-12 w-12 items-center justify-center rounded-lg border-2 border-[#17072b] bg-[#38e7ff] shadow-[3px_3px_0_#17072b]">
+                  <Coins aria-hidden="true" className="h-6 w-6" />
+                </span>
+                <h3 className="mt-4 text-2xl font-black uppercase leading-tight">
+                  USDC on Base
+                </h3>
+                <p className="mt-2 text-sm font-bold leading-6 text-[#5a3b66]">
+                  A simple payment layer for global task rewards.
+                </p>
+                <span className="mt-4 inline-flex rounded-md border-2 border-[#17072b] bg-[#ffdd3d] px-2 py-0.5 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#17072b]">
+                  Planned
+                </span>
+              </article>
+
+              <article className="rounded-[1rem] border-2 border-[#17072b] bg-[#fff7e8] p-5 text-[#17072b] shadow-[6px_6px_0_#17072b]">
+                <span className="flex h-12 w-12 items-center justify-center rounded-lg border-2 border-[#17072b] bg-[#ffdd3d] shadow-[3px_3px_0_#17072b]">
+                  <LockKeyhole aria-hidden="true" className="h-6 w-6" />
+                </span>
+                <h3 className="mt-4 text-2xl font-black uppercase leading-tight">
+                  Future Escrow Protection
+                </h3>
+                <p className="mt-2 text-sm font-bold leading-6 text-[#5a3b66]">
+                  Funds can be locked before work starts and released after
+                  approval.
+                </p>
+                <span className="mt-4 inline-flex rounded-md border-2 border-[#17072b] bg-[#ff4fb8] px-2 py-0.5 text-[0.65rem] font-black uppercase text-white shadow-[2px_2px_0_#17072b]">
+                  Future release
+                </span>
+              </article>
+
+              <article className="rounded-[1rem] border-2 border-[#17072b] bg-[#fff7e8] p-5 text-[#17072b] shadow-[6px_6px_0_#17072b]">
+                <span className="flex h-12 w-12 items-center justify-center rounded-lg border-2 border-[#17072b] bg-[#f0d7ff] shadow-[3px_3px_0_#17072b]">
+                  <ShieldCheck aria-hidden="true" className="h-6 w-6" />
+                </span>
+                <h3 className="mt-4 text-2xl font-black uppercase leading-tight">
+                  Onchain Work Reputation
+                </h3>
+                <p className="mt-2 text-sm font-bold leading-6 text-[#5a3b66]">
+                  A path toward verifiable work history for creators and
+                  operators.
+                </p>
+                <span className="mt-4 inline-flex rounded-md border-2 border-[#17072b] bg-white px-2 py-0.5 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#17072b]">
+                  Roadmap
+                </span>
+              </article>
+            </div>
+
+            <p className="mt-6 max-w-3xl text-xs font-bold leading-6 text-white/75">
+              Early access preview. No live payments yet. Escrow-protected task
+              rewards are planned for a future release.
+            </p>
           </div>
         </section>
 
@@ -556,6 +654,10 @@ export default function Home() {
                 </h2>
                 <p className="mt-4 max-w-xl text-base font-bold leading-7 text-[#5a3b66]">
                   Join the waitlist and be the first to access Bountix.
+                </p>
+                <p className="mt-3 max-w-xl text-sm font-bold leading-6 text-[#5a3b66]">
+                  Join early to follow Bountix&apos;s Base-ready payment
+                  roadmap.
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[320px] lg:grid-cols-1">
