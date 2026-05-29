@@ -8,6 +8,7 @@ export type FieldErrors = {
   telegram?: string;
   role?: string;
   specialty?: string;
+  confirmations?: string;
 };
 
 export type WaitlistFormState = {
@@ -30,6 +31,13 @@ export function validateWaitlistForm(formData: FormData) {
   const telegram = telegramInput.startsWith("@")
     ? telegramInput
     : `@${telegramInput}`;
+
+  const joinedTelegram = formData.get("joined_telegram") === "true";
+  const followedX = formData.get("followed_x") === "true";
+  const repostedAnnouncement = formData.get("reposted_announcement") === "true";
+  const commentedAnnouncement =
+    formData.get("commented_announcement") === "true";
+
   const errors: FieldErrors = {};
 
   if (name.length < 2) {
@@ -52,6 +60,16 @@ export function validateWaitlistForm(formData: FormData) {
     errors.specialty = "Keep specialties under 120 characters.";
   }
 
+  if (
+    !joinedTelegram ||
+    !followedX ||
+    !repostedAnnouncement ||
+    !commentedAnnouncement
+  ) {
+    errors.confirmations =
+      "All four social confirmations are required to join the waitlist.";
+  }
+
   return {
     data: {
       name,
@@ -59,6 +77,10 @@ export function validateWaitlistForm(formData: FormData) {
       telegram_username: telegram,
       role: role as WaitlistRole,
       specialty: specialty || null,
+      joined_telegram: joinedTelegram,
+      followed_x: followedX,
+      reposted_announcement: repostedAnnouncement,
+      commented_announcement: commentedAnnouncement,
     },
     errors,
     isValid: Object.keys(errors).length === 0,

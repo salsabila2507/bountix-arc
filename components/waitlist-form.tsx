@@ -14,6 +14,8 @@ import { initialWaitlistState, roles } from "@/lib/waitlist";
 
 const telegramGroupUrl = "https://t.me/+V78fuYlQNvcxYTNl";
 const xUrl = "https://x.com/bountixofc";
+const announcementUrl =
+  "https://x.com/Bountixofc/status/2060249739686551790?s=20";
 
 function FieldError({ message }: { message?: string }) {
   if (!message) {
@@ -30,7 +32,14 @@ export function WaitlistForm() {
   );
   const [joinedTelegram, setJoinedTelegram] = useState(false);
   const [followedX, setFollowedX] = useState(false);
-  const canSubmit = joinedTelegram && followedX && !isPending;
+  const [repostedAnnouncement, setRepostedAnnouncement] = useState(false);
+  const [commentedAnnouncement, setCommentedAnnouncement] = useState(false);
+  const canSubmit =
+    joinedTelegram &&
+    followedX &&
+    repostedAnnouncement &&
+    commentedAnnouncement &&
+    !isPending;
 
   if (state.status === "success") {
     return (
@@ -217,7 +226,66 @@ export function WaitlistForm() {
             </a>
           </span>
         </label>
+        <label className="flex cursor-pointer gap-3 text-sm font-bold leading-6 text-[#140625]">
+          <input
+            type="checkbox"
+            checked={repostedAnnouncement}
+            onChange={(event) => setRepostedAnnouncement(event.target.checked)}
+            required
+            className="mt-1 h-4 w-4 shrink-0 rounded border-[#140625] text-[#7c3cff] focus:ring-[#38e7ff]"
+          />
+          <span>
+            I have reposted the official waitlist announcement{" "}
+            <a
+              href={announcementUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-[#7c3cff] underline decoration-2 underline-offset-2"
+            >
+              open
+              <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
+            </a>
+          </span>
+        </label>
+        <label className="flex cursor-pointer gap-3 text-sm font-bold leading-6 text-[#140625]">
+          <input
+            type="checkbox"
+            checked={commentedAnnouncement}
+            onChange={(event) => setCommentedAnnouncement(event.target.checked)}
+            required
+            className="mt-1 h-4 w-4 shrink-0 rounded border-[#140625] text-[#7c3cff] focus:ring-[#38e7ff]"
+          />
+          <span>
+            I have commented on the official waitlist announcement{" "}
+            <a
+              href={announcementUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-[#7c3cff] underline decoration-2 underline-offset-2"
+            >
+              open
+              <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
+            </a>
+          </span>
+        </label>
+        {state.errors?.confirmations ? (
+          <FieldError message={state.errors.confirmations} />
+        ) : null}
       </div>
+
+      {/* Hidden inputs to pass confirmation state to server */}
+      <input type="hidden" name="joined_telegram" value={String(joinedTelegram)} />
+      <input type="hidden" name="followed_x" value={String(followedX)} />
+      <input
+        type="hidden"
+        name="reposted_announcement"
+        value={String(repostedAnnouncement)}
+      />
+      <input
+        type="hidden"
+        name="commented_announcement"
+        value={String(commentedAnnouncement)}
+      />
 
       <button
         type="submit"
@@ -238,7 +306,8 @@ export function WaitlistForm() {
       </button>
 
       <p className="mt-4 text-center text-sm font-medium leading-6 text-[#5a3b66]">
-        Both social confirmations must be checked before the form can submit.
+        All four social confirmations must be checked before the form can
+        submit.
       </p>
     </form>
   );
