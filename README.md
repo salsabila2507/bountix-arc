@@ -2,6 +2,10 @@
 
 Phase 1 waitlist landing page for [bountix.xyz](https://bountix.xyz).
 
+> **Read before contributing:** [`docs/constraints.md`](docs/constraints.md) —
+> Supabase free-tier rules, payment direction (USDC on Base only),
+> waitlist protection, migration policy, and design lock.
+
 ## Stack
 
 - Next.js App Router

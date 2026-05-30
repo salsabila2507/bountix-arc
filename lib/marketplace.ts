@@ -57,7 +57,7 @@ export const tasks: Task[] = [
     title: "Map 40 active creator communities for launch outreach",
     summary:
       "Build a qualified list of Discord, Telegram, and X communities with contact notes and relevance score.",
-    budget: "$420",
+    budget: "420 USDC",
     paymentType: "escrow",
     status: "open",
     category: "Research",
@@ -74,7 +74,7 @@ export const tasks: Task[] = [
     title: "Run mobile QA pass across Bountix landing and waitlist",
     summary:
       "Audit visual layout, form states, copy issues, and edge-case responsiveness across common mobile widths.",
-    budget: "$180",
+    budget: "180 USDC",
     paymentType: "regular",
     status: "reviewing",
     category: "QA",
@@ -91,7 +91,7 @@ export const tasks: Task[] = [
     title: "Draft the first operator quality playbook",
     summary:
       "Turn our task execution standards into a concise playbook for incoming operators and reviewers.",
-    budget: "$650",
+    budget: "650 USDC",
     paymentType: "escrow",
     status: "in_progress",
     category: "Operations",

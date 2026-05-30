@@ -1,20 +1,55 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Hourglass, LockKeyhole, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Bolt,
+  Hourglass,
+  LockKeyhole,
+  Sparkles,
+} from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { TaskCard } from "@/components/marketplace/task-card";
+import { DbTaskCard } from "@/components/marketplace/db-task-card";
 import { TaskFilters } from "@/components/marketplace/filters";
-import { tasks } from "@/lib/marketplace";
+import { tasks as previewTasks } from "@/lib/marketplace";
+import { createClient } from "@/lib/supabase/server";
+import {
+  TASK_LIST_COLUMNS,
+  TASK_VISIBLE_STATUSES,
+  type DbTask,
+} from "@/lib/tasks";
 
 const assetBase = "/bountix-comic/bountix_assets_ready";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
-  title: "Bounty Preview",
+  title: "Tasks",
   description:
-    "Preview examples of Bountix bounties across research, growth, operations, QA, and execution work. Waitlist-only early access.",
+    "Browse tasks on the Bountix marketplace. Real tasks load from Supabase; preview examples when none are posted yet.",
 };
 
-export default function TasksPage() {
+async function fetchVisibleTasks(): Promise<DbTask[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("tasks")
+      .select(TASK_LIST_COLUMNS)
+      .in("status", TASK_VISIBLE_STATUSES as readonly string[])
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    if (error || !data) return [];
+    return data as DbTask[];
+  } catch {
+    return [];
+  }
+}
+
+export default async function TasksPage() {
+  const dbTasks = await fetchVisibleTasks();
+  const hasReal = dbTasks.length > 0;
+
   return (
     <main className="comic-page min-h-screen overflow-hidden text-[#140625]">
       <SiteHeader />
@@ -33,38 +68,65 @@ export default function TasksPage() {
           </div>
           <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="comic-chip bg-[#ff4fb8] text-white">
-                <Hourglass aria-hidden="true" className="h-3.5 w-3.5" />
-                Waitlist-only preview
+              <p
+                className={`comic-chip ${
+                  hasReal ? "bg-[#38e7ff]" : "bg-[#ff4fb8] text-white"
+                }`}
+              >
+                {hasReal ? (
+                  <>
+                    <Bolt aria-hidden="true" className="h-3.5 w-3.5" />
+                    Live tasks
+                  </>
+                ) : (
+                  <>
+                    <Hourglass aria-hidden="true" className="h-3.5 w-3.5" />
+                    Waitlist-only preview
+                  </>
+                )}
               </p>
               <h1 className="mt-5 max-w-3xl text-5xl font-black leading-[0.95] text-[#140625] sm:text-7xl">
-                Bounty Preview
+                {hasReal ? "Tasks" : "Bounty Preview"}
               </h1>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-8 text-[#3c214b] sm:text-xl">
-                Bountix marketplace is currently in waitlist-only preview. Join
-                the waitlist to get early access when bounties go live.
+                {hasReal
+                  ? "Pick a task, deliver clean work, and earn rewards in USDC."
+                  : "Bountix marketplace is currently in waitlist-only preview. Join the waitlist to get early access when bounties go live."}
               </p>
               <p className="mt-3 max-w-2xl text-sm font-bold leading-6 text-[#3c214b]">
-                Early access preview — USDC payments on Base are planned for
-                future task rewards.
+                Rewards in USDC on Base. Escrow on Base coming soon.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link
-                  href="/waitlist"
+                  href="/post-task"
                   className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ff4fb8] px-4 py-2 text-sm font-black uppercase text-white shadow-[4px_4px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#7c3cff]"
                 >
-                  Join Waitlist
+                  Post a task
                   <ArrowRight aria-hidden="true" className="h-4 w-4" />
                 </Link>
+                {!hasReal ? (
+                  <Link
+                    href="/waitlist"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-4 py-2 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625] transition hover:bg-[#38e7ff]"
+                  >
+                    Join Waitlist
+                  </Link>
+                ) : null}
                 <span className="inline-flex min-h-11 items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-4 py-2 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625]">
-                  <Sparkles aria-hidden="true" className="h-4 w-4 text-[#7c3cff]" />
-                  Early Access Preview
+                  <Sparkles
+                    aria-hidden="true"
+                    className="h-4 w-4 text-[#7c3cff]"
+                  />
+                  {hasReal ? "USDC rewards" : "Early Access Preview"}
                 </span>
               </div>
             </div>
             <div className="grid gap-3 text-sm font-bold leading-6 text-[#5a3b66] sm:grid-cols-3 lg:max-w-md lg:grid-cols-1">
               {[
-                ["Preview tasks", String(tasks.length)],
+                [
+                  hasReal ? "Live tasks" : "Preview tasks",
+                  String(hasReal ? dbTasks.length : previewTasks.length),
+                ],
                 ["Negotiable", "2"],
                 ["Escrow-ready", "2"],
               ].map(([label, value]) => (
@@ -83,8 +145,7 @@ export default function TasksPage() {
                   aria-hidden="true"
                   className="mb-2 h-4 w-4 text-[#7c3cff]"
                 />
-                Funds will lock in escrow before work starts and release after
-                approval.
+                Escrow on Base is planned. Payments are not on-chain yet.
               </div>
             </div>
           </div>
@@ -95,9 +156,9 @@ export default function TasksPage() {
         </div>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-3">
-          {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
-          ))}
+          {hasReal
+            ? dbTasks.map((t) => <DbTaskCard key={t.id} task={t} />)
+            : previewTasks.map((t) => <TaskCard key={t.id} task={t} />)}
         </div>
       </section>
     </main>
