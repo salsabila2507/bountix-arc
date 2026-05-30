@@ -37,13 +37,18 @@ export default function AboutPage() {
                 Live MVP · Built for Base
               </p>
               <h1 className="mt-5 text-4xl font-black uppercase leading-[0.95] sm:text-6xl">
-                Bountix turns task work into onchain-ready rewards.
+                Bountix is a task marketplace for Web3 projects, creators, and communities.
               </h1>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-8 text-[#3c214b] sm:text-lg">
                 A gated early-access task marketplace. Approved users create,
                 apply to, submit, and review tasks. Bountix and partners
                 publish official tasks, campaigns, announcements, and
                 giveaways. Rewards are designed around USDC on Base.
+              </p>
+              <p className="mt-4 max-w-2xl text-base font-semibold leading-8 text-[#3c214b] sm:text-lg">
+                Bountix helps projects turn community work into structured
+                tasks instead of scattered forms, group chats, and manual
+                spreadsheets.
               </p>
             </div>
             <div className="grid gap-3 text-sm font-bold leading-6 text-[#5a3b66]">
@@ -131,7 +136,7 @@ export default function AboutPage() {
               ["Submissions", "Accepted workers submit external delivery URLs and notes. No file uploads — links only."],
               ["Review flow", "Owners and admins approve, request a revision, or reject with feedback notes."],
               ["Admin official content", "official_task / giveaway / campaign / announcement / update — admin-only at the database layer."],
-              ["RLS-recursion-safe", "Every policy is flat. SECURITY DEFINER helpers gate role + access without same-table subqueries."],
+              ["Secure access controls", "Role-based permissions protect admin tools, task actions, applications, and submissions."],
               ["Waitlist remains", "The original waitlist flow with social confirmations is still live and untouched by the MVP."],
             ].map(([title, body]) => (
               <li
@@ -184,7 +189,7 @@ export default function AboutPage() {
             <ul className="mt-3 grid gap-2 text-sm font-semibold leading-6 text-[#3c214b]">
               <li>Live MVP in gated early access — admin approval per user.</li>
               <li>Demo / official tasks are seeded by Bountix admins.</li>
-              <li>USDC reward labels are real; on-chain release is not yet.</li>
+              <li>Rewards are displayed in USDC. On-chain escrow and release are planned for the next milestone.</li>
               <li>No realtime chat, no file uploads, no analytics tables — free-tier-friendly by design.</li>
             </ul>
           </article>
@@ -224,7 +229,7 @@ export default function AboutPage() {
           />
           <Stat
             title="Direction"
-            body="USDC on Base. No custom token, no USDT. Schema, UI labels, and gating are all aligned with USDC-on-Base release flows."
+            body="USDC on Base. No custom token. Rewards and escrow flows are designed around a simple, stable payment path."
             chip="USDC · Base"
             chipColor="bg-[#38e7ff]"
             icon={<ShieldCheck className="h-4 w-4" />}
