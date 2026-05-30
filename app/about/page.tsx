@@ -195,11 +195,11 @@ export default function AboutPage() {
           </article>
         </div>
 
-        {/* WHAT GRANT UNLOCKS / ROADMAP */}
+        {/* ROADMAP */}
         <div className="mt-10 rounded-[1rem] border-2 border-[#140625] bg-[#7c3cff] p-6 text-white shadow-[8px_8px_0_#140625] sm:p-10">
           <p className="comic-chip bg-[#ffdd3d] text-[#140625]">
             <LockKeyhole aria-hidden="true" className="h-3.5 w-3.5" />
-            What a Base grant unlocks
+            What&apos;s next
           </p>
           <h2 className="mt-4 text-2xl font-black uppercase leading-none drop-shadow-[3px_3px_0_#17072b] sm:text-4xl">
             Ship USDC escrow on Base. Grow the contributor network.
