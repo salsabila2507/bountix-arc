@@ -237,7 +237,7 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                   <div className="flex gap-3">
                     <LockKeyhole aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-[#7c3cff]" />
                     <div>
-                      <h2 className="font-black text-[#140625]">Escrow on Base — coming soon</h2>
+                      <h2 className="font-black text-[#140625]">Escrow on Base. Coming soon</h2>
                       <p className="mt-2 text-sm font-semibold leading-6 text-[#3c214b]">Smart-contract escrow on Base is not live yet. USDC payments will route here once it ships.</p>
                     </div>
                   </div>
@@ -389,7 +389,7 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                 <div className="flex gap-3">
                   <LockKeyhole aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-[#7c3cff]" />
                   <div>
-                    <h2 className="font-black text-[#140625]">Escrow on Base — coming soon</h2>
+                    <h2 className="font-black text-[#140625]">Escrow on Base. Coming soon</h2>
                     <p className="mt-2 text-sm font-semibold leading-6 text-[#3c214b]">USDC escrow on Base is not live yet.</p>
                   </div>
                 </div>

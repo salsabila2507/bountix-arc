@@ -99,7 +99,7 @@ export default function AboutPage() {
             <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
               Bountix is a gated early-access task marketplace. Approved users
               create tasks, applicants pitch, accepted workers ship, and task
-              creators review with approve / revision / reject — all in one
+              creators review with approve, revision, or reject. All in one
               place, free-tier-friendly.
             </p>
           </article>
@@ -133,9 +133,9 @@ export default function AboutPage() {
               ["can_use_platform gate", "Admin-controlled approval gate. Only approved profiles can create tasks or apply."],
               ["Task lifecycle", "Create → open → in-progress → submitted → completed / cancelled. Owner edit + delete, per-user drafts."],
               ["Applications", "Workers apply, withdraw, get accepted or rejected. One application per (task, user)."],
-              ["Submissions", "Accepted workers submit external delivery URLs and notes. No file uploads — links only."],
+              ["Submissions", "Accepted workers submit external delivery URLs and notes. No file uploads. Links only."],
               ["Review flow", "Owners and admins approve, request a revision, or reject with feedback notes."],
-              ["Admin official content", "official_task / giveaway / campaign / announcement / update — admin-only at the database layer."],
+              ["Admin official content", "official_task, giveaway, campaign, announcement, and update. Admin-only at the database layer."],
               ["Secure access controls", "Role-based permissions protect admin tools, task actions, applications, and submissions."],
               ["Waitlist remains", "The original waitlist flow with social confirmations is still live and untouched by the MVP."],
             ].map(([title, body]) => (
@@ -187,10 +187,10 @@ export default function AboutPage() {
               Honest status
             </h3>
             <ul className="mt-3 grid gap-2 text-sm font-semibold leading-6 text-[#3c214b]">
-              <li>Live MVP in gated early access — admin approval per user.</li>
+              <li>Live MVP in gated early access. Admin approval per user.</li>
               <li>Demo / official tasks are seeded by Bountix admins.</li>
               <li>Rewards are displayed in USDC. On-chain escrow and release are planned for the next milestone.</li>
-              <li>No realtime chat, no file uploads, no analytics tables — free-tier-friendly by design.</li>
+              <li>No realtime chat, no file uploads, no analytics tables. Free-tier-friendly by design.</li>
             </ul>
           </article>
         </div>
@@ -214,7 +214,7 @@ export default function AboutPage() {
             <RoadmapStep n="2" title="Approved beta users" body="Onboard the next wave of creators and operators. Build initial task liquidity." />
             <RoadmapStep n="3" title="Services + deals" body="Long-running creator services and negotiated deals on top of the marketplace." />
             <RoadmapStep n="4" title="Reporting + safety" body="Report task / profile / submission. Admin review queue and audit trail." />
-            <RoadmapStep n="5" title="Multilingual EN/ID/ZH" body="Profile language already supports en/id/zh — wire UI strings." />
+            <RoadmapStep n="5" title="Multilingual EN/ID/ZH" body="Profile language already supports en/id/zh. Wire UI strings." />
           </ol>
         </div>
 

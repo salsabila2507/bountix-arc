@@ -258,7 +258,7 @@ export function TaskForm({
             className="mr-2 inline h-4 w-4 text-[#7c3cff]"
           />
           Rewards paid in <span className="font-black">USDC on Base</span>.
-          Escrow on Base coming soon — payments are not on-chain yet.
+          Escrow on Base coming soon. Payments are not on-chain yet.
         </div>
       </div>
 

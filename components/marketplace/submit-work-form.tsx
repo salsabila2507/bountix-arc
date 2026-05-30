@@ -34,7 +34,7 @@ export function SubmitWorkForm({
       <h2 className="text-lg font-black text-[#140625]">Submit your work</h2>
       <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
         Drop a delivery link. Add notes for the reviewer if needed. No file
-        upload — point to your repo, doc, or hosting.
+        upload. Point to your repo, doc, or hosting.
       </p>
 
       {state.status === "error" && state.message ? (
