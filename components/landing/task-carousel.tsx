@@ -7,7 +7,7 @@ type CarouselTask = {
   title: string;
   category: string;
   reward: string;
-  badge: "Waitlist Only" | "Preview";
+  badge: "Early Access" | "Preview";
   cardColor: string;
   badgeColor: string;
   icon: string;
@@ -18,7 +18,7 @@ const carouselTasks: CarouselTask[] = [
     title: "Follow & repost a launch post",
     category: "SOCIAL",
     reward: "15 USDC",
-    badge: "Waitlist Only",
+    badge: "Early Access",
     cardColor: "bg-[#fff7e8]",
     badgeColor: "bg-[#38e7ff]",
     icon: `${assetBase}/icon-marketing.png`,
@@ -36,7 +36,7 @@ const carouselTasks: CarouselTask[] = [
     title: "Find my missing dog",
     category: "LOCAL",
     reward: "150 USDC",
-    badge: "Waitlist Only",
+    badge: "Early Access",
     cardColor: "bg-[#fff7e8]",
     badgeColor: "bg-[#ffdd3d]",
     icon: `${assetBase}/icon-community.png`,
@@ -54,7 +54,7 @@ const carouselTasks: CarouselTask[] = [
     title: "Check a location in Singapore",
     category: "LOCAL",
     reward: "30 USDC",
-    badge: "Waitlist Only",
+    badge: "Early Access",
     cardColor: "bg-[#fff7e8]",
     badgeColor: "bg-[#ffdd3d]",
     icon: `${assetBase}/icon-community.png`,
@@ -72,7 +72,7 @@ const carouselTasks: CarouselTask[] = [
     title: "Test a new website flow",
     category: "TESTING",
     reward: "25 USDC",
-    badge: "Waitlist Only",
+    badge: "Early Access",
     cardColor: "bg-[#e7f9ff]",
     badgeColor: "bg-[#38e7ff]",
     icon: `${assetBase}/icon-development.png`,

@@ -9,13 +9,15 @@ import {
   Megaphone,
   Send,
   ShieldCheck,
+  Target,
+  Zap,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 
 export const metadata = {
   title: "About",
   description:
-    "Bountix is a gated early-access task marketplace built around USDC on Base.",
+    "Bountix is a gated early-access task marketplace built around USDC on Base. Live MVP. Built for the Base ecosystem.",
 };
 
 export default function AboutPage() {
@@ -23,6 +25,8 @@ export default function AboutPage() {
     <main className="comic-page min-h-screen overflow-hidden text-[#140625]">
       <SiteHeader />
       <section className="container-page py-10 sm:py-14">
+
+        {/* HERO */}
         <div className="comic-card relative overflow-hidden bg-[#fff8ed] p-6 sm:p-10">
           <div className="halftone-mask absolute inset-0 opacity-15" />
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full border-2 border-[#140625] bg-[#7c3cff]/40" />
@@ -30,100 +34,200 @@ export default function AboutPage() {
             <div>
               <p className="comic-chip bg-[#7c3cff] text-white">
                 <Globe2 aria-hidden="true" className="h-3.5 w-3.5" />
-                Built for Base
+                Live MVP · Built for Base
               </p>
               <h1 className="mt-5 text-4xl font-black uppercase leading-[0.95] sm:text-6xl">
                 Bountix turns task work into onchain-ready rewards.
               </h1>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-8 text-[#3c214b] sm:text-lg">
-                A gated early-access task marketplace. Approved waitlist users
-                create and complete tasks. Bountix and partners publish
-                official tasks, campaigns, announcements, and giveaways.
-                Rewards are designed around USDC on Base.
+                A gated early-access task marketplace. Approved users create,
+                apply to, submit, and review tasks. Bountix and partners
+                publish official tasks, campaigns, announcements, and
+                giveaways. Rewards are designed around USDC on Base.
               </p>
             </div>
             <div className="grid gap-3 text-sm font-bold leading-6 text-[#5a3b66]">
               <Link
-                href="/waitlist"
+                href="/tasks"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ff4fb8] px-5 py-3 text-sm font-black uppercase text-white shadow-[5px_5px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#7c3cff]"
               >
-                Join waitlist
+                Browse tasks
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
               </Link>
               <Link
-                href="/tasks"
+                href="/post-task"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ffdd3d] px-5 py-3 text-sm font-black uppercase text-[#140625] shadow-[5px_5px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#38e7ff]"
               >
-                Browse tasks
+                Post a task
+                <ArrowRight aria-hidden="true" className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/waitlist"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-5 py-3 text-sm font-black uppercase text-[#140625] shadow-[5px_5px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#38e7ff]"
+              >
+                Join waitlist
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
               </Link>
             </div>
           </div>
         </div>
 
+        {/* PROBLEM / SOLUTION / WHY BASE */}
         <div className="mt-10 grid gap-4 lg:grid-cols-3">
-          <Pillar
-            icon={<BadgeCheck className="h-5 w-5" />}
-            color="bg-[#38e7ff]"
-            title="Gated early access"
-            text="Approved waitlist users post real tasks and apply to ship work. Public visitors can preview without unlocking write actions."
-          />
-          <Pillar
-            icon={<Coins className="h-5 w-5" />}
-            color="bg-[#ffdd3d]"
-            title="USDC on Base"
-            text="Every reward is denominated in USDC on Base. No custom token, no USDT. Wallet connect arrives later."
-          />
-          <Pillar
-            icon={<LockKeyhole className="h-5 w-5" />}
-            color="bg-[#f0d7ff]"
-            title="Escrow on Base — coming soon"
-            text="Smart-contract escrow on Base is the next milestone. The schema and UI are already shaped around USDC release flows."
-          />
-          <Pillar
-            icon={<Megaphone className="h-5 w-5" />}
-            color="bg-[#7c3cff] text-white"
-            title="Official content"
-            text="Bountix and partners publish official tasks, giveaways, campaigns, announcements, and updates. Admin gating is enforced at the database layer."
-          />
-          <Pillar
-            icon={<Send className="h-5 w-5" />}
-            color="bg-[#ff4fb8] text-white"
-            title="Apply & submit"
-            text="Workers apply, creators accept, accepted workers submit external delivery links. Reviews approve, reject, or request revision."
-          />
-          <Pillar
-            icon={<ShieldCheck className="h-5 w-5" />}
-            color="bg-white"
-            title="Free-tier friendly"
-            text="No file uploads, no realtime, no analytics tables. Lightweight schema, RLS-recursion-safe via SECURITY DEFINER helpers."
-          />
+          <article className="comic-card-soft bg-white p-5">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border-2 border-[#140625] bg-[#ff4fb8] text-white shadow-[3px_3px_0_#140625]">
+              <Target aria-hidden="true" className="h-5 w-5" />
+            </span>
+            <h3 className="mt-4 text-lg font-black uppercase">Problem</h3>
+            <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
+              Web3 projects, creators, and communities need a simple way to
+              distribute tasks, campaigns, giveaways, content requests,
+              feedback jobs, and micro-work. Today the flow lives across
+              forms, group chats, and shared sheets.
+            </p>
+          </article>
+          <article className="comic-card-soft bg-white p-5">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border-2 border-[#140625] bg-[#38e7ff] shadow-[3px_3px_0_#140625]">
+              <Zap aria-hidden="true" className="h-5 w-5" />
+            </span>
+            <h3 className="mt-4 text-lg font-black uppercase">Solution</h3>
+            <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
+              Bountix is a gated early-access task marketplace. Approved users
+              create tasks, applicants pitch, accepted workers ship, and task
+              creators review with approve / revision / reject — all in one
+              place, free-tier-friendly.
+            </p>
+          </article>
+          <article className="comic-card-soft bg-white p-5">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border-2 border-[#140625] bg-[#ffdd3d] shadow-[3px_3px_0_#140625]">
+              <Coins aria-hidden="true" className="h-5 w-5" />
+            </span>
+            <h3 className="mt-4 text-lg font-black uppercase">Why Base</h3>
+            <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
+              Bountix is designed around USDC rewards on Base. Base gives us
+              low-cost, fast payments for global contributors. Our schema and
+              UI are already shaped around USDC-on-Base release flows so the
+              escrow ship is short.
+            </p>
+          </article>
         </div>
 
+        {/* WHAT'S SHIPPED */}
         <div className="mt-10 rounded-[1rem] border-2 border-[#140625] bg-white p-6 shadow-[8px_8px_0_#140625] sm:p-10">
-          <p className="comic-chip bg-[#ffdd3d]">How it works</p>
-          <ol className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Step n="1" title="Sign up & profile" text="Email + password. Pick a username. Bountix decides early-access activation per user." />
-            <Step n="2" title="Post or apply" text="Approved users post tasks with a USDC reward, or apply to existing ones with a short pitch." />
-            <Step n="3" title="Submit work" text="Accepted workers paste a delivery link. No file upload — point to repo, doc, or hosted artefact." />
-            <Step n="4" title="Review & release" text="Creators approve, reject, or request a revision. USDC release on Base is coming next." />
+          <p className="comic-chip bg-[#38e7ff]">Already shipped</p>
+          <h2 className="mt-4 text-2xl font-black uppercase leading-none sm:text-4xl">
+            What works today
+          </h2>
+          <p className="mt-3 max-w-3xl text-sm font-bold leading-6 text-[#5a3b66]">
+            Bountix is live in gated early access. Reviewers can sign up,
+            wait for approval, then run the full task lifecycle end-to-end.
+          </p>
+          <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              ["Email auth via Supabase", "Sign up, log in, log out. Public and owner profile views with username, bio, skills, and Base wallet field."],
+              ["can_use_platform gate", "Admin-controlled approval gate. Only approved profiles can create tasks or apply."],
+              ["Task lifecycle", "Create → open → in-progress → submitted → completed / cancelled. Owner edit + delete, per-user drafts."],
+              ["Applications", "Workers apply, withdraw, get accepted or rejected. One application per (task, user)."],
+              ["Submissions", "Accepted workers submit external delivery URLs and notes. No file uploads — links only."],
+              ["Review flow", "Owners and admins approve, request a revision, or reject with feedback notes."],
+              ["Admin official content", "official_task / giveaway / campaign / announcement / update — admin-only at the database layer."],
+              ["RLS-recursion-safe", "Every policy is flat. SECURITY DEFINER helpers gate role + access without same-table subqueries."],
+              ["Waitlist remains", "The original waitlist flow with social confirmations is still live and untouched by the MVP."],
+            ].map(([title, body]) => (
+              <li
+                key={title}
+                className="rounded-lg border-2 border-[#140625] bg-[#fff8ed] p-4 shadow-[4px_4px_0_#140625]"
+              >
+                <BadgeCheck
+                  aria-hidden="true"
+                  className="h-5 w-5 text-[#23b26d]"
+                />
+                <h3 className="mt-2 text-sm font-black uppercase">
+                  {title}
+                </h3>
+                <p className="mt-1 text-sm font-semibold leading-6 text-[#5a3b66]">
+                  {body}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* WHO IT IS FOR */}
+        <div className="mt-10 grid gap-4 lg:grid-cols-2">
+          <article className="comic-card-soft bg-[#f2e6ff] p-5">
+            <Send aria-hidden="true" className="h-5 w-5 text-[#7c3cff]" />
+            <h3 className="mt-3 text-lg font-black uppercase">Who it&apos;s for</h3>
+            <ul className="mt-3 grid gap-2 text-sm font-semibold leading-6 text-[#3c214b]">
+              <li>
+                <strong>Web3 projects + DAOs</strong> running campaigns,
+                giveaways, content briefs, QA passes, or meme contests.
+              </li>
+              <li>
+                <strong>Creators + operators</strong> who want a clean way to
+                pitch, ship, and get rewarded for online or local work.
+              </li>
+              <li>
+                <strong>Communities</strong> distributing micro-tasks and
+                bounties to grow contributor surface.
+              </li>
+            </ul>
+          </article>
+          <article className="comic-card-soft bg-[#fff8ed] p-5">
+            <Megaphone
+              aria-hidden="true"
+              className="h-5 w-5 text-[#7c3cff]"
+            />
+            <h3 className="mt-3 text-lg font-black uppercase">
+              Honest status
+            </h3>
+            <ul className="mt-3 grid gap-2 text-sm font-semibold leading-6 text-[#3c214b]">
+              <li>Live MVP in gated early access — admin approval per user.</li>
+              <li>Demo / official tasks are seeded by Bountix admins.</li>
+              <li>USDC reward labels are real; on-chain release is not yet.</li>
+              <li>No realtime chat, no file uploads, no analytics tables — free-tier-friendly by design.</li>
+            </ul>
+          </article>
+        </div>
+
+        {/* WHAT GRANT UNLOCKS / ROADMAP */}
+        <div className="mt-10 rounded-[1rem] border-2 border-[#140625] bg-[#7c3cff] p-6 text-white shadow-[8px_8px_0_#140625] sm:p-10">
+          <p className="comic-chip bg-[#ffdd3d] text-[#140625]">
+            <LockKeyhole aria-hidden="true" className="h-3.5 w-3.5" />
+            What a Base grant unlocks
+          </p>
+          <h2 className="mt-4 text-2xl font-black uppercase leading-none drop-shadow-[3px_3px_0_#17072b] sm:text-4xl">
+            Ship USDC escrow on Base. Grow the contributor network.
+          </h2>
+          <p className="mt-3 max-w-3xl text-sm font-bold leading-6 text-white/85 sm:text-base">
+            Funding accelerates the work-to-payout loop and onboards more
+            approved users. Every milestone is concrete and ships against
+            the existing schema.
+          </p>
+          <ol className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <RoadmapStep n="1" title="USDC escrow on Base" body="Deploy contract, wire fund / release / refund. UI is already labelled and shaped." />
+            <RoadmapStep n="2" title="Approved beta users" body="Onboard the next wave of creators and operators. Build initial task liquidity." />
+            <RoadmapStep n="3" title="Services + deals" body="Long-running creator services and negotiated deals on top of the marketplace." />
+            <RoadmapStep n="4" title="Reporting + safety" body="Report task / profile / submission. Admin review queue and audit trail." />
+            <RoadmapStep n="5" title="Multilingual EN/ID/ZH" body="Profile language already supports en/id/zh — wire UI strings." />
           </ol>
         </div>
 
+        {/* FOOTER STATS */}
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
           <Stat
             title="Status"
-            body="Phase 3 of the MVP: tasks, applications, and submissions are live in early access. Wallet connect and on-chain release are the next milestones."
+            body="Phase 3 MVP: tasks, applications, and submissions are live in gated early access. Wallet connect and on-chain release are next."
             chip="Early access"
             chipColor="bg-[#ff4fb8] text-white"
             icon={<Hourglass className="h-4 w-4" />}
           />
           <Stat
-            title="What's next"
-            body="USDC escrow on Base, services + deals, public profile reputation. Payments stay USDC-only — no custom token."
-            chip="Roadmap"
+            title="Direction"
+            body="USDC on Base. No custom token, no USDT. Schema, UI labels, and gating are all aligned with USDC-on-Base release flows."
+            chip="USDC · Base"
             chipColor="bg-[#38e7ff]"
-            icon={<ArrowRight className="h-4 w-4" />}
+            icon={<ShieldCheck className="h-4 w-4" />}
           />
         </div>
       </section>
@@ -131,51 +235,23 @@ export default function AboutPage() {
   );
 }
 
-function Pillar({
-  icon,
-  color,
-  title,
-  text,
-}: {
-  icon: React.ReactNode;
-  color: string;
-  title: string;
-  text: string;
-}) {
-  return (
-    <article className="comic-card-soft bg-white p-5">
-      <span
-        className={`inline-flex h-10 w-10 items-center justify-center rounded-lg border-2 border-[#140625] shadow-[3px_3px_0_#140625] ${color}`}
-      >
-        {icon}
-      </span>
-      <h3 className="mt-4 text-lg font-black uppercase text-[#140625]">
-        {title}
-      </h3>
-      <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-        {text}
-      </p>
-    </article>
-  );
-}
-
-function Step({
+function RoadmapStep({
   n,
   title,
-  text,
+  body,
 }: {
   n: string;
   title: string;
-  text: string;
+  body: string;
 }) {
   return (
-    <li className="rounded-lg border-2 border-[#140625] bg-[#fff8ed] p-4 shadow-[4px_4px_0_#140625]">
-      <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg border-2 border-[#140625] bg-[#ffdd3d] text-sm font-black text-[#140625] shadow-[2px_2px_0_#140625]">
+    <li className="rounded-lg border-2 border-[#140625] bg-[#fff7e8] p-4 text-[#140625] shadow-[4px_4px_0_#140625]">
+      <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg border-2 border-[#140625] bg-[#ffdd3d] text-sm font-black shadow-[2px_2px_0_#140625]">
         {n}
       </span>
-      <h4 className="mt-3 text-base font-black uppercase">{title}</h4>
-      <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-        {text}
+      <h4 className="mt-3 text-sm font-black uppercase">{title}</h4>
+      <p className="mt-1 text-xs font-semibold leading-5 text-[#5a3b66]">
+        {body}
       </p>
     </li>
   );
@@ -196,9 +272,7 @@ function Stat({
 }) {
   return (
     <div className="comic-card-soft bg-white p-5">
-      <span
-        className={`comic-chip ${chipColor}`}
-      >
+      <span className={`comic-chip ${chipColor}`}>
         {icon}
         {chip}
       </span>

@@ -136,10 +136,10 @@ const whyItems = [
 ];
 
 const stats = [
-  ["12K+", "Active Members"],
-  ["3.4K+", "Tasks Completed"],
-  ["98%", "Satisfaction Rate"],
-  ["50+", "Countries"],
+  ["LIVE", "Live MVP"],
+  ["GATED", "Approved users only"],
+  ["USDC", "USDC-ready"],
+  ["BASE", "Built for Base"],
 ];
 
 function ComicButton({
@@ -209,7 +209,7 @@ function BountyCard({ bounty }: { bounty: (typeof bountyCards)[number] }) {
         />
       </div>
       <span className="relative mt-3 inline-flex items-center gap-1 rounded-md border-2 border-[#17072b] bg-[#ff4fb8] px-2 py-0.5 text-[0.65rem] font-black uppercase text-white shadow-[2px_2px_0_#17072b]">
-        Waitlist Only
+        Early Access
       </span>
       <h3 className="relative mt-3 min-h-14 text-xl font-black leading-tight text-[#17072b]">
         {bounty.title}
@@ -310,7 +310,7 @@ export default function Home() {
           <div className="relative z-10 grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <div>
               <p className="inline-flex rounded-lg border-2 border-[#17072b] bg-[#ffdd3d] px-3 py-1.5 text-xs font-black uppercase text-[#17072b] shadow-[4px_4px_0_#000]">
-                THE COMMUNITY-POWERED
+                LIVE · EARLY ACCESS
               </p>
               <div className="mt-3 flex items-center gap-3 sm:hidden">
                 <div className="relative h-24 w-24 shrink-0 rounded-lg border-2 border-[#17072b] bg-white shadow-[5px_5px_0_#000]">
@@ -355,13 +355,17 @@ export default function Home() {
                 </span>
               </h1>
               <p className="mt-4 max-w-xl text-base font-bold leading-7 text-white/86 sm:text-xl sm:leading-8">
-                Post tasks. Complete gigs. Earn rewards. All through the power
-                of the community.
+                Bountix is live in gated early access. Approved users can
+                create, apply, submit, and review tasks. USDC rewards on Base
+                are the next milestone.
               </p>
               <div className="mt-5 grid gap-3 sm:flex">
-                <ComicButton href="/waitlist">Join Waitlist</ComicButton>
-                <ComicButton href="/tasks" variant="yellow">
-                  Explore Preview
+                <ComicButton href="/tasks">Browse Tasks</ComicButton>
+                <ComicButton href="/post-task" variant="yellow">
+                  Post a Task
+                </ComicButton>
+                <ComicButton href="/waitlist" variant="white">
+                  Join Waitlist
                 </ComicButton>
               </div>
             </div>
@@ -414,20 +418,21 @@ export default function Home() {
             <div>
               <p className="inline-flex items-center gap-2 rounded-lg border-2 border-[#17072b] bg-[#38e7ff] px-3 py-1.5 text-xs font-black uppercase shadow-[3px_3px_0_#17072b]">
                 <Bolt aria-hidden="true" className="h-4 w-4" />
-                Featured · Preview
+                Featured · Live MVP
               </p>
               <h2 className="mt-3 text-4xl font-black uppercase leading-none sm:text-5xl">
                 FEATURED BOUNTIES
               </h2>
               <p className="mt-3 max-w-2xl text-sm font-bold leading-6 text-[#5a3b66] sm:text-base">
-                Preview examples of what people will be able to post on Bountix.
+                Real tasks live in gated early access. Browse and apply if
+                your account is approved.
               </p>
             </div>
             <Link
               href="/tasks"
               className="hidden items-center gap-2 text-sm font-black uppercase text-[#6f3cff] md:inline-flex"
             >
-              View bounty preview
+              View live tasks
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </Link>
           </div>
@@ -647,30 +652,31 @@ export default function Home() {
               <div>
                 <p className="inline-flex items-center gap-2 rounded-lg border-2 border-[#17072b] bg-[#38e7ff] px-3 py-1.5 text-xs font-black uppercase text-[#17072b] shadow-[3px_3px_0_#17072b]">
                   <CheckCircle2 aria-hidden="true" className="h-4 w-4" />
-                  Launch waitlist
+                  Live · Early Access
                 </p>
                 <h2 className="mt-4 max-w-2xl text-4xl font-black uppercase leading-none sm:text-5xl">
                   READY TO TURN YOUR SKILLS INTO REWARDS?
                 </h2>
                 <p className="mt-4 max-w-xl text-base font-bold leading-7 text-[#5a3b66]">
-                  Join the waitlist and be the first to access Bountix.
+                  Bountix is live in gated early access. Join the waitlist
+                  for approval, then create, apply, submit, and review tasks.
                 </p>
                 <p className="mt-3 max-w-xl text-sm font-bold leading-6 text-[#5a3b66]">
-                  Join early to follow Bountix&apos;s Base-ready payment
-                  roadmap.
+                  USDC rewards on Base are the next milestone. Escrow on Base
+                  is coming soon.
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[320px] lg:grid-cols-1">
-                <ComicButton href="/waitlist">Join Waitlist</ComicButton>
+                <ComicButton href="/tasks">Browse Tasks</ComicButton>
+                <ComicButton href="/post-task" variant="yellow">
+                  Post a Task
+                </ComicButton>
+                <ComicButton href="/waitlist" variant="white">
+                  Join Waitlist
+                </ComicButton>
                 <ComicButton href={telegramGroupUrl} variant="cyan">
                   Join Telegram
                 </ComicButton>
-                <ComicButton href={xUrl} variant="yellow">
-                  Follow X
-                </ComicButton>
-                <span className="inline-flex min-h-12 items-center justify-center rounded-lg border-2 border-[#17072b] bg-[#f0d7ff] px-5 py-3 text-sm font-black uppercase text-[#17072b] shadow-[5px_5px_0_#17072b]">
-                  Discord Soon
-                </span>
               </div>
             </div>
           </div>

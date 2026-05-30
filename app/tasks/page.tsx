@@ -81,7 +81,7 @@ export default async function TasksPage() {
                 ) : (
                   <>
                     <Hourglass aria-hidden="true" className="h-3.5 w-3.5" />
-                    Waitlist-only preview
+                    Early access preview
                   </>
                 )}
               </p>
@@ -91,7 +91,7 @@ export default async function TasksPage() {
               <p className="mt-5 max-w-2xl text-base font-semibold leading-8 text-[#3c214b] sm:text-xl">
                 {hasReal
                   ? "Pick a task, deliver clean work, and earn rewards in USDC."
-                  : "Bountix marketplace is currently in waitlist-only preview. Join the waitlist to get early access when bounties go live."}
+                  : "Bountix is live in gated early access. Approved users can create, apply, submit, and review tasks. The list below is a preview until tasks are seeded."}
               </p>
               <p className="mt-3 max-w-2xl text-sm font-bold leading-6 text-[#3c214b]">
                 Rewards in USDC on Base. Escrow on Base coming soon.

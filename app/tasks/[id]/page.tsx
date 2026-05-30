@@ -341,7 +341,8 @@ export default async function TaskDetailPage({ params }: RouteParams) {
               </div>
 
               <div className="mt-5 rounded-lg border-2 border-[#140625] bg-[#f1d8ff] px-4 py-3 text-sm font-black leading-6 text-[#140625] shadow-[4px_4px_0_#140625]">
-                Bountix marketplace is currently in waitlist-only preview. Join the waitlist to get early access.
+                Bountix is live in gated early access. Join the waitlist for
+                approval, then create, apply, submit, and review tasks.
                 <span className="mt-2 block text-xs font-bold leading-5 text-[#3c214b]">USDC rewards on Base are planned. Escrow on Base coming soon.</span>
               </div>
 

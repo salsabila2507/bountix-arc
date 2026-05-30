@@ -140,8 +140,8 @@ export default async function CreatorDetailPage({
                 Request a service
               </h2>
               <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-                Bountix marketplace is currently in waitlist-only preview. Join
-                the waitlist to send scope, timing, and budget when it opens.
+                Bountix is live in gated early access. Join the waitlist for
+                approval to send scope, timing, and budget.
               </p>
               <Link
                 href="/waitlist"

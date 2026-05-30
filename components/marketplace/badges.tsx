@@ -123,7 +123,7 @@ export function WaitlistOnlyBadge({
   return (
     <Badge className="bg-[#ff4fb8] text-white">
       <LockKeyhole aria-hidden="true" className="h-3.5 w-3.5" />
-      Waitlist Only
+      Early Access
     </Badge>
   );
 }

@@ -83,7 +83,7 @@ export function PostTaskForm() {
         type="button"
         disabled
         aria-disabled="true"
-        title="Bountix is in waitlist-only preview"
+        title="Bountix is in gated early access"
         className="mt-6 inline-flex min-h-12 w-full cursor-not-allowed items-center justify-center rounded-lg border-2 border-[#140625] bg-[#ff4fb8] px-5 py-3 text-sm font-black uppercase text-white shadow-[5px_5px_0_#140625] opacity-90"
       >
         Join waitlist to start
