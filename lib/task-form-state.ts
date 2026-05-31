@@ -11,6 +11,7 @@ export type TaskFormState = {
     external_link?: string;
     start_date?: string;
     end_date?: string;
+    payment_method?: string;
   };
   taskId?: string;
 };

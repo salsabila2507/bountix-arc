@@ -20,6 +20,7 @@ import {
 import { SubmissionForm } from "@/components/marketplace/submission-form";
 import { ApplyForm } from "@/components/marketplace/apply-form";
 import { SubmitWorkForm } from "@/components/marketplace/submit-work-form";
+import { EscrowFundPanel } from "@/components/marketplace/escrow-fund-panel";
 import { SiteHeader } from "@/components/site-header";
 import { withdrawApplicationAction } from "@/app/applications/actions";
 import { getTask, tasks as previewTasks } from "@/lib/marketplace";
@@ -264,6 +265,33 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                       </Link>
                     </div>
                   </div>
+
+                  {dbTask.payment_method === "escrow_base" ? (
+                    dbTask.escrow_tx_hash ? (
+                      <div className="comic-card-soft bg-[#dff7e6] p-5">
+                        <h2 className="text-lg font-black text-[#140625]">
+                          Escrow funded
+                        </h2>
+                        <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
+                          USDC is locked in the Bountix escrow contract on Base.
+                        </p>
+                        <a
+                          href={`https://basescan.org/tx/${dbTask.escrow_tx_hash}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-4 inline-flex items-center gap-2 break-all rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-black text-[#7c3cff] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
+                        >
+                          <ExternalLink aria-hidden="true" className="h-4 w-4" />
+                          View funding tx
+                        </a>
+                      </div>
+                    ) : (
+                      <EscrowFundPanel
+                        taskId={dbTask.id}
+                        rewardAmount={dbTask.reward_amount ?? 0}
+                      />
+                    )
+                  ) : null}
                 </>
               ) : !ctx.userId ? (
                 <div className="comic-card-soft bg-white p-5">

@@ -33,6 +33,14 @@ export const ADMIN_TASK_TYPES = [
   "update",
 ] as const satisfies readonly TaskType[];
 
+export const PAYMENT_METHODS = ["manual", "escrow_base"] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+
+export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = {
+  manual: "Manual payment",
+  escrow_base: "Escrow USDC on Base",
+};
+
 export const TASK_STATUS_LABEL: Record<TaskStatus, string> = {
   draft: "Draft",
   open: "Open",
@@ -78,13 +86,16 @@ export type DbTask = {
   external_link: string | null;
   start_date: string | null;
   end_date: string | null;
+  payment_method: PaymentMethod;
+  escrow_contract_address: string | null;
+  escrow_tx_hash: string | null;
   created_at: string;
   updated_at: string;
 };
 
 /** Lightweight column list for list views — minimises row read size. */
 export const TASK_LIST_COLUMNS =
-  "id, creator_id, title, description, category, reward_amount, reward_currency, chain, status, task_type, external_link, start_date, end_date, created_at, updated_at";
+  "id, creator_id, title, description, category, reward_amount, reward_currency, chain, status, task_type, external_link, start_date, end_date, payment_method, escrow_contract_address, escrow_tx_hash, created_at, updated_at";
 
 export const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

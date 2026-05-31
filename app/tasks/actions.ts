@@ -6,11 +6,14 @@ import { createClient } from "@/lib/supabase/server";
 import {
   TASK_STATUSES,
   TASK_TYPES,
+  PAYMENT_METHODS,
   isAdminTaskType,
   isUuid,
   type TaskStatus,
   type TaskType,
+  type PaymentMethod,
 } from "@/lib/tasks";
+import { ESCROW_CONTRACT_ADDRESS, MIN_ESCROW_USDC } from "@/lib/escrow";
 import type { TaskFormState } from "@/lib/task-form-state";
 
 type ParsedTaskInput = {
@@ -23,6 +26,7 @@ type ParsedTaskInput = {
   external_link: string | null;
   start_date: string | null;
   end_date: string | null;
+  payment_method: PaymentMethod;
 };
 
 function isHttpsHttp(value: string): boolean {
@@ -47,6 +51,7 @@ function parseTaskInput(formData: FormData): {
   const external_link = String(formData.get("external_link") ?? "").trim();
   const start_date_raw = String(formData.get("start_date") ?? "").trim();
   const end_date_raw = String(formData.get("end_date") ?? "").trim();
+  const payment_method = String(formData.get("payment_method") ?? "manual");
 
   const fieldErrors: TaskFormState["fieldErrors"] = {};
 
@@ -78,6 +83,14 @@ function parseTaskInput(formData: FormData): {
   if (!(TASK_TYPES as readonly string[]).includes(task_type)) {
     fieldErrors.task_type = "Invalid task type.";
   }
+  if (!(PAYMENT_METHODS as readonly string[]).includes(payment_method)) {
+    fieldErrors.payment_method = "Invalid payment method.";
+  } else if (payment_method === "escrow_base") {
+    // Escrow funds the on-chain contract, which enforces a 1 USDC minimum.
+    if (reward_amount === null || reward_amount < MIN_ESCROW_USDC) {
+      fieldErrors.payment_method = `Escrow needs a reward of at least ${MIN_ESCROW_USDC} USDC.`;
+    }
+  }
   if (external_link) {
     if (external_link.length > 500) {
       fieldErrors.external_link =
@@ -108,6 +121,7 @@ function parseTaskInput(formData: FormData): {
       external_link: external_link || null,
       start_date,
       end_date,
+      payment_method: payment_method as PaymentMethod,
     },
     fieldErrors,
   };
@@ -183,6 +197,12 @@ export async function createTaskAction(
   }
   if (!isAdmin) task_type = "user_task";
 
+  // Escrow tasks stay in draft until the on-chain funding tx confirms;
+  // markTaskEscrowFundedAction flips them to open. Manual tasks keep the
+  // creator's chosen status, preserving the existing flow.
+  const status =
+    data.payment_method === "escrow_base" ? "draft" : data.status;
+
   const { data: inserted, error } = await supabase
     .from("tasks")
     .insert({
@@ -193,11 +213,12 @@ export async function createTaskAction(
       reward_amount: data.reward_amount,
       reward_currency: "USDC",
       chain: "base",
-      status: data.status,
+      status,
       task_type,
       external_link: data.external_link,
       start_date: data.start_date,
       end_date: data.end_date,
+      payment_method: data.payment_method,
     })
     .select("id")
     .maybeSingle();
@@ -267,6 +288,20 @@ export async function updateTaskAction(
   }
   if (!isAdmin) task_type = "user_task";
 
+  // If the task is already escrow-funded, its payment method is locked —
+  // funds are committed on-chain, so it cannot revert to manual.
+  const { data: existing } = await supabase
+    .from("tasks")
+    .select("payment_method, escrow_tx_hash")
+    .eq("id", taskId)
+    .maybeSingle();
+  const isFunded = Boolean(
+    (existing as { escrow_tx_hash: string | null } | null)?.escrow_tx_hash,
+  );
+  const payment_method: PaymentMethod = isFunded
+    ? "escrow_base"
+    : data.payment_method;
+
   const { error } = await supabase
     .from("tasks")
     .update({
@@ -281,6 +316,7 @@ export async function updateTaskAction(
       external_link: data.external_link,
       start_date: data.start_date,
       end_date: data.end_date,
+      payment_method,
     })
     .eq("id", taskId);
 
@@ -296,6 +332,85 @@ export async function updateTaskAction(
   revalidatePath("/dashboard/tasks");
 
   return { status: "success", message: "Task updated.", taskId };
+}
+
+export type EscrowFundResult = {
+  ok: boolean;
+  message: string;
+};
+
+const TX_HASH_RE = /^0x[0-9a-fA-F]{64}$/;
+
+/**
+ * Record a confirmed escrow funding tx and open the task.
+ * Owner-only. Called by the client fund panel after the on-chain
+ * fundEscrow transaction is mined. Refuses to overwrite an existing hash.
+ */
+export async function markTaskEscrowFundedAction(
+  taskId: string,
+  txHash: string,
+): Promise<EscrowFundResult> {
+  if (!isUuid(taskId)) {
+    return { ok: false, message: "Invalid task id." };
+  }
+  if (!TX_HASH_RE.test(txHash)) {
+    return { ok: false, message: "Invalid transaction hash." };
+  }
+
+  const { supabase, user } = await loadActor();
+  if (!user) {
+    return { ok: false, message: "You must be signed in." };
+  }
+
+  // Confirm ownership + escrow intent + not already funded before writing.
+  const { data: task } = await supabase
+    .from("tasks")
+    .select("creator_id, payment_method, escrow_tx_hash")
+    .eq("id", taskId)
+    .maybeSingle();
+
+  const row = task as
+    | {
+        creator_id: string;
+        payment_method: string;
+        escrow_tx_hash: string | null;
+      }
+    | null;
+
+  if (!row) {
+    return { ok: false, message: "Task not found." };
+  }
+  if (row.creator_id !== user.id) {
+    return { ok: false, message: "Only the task owner can fund escrow." };
+  }
+  if (row.payment_method !== "escrow_base") {
+    return { ok: false, message: "This task does not use escrow." };
+  }
+  if (row.escrow_tx_hash) {
+    return { ok: false, message: "This task is already funded." };
+  }
+
+  const { error } = await supabase
+    .from("tasks")
+    .update({
+      escrow_tx_hash: txHash,
+      escrow_contract_address: ESCROW_CONTRACT_ADDRESS,
+      status: "open",
+    })
+    .eq("id", taskId);
+
+  if (error) {
+    return {
+      ok: false,
+      message: error.message || "Could not record funding right now.",
+    };
+  }
+
+  revalidatePath("/tasks");
+  revalidatePath(`/tasks/${taskId}`);
+  revalidatePath("/dashboard/tasks");
+
+  return { ok: true, message: "Escrow funded. Task is now open." };
 }
 
 export async function deleteTaskAction(taskId: string): Promise<void> {

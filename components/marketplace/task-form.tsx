@@ -19,6 +19,8 @@ import {
   TASK_STATUS_LABEL,
   TASK_TYPES,
   TASK_TYPE_LABEL,
+  PAYMENT_METHODS,
+  PAYMENT_METHOD_LABEL,
   type DbTask,
 } from "@/lib/tasks";
 
@@ -149,6 +151,50 @@ export function TaskForm({
             <FieldError message={state.fieldErrors?.reward_amount} />
           </label>
         </div>
+
+        <fieldset className="block">
+          <legend className="text-sm font-black text-[#140625]">
+            Payment method
+          </legend>
+          <p className="mt-1 text-xs font-bold text-[#5a3b66]">
+            Manual keeps payment off-platform. Escrow locks USDC in the
+            Bountix contract on Base (reward of at least 1 USDC required); the
+            task opens after you fund it.
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {PAYMENT_METHODS.map((method, i) => (
+              <label
+                key={method}
+                className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-[#140625] bg-[#fffaf4] p-3 shadow-[3px_3px_0_#140625] transition hover:bg-white has-[:checked]:bg-[#38e7ff]"
+              >
+                <input
+                  type="radio"
+                  name="payment_method"
+                  value={method}
+                  defaultChecked={
+                    def?.payment_method
+                      ? def.payment_method === method
+                      : i === 0
+                  }
+                  className="mt-1 h-4 w-4 accent-[#7c3cff]"
+                />
+                <span className="text-sm font-black text-[#140625]">
+                  {PAYMENT_METHOD_LABEL[method]}
+                  {method === "escrow_base" ? (
+                    <span className="mt-1 block text-xs font-bold text-[#5a3b66]">
+                      Connect wallet, approve, and fund after posting.
+                    </span>
+                  ) : (
+                    <span className="mt-1 block text-xs font-bold text-[#5a3b66]">
+                      Works as today. No wallet needed.
+                    </span>
+                  )}
+                </span>
+              </label>
+            ))}
+          </div>
+          <FieldError message={state.fieldErrors?.payment_method} />
+        </fieldset>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <label className="block">
