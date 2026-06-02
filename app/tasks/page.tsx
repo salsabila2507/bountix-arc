@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
+  BadgeCheck,
   Bolt,
   Hourglass,
   LockKeyhole,
@@ -10,8 +11,10 @@ import {
 import { SiteHeader } from "@/components/site-header";
 import { TaskCard } from "@/components/marketplace/task-card";
 import { DbTaskCard } from "@/components/marketplace/db-task-card";
+import { CompletedWorkCard } from "@/components/marketplace/completed-work-card";
 import { TaskFilters } from "@/components/marketplace/filters";
 import { tasks as previewTasks } from "@/lib/marketplace";
+import { completedWork } from "@/lib/completed-work";
 import { createClient } from "@/lib/supabase/server";
 import {
   TASK_LIST_COLUMNS,
@@ -159,6 +162,30 @@ export default async function TasksPage() {
           {hasReal
             ? dbTasks.map((t) => <DbTaskCard key={t.id} task={t} />)
             : previewTasks.map((t) => <TaskCard key={t.id} task={t} />)}
+        </div>
+
+        <div className="mt-16">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="comic-chip bg-[#23b26d] text-white">
+                <BadgeCheck aria-hidden="true" className="h-3.5 w-3.5" />
+                Recent completed work
+              </p>
+              <h2 className="mt-4 text-3xl font-black leading-tight text-[#140625] sm:text-4xl">
+                Recent completed work
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm font-bold leading-6 text-[#3c214b]">
+                Work delivered and approved across the Bountix marketplace.
+                Rewards paid in USDC.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-4 lg:grid-cols-3">
+            {completedWork.map((item) => (
+              <CompletedWorkCard key={item.id} item={item} />
+            ))}
+          </div>
         </div>
       </section>
     </main>
