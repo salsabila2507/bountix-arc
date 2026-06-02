@@ -1,31 +1,30 @@
 "use client";
 
-import Link from "next/link";
 import { useActionState } from "react";
-import { Check, LoaderCircle, TriangleAlert } from "lucide-react";
-import { signupAction } from "@/app/auth/actions";
+import Link from "next/link";
+import { CheckCircle, LoaderCircle, TriangleAlert } from "lucide-react";
+import { resetPasswordAction } from "@/app/auth/actions";
 import { initialAuthState, type AuthFormState } from "@/lib/auth-form";
-import { OAuthButtons } from "./oauth-buttons";
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return <p className="mt-2 text-sm font-bold text-[#c42463]">{message}</p>;
 }
 
-export function SignupForm() {
+export function ResetPasswordForm() {
   const [state, formAction, isPending] = useActionState<
     AuthFormState,
     FormData
-  >(signupAction, initialAuthState);
+  >(resetPasswordAction, initialAuthState);
 
   return (
     <form action={formAction} className="comic-card bg-white p-5 sm:p-6">
-      <p className="comic-chip bg-[#38e7ff]">Create account</p>
+      <p className="comic-chip bg-[#38e7ff]">New password</p>
       <h1 className="mt-5 text-2xl font-black text-[#140625]">
-        Sign up for Bountix
+        Create a new password
       </h1>
       <p className="mt-3 text-sm font-medium leading-6 text-[#5a3b66]">
-        Email and password is all you need. You can finish your profile after.
+        Enter a strong password to secure your Bountix account.
       </p>
 
       {state.status === "error" && state.message ? (
@@ -40,20 +39,9 @@ export function SignupForm() {
 
       <div className="mt-6 grid gap-5">
         <label className="block">
-          <span className="text-sm font-black text-[#140625]">Email</span>
-          <input
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            placeholder="you@example.com"
-            className="mt-2 h-12 w-full rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 font-medium text-[#140625] placeholder:text-[#5a3b66]/45 outline-none transition focus:bg-white focus:ring-2 focus:ring-[#38e7ff]"
-          />
-          <FieldError message={state.fieldErrors?.email} />
-        </label>
-
-        <label className="block">
-          <span className="text-sm font-black text-[#140625]">Password</span>
+          <span className="text-sm font-black text-[#140625]">
+            New Password
+          </span>
           <input
             name="password"
             type="password"
@@ -62,8 +50,25 @@ export function SignupForm() {
             minLength={8}
             placeholder="At least 8 characters"
             className="mt-2 h-12 w-full rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 font-medium text-[#140625] placeholder:text-[#5a3b66]/45 outline-none transition focus:bg-white focus:ring-2 focus:ring-[#38e7ff]"
+            disabled={isPending}
           />
           <FieldError message={state.fieldErrors?.password} />
+        </label>
+
+        <label className="block">
+          <span className="text-sm font-black text-[#140625]">
+            Confirm Password
+          </span>
+          <input
+            name="confirmPassword"
+            type="password"
+            autoComplete="new-password"
+            required
+            minLength={8}
+            placeholder="Repeat your password"
+            className="mt-2 h-12 w-full rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 font-medium text-[#140625] placeholder:text-[#5a3b66]/45 outline-none transition focus:bg-white focus:ring-2 focus:ring-[#38e7ff]"
+            disabled={isPending}
+          />
         </label>
       </div>
 
@@ -75,31 +80,22 @@ export function SignupForm() {
         {isPending ? (
           <>
             <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />
-            Creating account…
+            Resetting…
           </>
         ) : (
           <>
-            <Check aria-hidden="true" className="h-4 w-4" />
-            Create account
+            <CheckCircle aria-hidden="true" className="h-4 w-4" />
+            Reset password
           </>
         )}
       </button>
 
-      <div className="mt-5 flex items-center gap-3">
-        <div className="h-px flex-1 bg-[#140625]/20" />
-        <span className="text-xs font-bold text-[#5a3b66]/60">OR</span>
-        <div className="h-px flex-1 bg-[#140625]/20" />
-      </div>
-
-      <OAuthButtons />
-
       <p className="mt-4 text-center text-sm font-medium leading-6 text-[#5a3b66]">
-        Already on Bountix?{" "}
         <Link
           href="/login"
           className="font-black text-[#7c3cff] underline decoration-2 underline-offset-2"
         >
-          Log in
+          Back to login
         </Link>
       </p>
     </form>

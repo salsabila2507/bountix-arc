@@ -1,0 +1,58 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const code = searchParams.get("code");
+  const error = searchParams.get("error");
+  const errorDescription = searchParams.get("error_description");
+
+  // Handle OAuth errors
+  if (error) {
+    const message = errorDescription
+      ? `Authentication failed: ${errorDescription}`
+      : "Authentication failed. Please try again.";
+    return NextResponse.redirect(
+      new URL(`/login?error=${encodeURIComponent(message)}`, request.url),
+    );
+  }
+
+  // Handle missing code
+  if (!code) {
+    return NextResponse.redirect(
+      new URL(
+        "/login?error=" +
+          encodeURIComponent("Authentication code missing. Please try again."),
+        request.url,
+      ),
+    );
+  }
+
+  try {
+    const supabase = await createClient();
+    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (exchangeError) {
+      return NextResponse.redirect(
+        new URL(
+          `/login?error=${encodeURIComponent("Could not complete authentication. Please try again.")}`,
+          request.url,
+        ),
+      );
+    }
+
+    // Successful OAuth - redirect to profile
+    return NextResponse.redirect(new URL("/dashboard/profile", request.url));
+  } catch (err) {
+    console.error("OAuth callback error:", err);
+    return NextResponse.redirect(
+      new URL(
+        "/login?error=" +
+          encodeURIComponent("An unexpected error occurred. Please try again."),
+        request.url,
+      ),
+    );
+  }
+}

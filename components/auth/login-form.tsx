@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { LoaderCircle, LogIn, TriangleAlert } from "lucide-react";
 import { loginAction } from "@/app/auth/actions";
 import { initialAuthState, type AuthFormState } from "@/lib/auth-form";
+import { OAuthButtons } from "./oauth-buttons";
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -83,15 +84,33 @@ export function LoginForm() {
         )}
       </button>
 
-      <p className="mt-4 text-center text-sm font-medium leading-6 text-[#5a3b66]">
-        New to Bountix?{" "}
-        <Link
-          href="/signup"
-          className="font-black text-[#7c3cff] underline decoration-2 underline-offset-2"
-        >
-          Create account
-        </Link>
-      </p>
+      <div className="mt-5 flex items-center gap-3">
+        <div className="h-px flex-1 bg-[#140625]/20" />
+        <span className="text-xs font-bold text-[#5a3b66]/60">OR</span>
+        <div className="h-px flex-1 bg-[#140625]/20" />
+      </div>
+
+      <OAuthButtons />
+
+      <div className="mt-6 space-y-2 text-center text-sm font-medium leading-6 text-[#5a3b66]">
+        <p>
+          <Link
+            href="/forgot-password"
+            className="font-black text-[#c42463] underline decoration-2 underline-offset-2"
+          >
+            Forgot password?
+          </Link>
+        </p>
+        <p>
+          New to Bountix?{" "}
+          <Link
+            href="/signup"
+            className="font-black text-[#7c3cff] underline decoration-2 underline-offset-2"
+          >
+            Create account
+          </Link>
+        </p>
+      </div>
     </form>
   );
 }
