@@ -471,12 +471,10 @@ export default function Home() {
                   Base-ready roadmap
                 </p>
                 <h2 className="mt-3 text-3xl font-black uppercase leading-none drop-shadow-[3px_3px_0_#17072b] sm:text-5xl">
-                  Base-ready rewards are coming
+                  Base-ready rewards are live
                 </h2>
                 <p className="mt-3 max-w-2xl text-sm font-bold leading-7 text-white/90 sm:text-base">
-                  Bountix is exploring Base as the payment layer for global
-                  internet work, starting with USDC task rewards and future
-                  escrow-protected deals.
+                  Bountix supports USDC task rewards on Base with manual payment or Base escrow through the Bountix contract.
                 </p>
               </div>
               <div className="hidden items-center gap-2 rounded-lg border-2 border-[#17072b] bg-white px-3 py-2 text-xs font-black uppercase text-[#17072b] shadow-[3px_3px_0_#17072b] sm:inline-flex">
@@ -496,8 +494,8 @@ export default function Home() {
                 <p className="mt-2 text-sm font-bold leading-6 text-[#5a3b66]">
                   A simple payment layer for global task rewards.
                 </p>
-                <span className="mt-4 inline-flex rounded-md border-2 border-[#17072b] bg-[#ffdd3d] px-2 py-0.5 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#17072b]">
-                  Planned
+                <span className="mt-4 inline-flex rounded-md border-2 border-[#17072b] bg-[#38e7ff] px-2 py-0.5 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#17072b]">
+                  Live
                 </span>
               </article>
 
@@ -506,14 +504,13 @@ export default function Home() {
                   <LockKeyhole aria-hidden="true" className="h-6 w-6" />
                 </span>
                 <h3 className="mt-4 text-2xl font-black uppercase leading-tight">
-                  Future Escrow Protection
+                  Base Escrow Protection
                 </h3>
                 <p className="mt-2 text-sm font-bold leading-6 text-[#5a3b66]">
-                  Funds can be locked before work starts and released after
-                  approval.
+                  Funds can be locked before work starts and released after task approval.
                 </p>
-                <span className="mt-4 inline-flex rounded-md border-2 border-[#17072b] bg-[#ff4fb8] px-2 py-0.5 text-[0.65rem] font-black uppercase text-white shadow-[2px_2px_0_#17072b]">
-                  Future release
+                <span className="mt-4 inline-flex rounded-md border-2 border-[#17072b] bg-[#38e7ff] px-2 py-0.5 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#17072b]">
+                  Live
                 </span>
               </article>
 
@@ -535,8 +532,7 @@ export default function Home() {
             </div>
 
             <p className="mt-6 max-w-3xl text-xs font-bold leading-6 text-white/75">
-              Early access preview. No live payments yet. Escrow-protected task
-              rewards are planned for a future release.
+              Early access preview. Manual payment and Base escrow are available now.
             </p>
           </div>
         </section>
