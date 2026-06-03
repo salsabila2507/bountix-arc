@@ -86,6 +86,31 @@ export const ESCROW_FUND_ABI = [
   },
 ] as const;
 
+/** ABI for admin-only assignWorker function. Must be called before release. */
+export const ESCROW_ASSIGN_ABI = [
+  {
+    type: "function",
+    name: "assignWorker",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "taskId", type: "bytes32" },
+      { name: "worker", type: "address" },
+    ],
+    outputs: [],
+  },
+] as const;
+
+/** ABI for admin-only release function. Called after worker is assigned. */
+export const ESCROW_RELEASE_ABI = [
+  {
+    type: "function",
+    name: "releaseEscrow",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "taskId", type: "bytes32" }],
+    outputs: [],
+  },
+] as const;
+
 /** Basescan tx URL helper for surfacing the funding receipt. */
 export function basescanTxUrl(txHash: string): string {
   return `https://basescan.org/tx/${txHash}`;

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import { EscrowReleasePanel } from "@/components/marketplace/escrow-release-panel";
 import {
   decideApplicationAction,
   reviewSubmissionAction,
@@ -32,6 +33,7 @@ type ProfileLite = {
   id: string;
   username: string;
   display_name: string | null;
+  wallet_address: string | null;
 };
 
 async function loadPage(taskId: string) {
@@ -73,8 +75,7 @@ async function loadPage(taskId: string) {
   if (applicantIds.length > 0) {
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("id, username, display_name")
-      .in("id", applicantIds);
+      .select("id, username, display_name, wallet_address");
     for (const p of profiles ?? []) {
       profilesByUser.set(p.id, p as ProfileLite);
     }
@@ -297,6 +298,45 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                               <p className="mt-3 rounded-lg border-2 border-dashed border-[#140625] bg-[#f2e6ff] p-3 text-sm font-bold text-[#3c214b]">
                                 {s.review_notes}
                               </p>
+                            ) : null}
+
+                            {s.status === "approved" && task.payment_method === "escrow_base" && !s.released_at ? (
+                              <EscrowReleasePanel
+                                submissionId={s.id}
+                                taskId={task.id}
+                                rewardAmount={task.reward_amount}
+                                workerWalletAddress={applicant ? applicant.wallet_address : null}
+                              />
+                            ) : null}
+
+                            {s.released_at ? (
+                              <div className="mt-4 rounded-lg border-2 border-[#140625] bg-[#dff7e6] p-3 text-sm font-bold text-[#1f6b3a]">
+                                ✓ Escrow released on {new Date(s.released_at).toLocaleDateString()}
+                                {s.assign_tx_hash ? (
+                                  <div className="mt-2 space-y-1">
+                                    <a
+                                      href={`https://basescan.org/tx/${s.assign_tx_hash}`}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="block text-xs font-black text-[#7c3cff] hover:underline"
+                                    >
+                                      View assign tx
+                                    </a>
+                                  </div>
+                                ) : null}
+                                {s.release_tx_hash ? (
+                                  <div className="space-y-1">
+                                    <a
+                                      href={`https://basescan.org/tx/${s.release_tx_hash}`}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="block text-xs font-black text-[#7c3cff] hover:underline"
+                                    >
+                                      View release tx
+                                    </a>
+                                  </div>
+                                ) : null}
+                              </div>
                             ) : null}
                           </div>
                         );

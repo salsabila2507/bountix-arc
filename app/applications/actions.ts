@@ -287,3 +287,91 @@ export async function reviewSubmissionAction(
     revalidatePath(`/dashboard/tasks/${row.task_id}/applicants`);
   }
 }
+
+// =====================================================================
+// Escrow Release (admin/owner only)
+// =====================================================================
+
+export async function releaseEscrowAction(
+  submissionId: string,
+  assignTxHash: string,
+  releaseTxHash: string,
+) {
+  if (!isUuid(submissionId)) {
+    return { ok: false, message: "Invalid submission." };
+  }
+
+  const { supabase, user, profile } = await loadActor();
+  if (!user) redirect("/login");
+
+  // Fetch submission + task + worker profile
+  const { data: submission } = await supabase
+    .from("task_submissions")
+    .select("task_id, submitter_id")
+    .eq("id", submissionId)
+    .maybeSingle();
+
+  if (!submission) {
+    return { ok: false, message: "Submission not found." };
+  }
+
+  const { data: task } = await supabase
+    .from("tasks")
+    .select("id, creator_id, payment_method, reward_amount")
+    .eq("id", submission.task_id)
+    .maybeSingle();
+
+  if (!task) {
+    return { ok: false, message: "Task not found." };
+  }
+
+  // Check permission: must be task owner or admin
+  const isAdmin = profile?.role === "admin";
+  const isOwner = task.creator_id === user.id;
+  if (!isAdmin && !isOwner) {
+    return { ok: false, message: "Permission denied." };
+  }
+
+  // Only escrow tasks can release
+  if (task.payment_method !== "escrow_base") {
+    return { ok: false, message: "This task uses manual payment." };
+  }
+
+  // Fetch worker wallet address
+  const { data: worker } = await supabase
+    .from("profiles")
+    .select("wallet_address")
+    .eq("id", submission.submitter_id)
+    .maybeSingle();
+
+  if (!worker?.wallet_address) {
+    return {
+      ok: false,
+      message:
+        "Worker has not set a wallet address. Ask them to add one in their profile.",
+    };
+  }
+
+  // Record both assign and release tx hashes on the submission
+  const { error } = await supabase
+    .from("task_submissions")
+    .update({
+      assign_tx_hash: assignTxHash,
+      assigned_at: new Date().toISOString(),
+      release_tx_hash: releaseTxHash,
+      released_at: new Date().toISOString(),
+    })
+    .eq("id", submissionId);
+
+  if (error) {
+    return {
+      ok: false,
+      message: error.message || "Could not record release.",
+    };
+  }
+
+  revalidatePath(`/dashboard/tasks/${task.id}/applicants`);
+  revalidatePath(`/tasks/${task.id}`);
+
+  return { ok: true, message: "Escrow released." };
+}

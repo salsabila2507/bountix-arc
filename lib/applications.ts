@@ -65,9 +65,13 @@ export type DbSubmission = {
   review_notes: string | null;
   status: SubmissionStatus;
   reviewed_at: string | null;
+  assign_tx_hash: string | null;
+  assigned_at: string | null;
+  release_tx_hash: string | null;
+  released_at: string | null;
   created_at: string;
   updated_at: string;
 };
 
 export const SUBMISSION_COLUMNS =
-  "id, task_id, application_id, submitter_id, delivery_url, notes, review_notes, status, reviewed_at, created_at, updated_at";
+  "id, task_id, application_id, submitter_id, delivery_url, notes, review_notes, status, reviewed_at, assign_tx_hash, assigned_at, release_tx_hash, released_at, created_at, updated_at";
