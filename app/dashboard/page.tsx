@@ -49,8 +49,8 @@ export default async function DashboardPage() {
               {profile?.username ? `Hi, @${profile.username}` : "Dashboard"}
             </h1>
             <p className="mt-3 text-sm font-bold leading-6 text-[#5a3b66]">
-              Manage your profile, tasks, and applications. Rewards in USDC on
-              Base. Escrow on Base coming soon.
+              Manage your profile, tasks, and applications. Rewards paid in USDC on
+              Base. Manual payment or Base escrow is available.
             </p>
           </div>
           {isAdmin ? (

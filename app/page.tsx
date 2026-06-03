@@ -662,8 +662,7 @@ export default function Home() {
                   for approval, then create, apply, submit, and review tasks.
                 </p>
                 <p className="mt-3 max-w-xl text-sm font-bold leading-6 text-[#5a3b66]">
-                  USDC rewards on Base are the next milestone. Escrow on Base
-                  is coming soon.
+                  Rewards paid in USDC on Base. Manual payment or Base escrow is available.
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[320px] lg:grid-cols-1">

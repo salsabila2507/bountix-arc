@@ -238,8 +238,8 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                   <div className="flex gap-3">
                     <LockKeyhole aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-[#7c3cff]" />
                     <div>
-                      <h2 className="font-black text-[#140625]">Escrow on Base. Coming soon</h2>
-                      <p className="mt-2 text-sm font-semibold leading-6 text-[#3c214b]">Smart-contract escrow on Base is not live yet. USDC payments will route here once it ships.</p>
+                      <h2 className="font-black text-[#140625]">Payment methods available</h2>
+                      <p className="mt-2 text-sm font-semibold leading-6 text-[#3c214b]">Rewards can be paid via manual off-platform payment or USDC escrow on Base.</p>
                     </div>
                   </div>
                 </div>
@@ -371,7 +371,7 @@ export default async function TaskDetailPage({ params }: RouteParams) {
               <div className="mt-5 rounded-lg border-2 border-[#140625] bg-[#f1d8ff] px-4 py-3 text-sm font-black leading-6 text-[#140625] shadow-[4px_4px_0_#140625]">
                 Bountix is live in gated early access. Join the waitlist for
                 approval, then create, apply, submit, and review tasks.
-                <span className="mt-2 block text-xs font-bold leading-5 text-[#3c214b]">USDC rewards on Base are planned. Escrow on Base coming soon.</span>
+                <span className="mt-2 block text-xs font-bold leading-5 text-[#3c214b]">Rewards paid in USDC on Base. Manual payment or Base escrow is available.</span>
               </div>
 
               <p className="mt-8 text-xs font-black uppercase text-[#7c3cff]">{previewTask.category}</p>
@@ -417,8 +417,8 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                 <div className="flex gap-3">
                   <LockKeyhole aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-[#7c3cff]" />
                   <div>
-                    <h2 className="font-black text-[#140625]">Escrow on Base. Coming soon</h2>
-                    <p className="mt-2 text-sm font-semibold leading-6 text-[#3c214b]">USDC escrow on Base is not live yet.</p>
+                    <h2 className="font-black text-[#140625]">Payment methods available</h2>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-[#3c214b]">Rewards can be paid via manual off-platform payment or USDC escrow on Base.</p>
                   </div>
                 </div>
               </div>

@@ -63,7 +63,7 @@ export function TaskForm({
         {mode === "create" ? "Create a new task" : "Edit your task"}
       </h1>
       <p className="mt-3 text-sm font-medium leading-6 text-[#5a3b66]">
-        Rewards are paid in USDC on Base. Escrow on Base coming soon.
+        Rewards are paid in USDC on Base. Manual payment or Base escrow is available.
       </p>
 
       {state.status === "error" && state.message ? (
@@ -304,7 +304,7 @@ export function TaskForm({
             className="mr-2 inline h-4 w-4 text-[#7c3cff]"
           />
           Rewards paid in <span className="font-black">USDC on Base</span>.
-          Escrow on Base coming soon. Payments are not on-chain yet.
+          Manual payment or Base escrow is available.
         </div>
       </div>
 

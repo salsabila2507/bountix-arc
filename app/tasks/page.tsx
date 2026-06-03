@@ -97,7 +97,7 @@ export default async function TasksPage() {
                   : "Bountix is live in gated early access. Approved users can create, apply, submit, and review tasks. The list below is a preview until tasks are seeded."}
               </p>
               <p className="mt-3 max-w-2xl text-sm font-bold leading-6 text-[#3c214b]">
-                Rewards in USDC on Base. Escrow on Base coming soon.
+                Rewards paid in USDC on Base. Manual payment or Base escrow is available.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link
@@ -148,7 +148,7 @@ export default async function TasksPage() {
                   aria-hidden="true"
                   className="mb-2 h-4 w-4 text-[#7c3cff]"
                 />
-                Escrow on Base is planned. Payments are not on-chain yet.
+                Manual payment or Base USDC escrow is available.
               </div>
             </div>
           </div>

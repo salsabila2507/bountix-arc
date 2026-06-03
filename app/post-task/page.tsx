@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Post a Task",
   description:
-    "Create a new Bountix task. Rewards in USDC on Base. Escrow on Base coming soon.",
+    "Create a new Bountix task. Rewards paid in USDC on Base. Manual payment or Base escrow available.",
 };
 
 async function loadActor() {
@@ -103,7 +103,7 @@ export default async function PostTaskPage() {
                   aria-hidden="true"
                   className="mr-2 inline h-4 w-4 text-[#7c3cff]"
                 />
-                Rewards in USDC on Base. Escrow on Base coming soon.
+                Rewards are paid in USDC on Base. Manual payment or Base escrow is available.
               </div>
               <Link
                 href="/dashboard/profile"
