@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { EscrowReleasePanel } from "@/components/marketplace/escrow-release-panel";
 import {
   decideApplicationAction,
+  restoreApplicationAction,
   reviewSubmissionAction,
 } from "@/app/applications/actions";
 import { createClient } from "@/lib/supabase/server";
@@ -209,6 +210,18 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                       <form action={rejectAction}>
                         <button className="inline-flex min-h-10 items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-xs font-black uppercase text-[#c42463] shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#ffe1ed]">
                           Reject
+                        </button>
+                      </form>
+                    </div>
+                  ) : null}
+
+                  {app.status === "withdrawn" ? (
+                    <div className="mt-4">
+                      <form
+                        action={restoreApplicationAction.bind(null, app.id)}
+                      >
+                        <button className="inline-flex min-h-10 items-center gap-2 rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-3 py-2 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#ffdd3d]">
+                          Restore application
                         </button>
                       </form>
                     </div>

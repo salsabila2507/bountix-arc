@@ -140,6 +140,50 @@ export async function decideApplicationAction(
 }
 
 // =====================================================================
+// Restore Withdrawn Application (admin/task-owner only)
+// =====================================================================
+
+export async function restoreApplicationAction(applicationId: string) {
+  if (!isUuid(applicationId)) return;
+
+  const { supabase, user, profile } = await loadActor();
+  if (!user) redirect("/login");
+
+  const { data: app } = await supabase
+    .from("task_applications")
+    .select("task_id, status")
+    .eq("id", applicationId)
+    .maybeSingle();
+
+  if (!app) return;
+
+  // Only restore withdrawn applications
+  if (app.status !== "withdrawn") return;
+
+  // Check permission: task owner or admin
+  const { data: task } = await supabase
+    .from("tasks")
+    .select("creator_id")
+    .eq("id", app.task_id)
+    .maybeSingle();
+
+  if (!task) return;
+
+  const isAdmin = profile?.role === "admin";
+  const isOwner = task.creator_id === user.id;
+  if (!isAdmin && !isOwner) return;
+
+  // Restore to "pending" so worker can submit work again
+  await supabase
+    .from("task_applications")
+    .update({ status: "pending" })
+    .eq("id", applicationId);
+
+  revalidatePath(`/dashboard/tasks/${app.task_id}/applicants`);
+  revalidatePath(`/tasks/${app.task_id}`);
+}
+
+// =====================================================================
 // Submissions
 // =====================================================================
 
