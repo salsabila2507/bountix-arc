@@ -62,9 +62,9 @@ bandwidth. These rules keep us well under those limits.
 - **Base-friendly.** Constants live in `lib/payments.ts`:
   `BASE_MAINNET_CHAIN_ID=8453`, `BASE_MAINNET_USDC_ADDRESS`,
   `USDC_DECIMALS=6`.
-- Escrow / wallet connect / on-chain transfer are **not implemented**.
-  UI labels say "Escrow on Base — coming soon" until
-  `escrowOnBaseLive` flips to true.
+- Manual payment and Base mainnet escrow are live payment paths.
+  UI labels must not imply USDC rewards or Base escrow are future-only.
+  `escrowOnBaseLive` is true because the escrow contract is deployed.
 - Reason: positions Bountix for Base Builder Grants; avoids regulatory
   / token launch baggage.
 

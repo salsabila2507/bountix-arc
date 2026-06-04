@@ -1,9 +1,9 @@
 /**
  * Bountix payment constants.
  *
- * Direction: USDC only, Base-friendly. No custom token, no USDT.
- * Smart contract escrow is NOT live yet — these constants prepare
- * the codebase for a future on-chain USDC escrow on Base.
+ * Direction: USDC only on Base. No custom token, no USDT.
+ * Manual payment and the deployed Base mainnet escrow flow are live payment
+ * paths for Bountix rewards.
  *
  * See docs/constraints.md for the full payment + free-tier rules.
  */
@@ -56,7 +56,6 @@ export function formatUsdc(amount: number | null | undefined): string {
 }
 
 /**
- * True only after escrow smart contracts are deployed on Base.
- * Toggle later via env var; default false keeps "coming soon" labels.
+ * True because Bountix has a deployed Base mainnet escrow contract.
  */
-export const escrowOnBaseLive = false;
+export const escrowOnBaseLive = true;

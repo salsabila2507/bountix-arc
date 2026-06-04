@@ -140,8 +140,9 @@ export default async function CreatorDetailPage({
                 Request a service
               </h2>
               <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-                Bountix is live in gated early access. Join the waitlist for
-                approval to send scope, timing, and budget.
+                Bountix is live in early access. Approved users can send scope,
+                timing, and budget. Rewards can be paid in USDC on Base through
+                manual payment or Base escrow.
               </p>
               <Link
                 href="/waitlist"

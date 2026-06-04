@@ -73,7 +73,7 @@ export function PostTaskForm() {
               className="mt-0.5 h-4 w-4 shrink-0 text-[#7c3cff]"
             />
             <p className="text-sm font-semibold leading-6 text-[#3c214b]">
-              Funds will be locked before work starts and released after approval.
+              Rewards can be paid in USDC on Base through manual payment or Base escrow.
             </p>
           </div>
         </div>
@@ -83,7 +83,7 @@ export function PostTaskForm() {
         type="button"
         disabled
         aria-disabled="true"
-        title="Bountix is in gated early access"
+        title="Bountix is in early access"
         className="mt-6 inline-flex min-h-12 w-full cursor-not-allowed items-center justify-center rounded-lg border-2 border-[#140625] bg-[#ff4fb8] px-5 py-3 text-sm font-black uppercase text-white shadow-[5px_5px_0_#140625] opacity-90"
       >
         Join waitlist to start

@@ -56,7 +56,7 @@ export function SubmissionForm({
         type="button"
         disabled
         aria-disabled="true"
-        title="Bountix is in gated early access"
+        title="Bountix is in early access"
         className="mt-5 inline-flex min-h-11 w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#f1d8ff] px-4 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625] opacity-90"
       >
         <Hourglass aria-hidden="true" className="h-4 w-4 text-[#7c3cff]" />

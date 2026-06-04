@@ -92,7 +92,7 @@ export function ServiceCard({
             type="button"
             disabled
             aria-disabled="true"
-            title="Bountix is in gated early access"
+            title="Bountix is in early access"
             className="inline-flex min-h-10 cursor-not-allowed items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-3 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] opacity-90"
           >
             <MessageSquareText

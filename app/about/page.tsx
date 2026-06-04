@@ -17,7 +17,7 @@ import { SiteHeader } from "@/components/site-header";
 export const metadata = {
   title: "About",
   description:
-    "Bountix is a gated early-access task marketplace built around USDC on Base. Live MVP. Built for the Base ecosystem.",
+    "Bountix is an early-access task marketplace built around USDC on Base with manual payment and Base escrow.",
 };
 
 export default function AboutPage() {
@@ -40,10 +40,11 @@ export default function AboutPage() {
                 Bountix is a task marketplace for Web3 projects, creators, and communities.
               </h1>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-8 text-[#3c214b] sm:text-lg">
-                A gated early-access task marketplace. Approved users create,
+                An early-access task marketplace. Approved users create,
                 apply to, submit, and review tasks. Bountix and partners
                 publish official tasks, campaigns, announcements, and
-                giveaways. Rewards are designed around USDC on Base.
+                giveaways. Rewards can be paid in USDC on Base through manual
+                payment or Base escrow.
               </p>
               <p className="mt-4 max-w-2xl text-base font-semibold leading-8 text-[#3c214b] sm:text-lg">
                 Bountix helps projects turn community work into structured
@@ -97,10 +98,10 @@ export default function AboutPage() {
             </span>
             <h3 className="mt-4 text-lg font-black uppercase">Solution</h3>
             <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-              Bountix is a gated early-access task marketplace. Approved users
+              Bountix is an early-access task marketplace. Approved users
               create tasks, applicants pitch, accepted workers ship, and task
-              creators review with approve, revision, or reject. All in one
-              place, free-tier-friendly.
+              creators review with approve, revision, or reject. Rewards can
+              be paid in USDC on Base through manual payment or Base escrow.
             </p>
           </article>
           <article className="comic-card-soft bg-white p-5">
@@ -109,10 +110,10 @@ export default function AboutPage() {
             </span>
             <h3 className="mt-4 text-lg font-black uppercase">Why Base</h3>
             <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-              Bountix is designed around USDC rewards on Base. Base gives us
-              low-cost, fast payments for global contributors. Our schema and
-              UI are already shaped around USDC-on-Base release flows so the
-              escrow ship is short.
+              Bountix supports USDC rewards on Base. Base gives us low-cost,
+              fast payments for global contributors, and the deployed Base
+              escrow contract can lock funds before work starts and release
+              them after approval.
             </p>
           </article>
         </div>
@@ -124,8 +125,9 @@ export default function AboutPage() {
             What works today
           </h2>
           <p className="mt-3 max-w-3xl text-sm font-bold leading-6 text-[#5a3b66]">
-            Bountix is live in gated early access. Reviewers can sign up,
-            wait for approval, then run the full task lifecycle end-to-end.
+            Bountix is live in early access. Approved users can create, apply,
+            submit, and review tasks. Rewards can be paid in USDC on Base
+            through manual payment or Base escrow.
           </p>
           <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[
@@ -187,9 +189,9 @@ export default function AboutPage() {
               Honest status
             </h3>
             <ul className="mt-3 grid gap-2 text-sm font-semibold leading-6 text-[#3c214b]">
-              <li>Live MVP in gated early access. Admin approval per user.</li>
+              <li>Live MVP in early access. Admin approval per user.</li>
               <li>Demo / official tasks are seeded by Bountix admins.</li>
-              <li>Rewards are displayed in USDC. On-chain escrow and release are planned for the next milestone.</li>
+              <li>Rewards can be paid in USDC on Base through manual payment or Base escrow.</li>
               <li>No realtime chat, no file uploads, no analytics tables. Free-tier-friendly by design.</li>
             </ul>
           </article>
@@ -199,18 +201,18 @@ export default function AboutPage() {
         <div className="mt-10 rounded-[1rem] border-2 border-[#140625] bg-[#7c3cff] p-6 text-white shadow-[8px_8px_0_#140625] sm:p-10">
           <p className="comic-chip bg-[#ffdd3d] text-[#140625]">
             <LockKeyhole aria-hidden="true" className="h-3.5 w-3.5" />
-            What&apos;s next
+            What&apos;s live
           </p>
           <h2 className="mt-4 text-2xl font-black uppercase leading-none drop-shadow-[3px_3px_0_#17072b] sm:text-4xl">
-            Ship USDC escrow on Base. Grow the contributor network.
+            USDC escrow on Base is live. Grow the contributor network.
           </h2>
           <p className="mt-3 max-w-3xl text-sm font-bold leading-6 text-white/85 sm:text-base">
-            Funding accelerates the work-to-payout loop and onboards more
-            approved users. Every milestone is concrete and ships against
-            the existing schema.
+            Base escrow and manual payment are available now. The next work is
+            expanding approved users, services, safety, and multilingual
+            coverage on top of the existing marketplace.
           </p>
           <ol className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <RoadmapStep n="1" title="USDC escrow on Base" body="Deploy contract, wire fund / release / refund. UI is already labelled and shaped." />
+            <RoadmapStep n="1" title="USDC escrow on Base" body="Base mainnet escrow is deployed and wired for fund and release flows." />
             <RoadmapStep n="2" title="Approved beta users" body="Onboard the next wave of creators and operators. Build initial task liquidity." />
             <RoadmapStep n="3" title="Services + deals" body="Long-running creator services and negotiated deals on top of the marketplace." />
             <RoadmapStep n="4" title="Reporting + safety" body="Report task / profile / submission. Admin review queue and audit trail." />
@@ -222,7 +224,7 @@ export default function AboutPage() {
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
           <Stat
             title="Status"
-            body="Phase 3 MVP: tasks, applications, and submissions are live in gated early access. Wallet connect and on-chain release are next."
+            body="Phase 3 MVP: tasks, applications, submissions, manual payment copy, and Base escrow flows are live in early access."
             chip="Early access"
             chipColor="bg-[#ff4fb8] text-white"
             icon={<Hourglass className="h-4 w-4" />}
