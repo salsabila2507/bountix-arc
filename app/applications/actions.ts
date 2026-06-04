@@ -333,6 +333,103 @@ export async function reviewSubmissionAction(
 }
 
 // =====================================================================
+// Raffle Metadata (admin/owner only)
+// =====================================================================
+
+export async function setSubmissionRaffleEligibilityAction(
+  submissionId: string,
+  eligible: boolean,
+) {
+  if (!isUuid(submissionId)) return;
+
+  const { supabase, user, profile } = await loadActor();
+  if (!user) redirect("/login");
+
+  const { data: submission } = await supabase
+    .from("task_submissions")
+    .select("id, task_id, raffle_winner_position")
+    .eq("id", submissionId)
+    .maybeSingle();
+
+  if (!submission) return;
+
+  const { data: task } = await supabase
+    .from("tasks")
+    .select("id, creator_id, reward_mode")
+    .eq("id", submission.task_id)
+    .maybeSingle();
+
+  if (!task || task.reward_mode !== "raffle") return;
+
+  const isAdmin = profile?.role === "admin";
+  const isOwner = task.creator_id === user.id;
+  if (!isAdmin && !isOwner) return;
+
+  if (!eligible && submission.raffle_winner_position !== null) {
+    return;
+  }
+
+  const { data: selectedWinner } = await supabase
+    .from("task_submissions")
+    .select("id")
+    .eq("task_id", task.id)
+    .not("raffle_winner_position", "is", null)
+    .limit(1)
+    .maybeSingle();
+
+  if (selectedWinner) return;
+
+  const { error } = await supabase
+    .from("task_submissions")
+    .update({
+      raffle_eligible: eligible,
+      raffle_eligible_at: eligible ? new Date().toISOString() : null,
+    })
+    .eq("id", submissionId);
+
+  if (error) return;
+
+  revalidatePath(`/tasks/${task.id}`);
+  revalidatePath(`/dashboard/tasks/${task.id}/applicants`);
+  revalidatePath("/dashboard/applications");
+}
+
+export async function selectRaffleWinnersAction(taskId: string) {
+  if (!isUuid(taskId)) return;
+
+  const { supabase, user, profile } = await loadActor();
+  if (!user) redirect("/login");
+
+  const { data: task } = await supabase
+    .from("tasks")
+    .select(
+      "id, creator_id, reward_mode, raffle_winner_count, payment_method",
+    )
+    .eq("id", taskId)
+    .maybeSingle();
+
+  if (!task || task.reward_mode !== "raffle") return;
+
+  const isAdmin = profile?.role === "admin";
+  const isOwner = task.creator_id === user.id;
+  if (!isAdmin && !isOwner) return;
+
+  if (task.payment_method === "escrow_base" && task.raffle_winner_count > 1) {
+    return;
+  }
+
+  const { error } = await supabase.rpc("select_raffle_winners", {
+    p_task_id: taskId,
+  });
+
+  if (error) return;
+
+  revalidatePath(`/tasks/${task.id}`);
+  revalidatePath(`/dashboard/tasks/${task.id}/applicants`);
+  revalidatePath("/dashboard/applications");
+}
+
+// =====================================================================
 // Escrow Release (admin/owner only)
 // =====================================================================
 
@@ -351,7 +448,7 @@ export async function releaseEscrowAction(
   // Fetch submission + task + worker profile
   const { data: submission } = await supabase
     .from("task_submissions")
-    .select("task_id, submitter_id")
+    .select("task_id, submitter_id, status, raffle_winner_position")
     .eq("id", submissionId)
     .maybeSingle();
 
@@ -361,7 +458,9 @@ export async function releaseEscrowAction(
 
   const { data: task } = await supabase
     .from("tasks")
-    .select("id, creator_id, payment_method, reward_amount")
+    .select(
+      "id, creator_id, payment_method, reward_amount, reward_mode, raffle_winner_count",
+    )
     .eq("id", submission.task_id)
     .maybeSingle();
 
@@ -379,6 +478,29 @@ export async function releaseEscrowAction(
   // Only escrow tasks can release
   if (task.payment_method !== "escrow_base") {
     return { ok: false, message: "This task uses manual payment." };
+  }
+
+  if (submission.status !== "approved") {
+    return {
+      ok: false,
+      message: "Approve the submission before releasing escrow.",
+    };
+  }
+
+  if (task.reward_mode === "raffle") {
+    if (task.raffle_winner_count > 1) {
+      return {
+        ok: false,
+        message:
+          "Escrow V0 supports one payout per raffle task. Use manual payment for multi-winner raffles.",
+      };
+    }
+    if (submission.raffle_winner_position === null) {
+      return {
+        ok: false,
+        message: "Only the selected raffle winner can receive escrow.",
+      };
+    }
   }
 
   // Fetch worker wallet address

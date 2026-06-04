@@ -41,6 +41,14 @@ export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = {
   escrow_base: "Escrow USDC on Base",
 };
 
+export const REWARD_MODES = ["fixed", "raffle"] as const;
+export type RewardMode = (typeof REWARD_MODES)[number];
+
+export const REWARD_MODE_LABEL: Record<RewardMode, string> = {
+  fixed: "Fixed reward",
+  raffle: "Raffle reward",
+};
+
 export const TASK_STATUS_LABEL: Record<TaskStatus, string> = {
   draft: "Draft",
   open: "Open",
@@ -86,6 +94,9 @@ export type DbTask = {
   external_link: string | null;
   start_date: string | null;
   end_date: string | null;
+  reward_mode: RewardMode;
+  raffle_winner_count: number;
+  eligibility_rules: string | null;
   payment_method: PaymentMethod;
   escrow_contract_address: string | null;
   escrow_tx_hash: string | null;
@@ -95,7 +106,7 @@ export type DbTask = {
 
 /** Lightweight column list for list views — minimises row read size. */
 export const TASK_LIST_COLUMNS =
-  "id, creator_id, title, description, category, reward_amount, reward_currency, chain, status, task_type, external_link, start_date, end_date, payment_method, escrow_contract_address, escrow_tx_hash, created_at, updated_at";
+  "id, creator_id, title, description, category, reward_amount, reward_currency, chain, status, task_type, external_link, start_date, end_date, reward_mode, raffle_winner_count, eligibility_rules, payment_method, escrow_contract_address, escrow_tx_hash, created_at, updated_at";
 
 export const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

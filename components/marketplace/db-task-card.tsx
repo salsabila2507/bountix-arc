@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Calendar, ExternalLink } from "lucide-react";
+import { ArrowRight, Calendar, ExternalLink, Trophy } from "lucide-react";
 import {
   TASK_STATUS_LABEL,
   TASK_TYPE_COLOR,
@@ -35,6 +35,7 @@ export function DbTaskCard({
   detailHrefPrefix?: string;
 }) {
   const isOfficial = task.task_type !== "user_task";
+  const isRaffle = task.reward_mode === "raffle";
 
   return (
     <Link
@@ -61,6 +62,12 @@ export function DbTaskCard({
             {TASK_TYPE_LABEL[task.task_type]}
           </span>
           <StatusChip status={task.status} />
+          {isRaffle ? (
+            <span className="inline-flex items-center gap-1 rounded-md border-2 border-[#140625] bg-[#ffdd3d] px-2 py-1 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#140625]">
+              <Trophy aria-hidden="true" className="h-3 w-3" />
+              Raffle
+            </span>
+          ) : null}
           {isOfficial ? (
             <span className="inline-flex items-center rounded-md border-2 border-[#140625] bg-[#fff7e8] px-2 py-1 text-[0.6rem] font-black uppercase text-[#140625] shadow-[2px_2px_0_#140625]">
               Official by Bountix
@@ -82,6 +89,7 @@ export function DbTaskCard({
           {task.reward_amount !== null ? (
             <p className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border-2 border-[#140625] bg-[#ffdd3d] px-3 py-2 text-sm font-black text-[#140625] shadow-[3px_3px_0_#140625]">
               {formatUsdc(task.reward_amount)}
+              {isRaffle ? "/ winner" : null}
               <Image
                 src="/bountix-comic/base-icon.png"
                 alt="Base"
@@ -98,6 +106,13 @@ export function DbTaskCard({
         </p>
 
         <div className="mt-5 grid gap-2 text-xs font-black text-[#5a3b66] sm:grid-cols-2">
+          {isRaffle ? (
+            <span className="inline-flex items-center gap-2">
+              <Trophy aria-hidden="true" className="h-3.5 w-3.5" />
+              {task.raffle_winner_count}{" "}
+              {task.raffle_winner_count === 1 ? "winner" : "winners"}
+            </span>
+          ) : null}
           {task.end_date ? (
             <span className="inline-flex items-center gap-2">
               <Calendar aria-hidden="true" className="h-3.5 w-3.5" />

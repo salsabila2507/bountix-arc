@@ -8,6 +8,7 @@ import {
   ExternalLink,
   FileText,
   LockKeyhole,
+  Trophy,
   Users,
 } from "lucide-react";
 import {
@@ -37,6 +38,7 @@ import {
 import {
   APPLICATION_STATUS_COLOR,
   APPLICATION_STATUS_LABEL,
+  SUBMISSION_COLUMNS,
   SUBMISSION_STATUS_COLOR,
   SUBMISSION_STATUS_LABEL,
   type DbApplication,
@@ -100,9 +102,7 @@ async function loadActorContext(taskId: string) {
     if (app?.id) {
       const { data: subs } = await supabase
         .from("task_submissions")
-        .select(
-          "id, task_id, application_id, submitter_id, delivery_url, notes, review_notes, status, reviewed_at, created_at, updated_at",
-        )
+        .select(SUBMISSION_COLUMNS)
         .eq("application_id", app.id)
         .order("created_at", { ascending: false });
       ownSubmissions = (subs ?? []) as DbSubmission[];
@@ -152,6 +152,7 @@ export default async function TaskDetailPage({ params }: RouteParams) {
     const ctx = await loadActorContext(dbTask.id);
     const isOwner = ctx.userId === dbTask.creator_id;
     const isOfficial = dbTask.task_type !== "user_task";
+    const isRaffle = dbTask.reward_mode === "raffle";
     const isClosed = ["completed", "cancelled"].includes(dbTask.status);
 
     return (
@@ -186,6 +187,12 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                       Official by Bountix
                     </span>
                   ) : null}
+                  {isRaffle ? (
+                    <span className="inline-flex items-center gap-1 rounded-md border-2 border-[#140625] bg-[#ffdd3d] px-2 py-1 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#140625]">
+                      <Trophy aria-hidden="true" className="h-3 w-3" />
+                      Raffle
+                    </span>
+                  ) : null}
                 </div>
 
                 {dbTask.category ? (
@@ -202,7 +209,7 @@ export default async function TaskDetailPage({ params }: RouteParams) {
 
                 <div className="mt-8 grid gap-3 sm:grid-cols-3">
                   <div className="rounded-lg border-2 border-[#140625] bg-[#ffdd3d] p-4 shadow-[4px_4px_0_#140625]">
-                    <p className="text-xs font-black uppercase text-[#5a3b66]">Reward</p>
+                    <p className="text-xs font-black uppercase text-[#5a3b66]">{isRaffle ? "Reward / winner" : "Reward"}</p>
                     <p className="mt-2 inline-flex items-center gap-1.5 text-lg font-black text-[#140625]">
                       {formatUsdc(dbTask.reward_amount ?? 0)}
                       <Image src="/bountix-comic/base-icon.png" alt="Base" width={18} height={18} className="h-[18px] w-[18px] object-contain" />
@@ -223,7 +230,38 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                     <Calendar aria-hidden="true" className="h-4 w-4 text-[#7c3cff]" />
                     {dbTask.start_date ? `Starts ${new Date(dbTask.start_date).toLocaleDateString()}` : null}
                     {dbTask.start_date && dbTask.end_date ? " · " : null}
-                    {dbTask.end_date ? `Ends ${new Date(dbTask.end_date).toLocaleDateString()}` : null}
+                    {dbTask.end_date ? `${isRaffle ? "Deadline" : "Ends"} ${new Date(dbTask.end_date).toLocaleDateString()}` : null}
+                  </div>
+                ) : null}
+
+                {isRaffle ? (
+                  <div className="mt-6 rounded-lg border-2 border-[#140625] bg-[#fffaf4] p-5 shadow-[5px_5px_0_#140625]">
+                    <div className="flex items-start gap-3">
+                      <Trophy
+                        aria-hidden="true"
+                        className="mt-0.5 h-5 w-5 shrink-0 text-[#7c3cff]"
+                      />
+                      <div>
+                        <h2 className="font-black text-[#140625]">
+                          {dbTask.raffle_winner_count}{" "}
+                          {dbTask.raffle_winner_count === 1
+                            ? "raffle winner"
+                            : "raffle winners"}
+                        </h2>
+                        {dbTask.eligibility_rules ? (
+                          <p className="mt-2 whitespace-pre-line text-sm font-semibold leading-6 text-[#3c214b]">
+                            {dbTask.eligibility_rules}
+                          </p>
+                        ) : null}
+                        {dbTask.payment_method === "escrow_base" &&
+                        dbTask.raffle_winner_count > 1 ? (
+                          <p className="mt-3 rounded-lg border-2 border-[#140625] bg-[#ffe1ed] p-3 text-xs font-black leading-5 text-[#8a1742]">
+                            Escrow V0 supports one payout per task. Use manual
+                            payment for multi-winner raffles.
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
                   </div>
                 ) : null}
 
@@ -500,10 +538,20 @@ function ApplicationStatusCard({
             >
               {SUBMISSION_STATUS_LABEL[latest.status]}
             </span>
-            <span className="text-xs font-bold text-[#5a3b66]">
-              {new Date(latest.created_at).toLocaleDateString()}
+          <span className="text-xs font-bold text-[#5a3b66]">
+            {new Date(latest.created_at).toLocaleDateString()}
+          </span>
+          {latest.raffle_winner_position !== null ? (
+            <span className="inline-flex items-center gap-1 rounded-md border-2 border-[#140625] bg-[#ffdd3d] px-2 py-1 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#140625]">
+              <Trophy aria-hidden="true" className="h-3 w-3" />
+              Winner #{latest.raffle_winner_position}
             </span>
-          </div>
+          ) : latest.raffle_eligible ? (
+            <span className="inline-flex items-center rounded-md border-2 border-[#140625] bg-[#dff7e6] px-2 py-1 text-[0.65rem] font-black uppercase text-[#1f6b3a] shadow-[2px_2px_0_#140625]">
+              Raffle eligible
+            </span>
+          ) : null}
+        </div>
           <a
             href={latest.delivery_url}
             target="_blank"

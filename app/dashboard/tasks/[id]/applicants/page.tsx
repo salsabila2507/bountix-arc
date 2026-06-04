@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, Trophy } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { EscrowReleasePanel } from "@/components/marketplace/escrow-release-panel";
 import {
   decideApplicationAction,
   restoreApplicationAction,
   reviewSubmissionAction,
+  selectRaffleWinnersAction,
+  setSubmissionRaffleEligibilityAction,
 } from "@/app/applications/actions";
 import { createClient } from "@/lib/supabase/server";
 import { TASK_LIST_COLUMNS, isUuid, type DbTask } from "@/lib/tasks";
@@ -100,6 +102,7 @@ async function loadPage(taskId: string) {
     task: task as DbTask,
     apps,
     profilesByUser,
+    submissions: subs,
     subsByApp,
   };
 }
@@ -115,7 +118,24 @@ export default async function ApplicantsPage({ params }: RouteParams) {
   const data = await loadPage(id);
   if (!data) notFound();
 
-  const { task, apps, profilesByUser, subsByApp } = data;
+  const { task, apps, profilesByUser, submissions, subsByApp } = data;
+  const isRaffle = task.reward_mode === "raffle";
+  const eligibleSubs = submissions.filter((s) => s.raffle_eligible);
+  const winnerSubs = submissions
+    .filter((s) => s.raffle_winner_position !== null)
+    .sort(
+      (a, b) =>
+        (a.raffle_winner_position ?? 0) - (b.raffle_winner_position ?? 0),
+    );
+  const canSelectWinners =
+    isRaffle &&
+    winnerSubs.length === 0 &&
+    eligibleSubs.length >= task.raffle_winner_count;
+  const escrowMultiWinnerRaffle =
+    isRaffle &&
+    task.payment_method === "escrow_base" &&
+    task.raffle_winner_count > 1;
+  const drawWinners = selectRaffleWinnersAction.bind(null, task.id);
 
   return (
     <main className="comic-page min-h-screen overflow-hidden text-[#140625]">
@@ -138,6 +158,76 @@ export default async function ApplicantsPage({ params }: RouteParams) {
             Accept or reject applicants. Review submissions when work comes in.
           </p>
         </div>
+
+        {isRaffle ? (
+          <div className="comic-card-soft mt-6 bg-[#fffaf4] p-5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="comic-chip bg-[#ffdd3d]">
+                  <Trophy aria-hidden="true" className="h-3.5 w-3.5" />
+                  Raffle reward
+                </p>
+                <h2 className="mt-4 text-xl font-black text-[#140625]">
+                  {task.raffle_winner_count}{" "}
+                  {task.raffle_winner_count === 1 ? "winner" : "winners"}
+                </h2>
+                {task.eligibility_rules ? (
+                  <p className="mt-3 max-w-3xl whitespace-pre-line text-sm font-semibold leading-6 text-[#3c214b]">
+                    {task.eligibility_rules}
+                  </p>
+                ) : null}
+              </div>
+              <div className="grid gap-2 text-sm font-black text-[#140625] sm:min-w-48">
+                <span className="rounded-lg border-2 border-[#140625] bg-white px-3 py-2 shadow-[3px_3px_0_#140625]">
+                  Eligible: {eligibleSubs.length}
+                </span>
+                <span className="rounded-lg border-2 border-[#140625] bg-white px-3 py-2 shadow-[3px_3px_0_#140625]">
+                  Selected: {winnerSubs.length}/{task.raffle_winner_count}
+                </span>
+              </div>
+            </div>
+
+            {escrowMultiWinnerRaffle ? (
+              <p className="mt-4 rounded-lg border-2 border-[#140625] bg-[#ffe1ed] p-3 text-sm font-black leading-6 text-[#8a1742]">
+                Escrow V0 supports one payout per task. Use manual payment for
+                multi-winner raffles.
+              </p>
+            ) : winnerSubs.length > 0 ? (
+              <div className="mt-4 rounded-lg border-2 border-[#140625] bg-[#dff7e6] p-3 text-sm font-bold leading-6 text-[#1f6b3a]">
+                <p className="font-black">Winners selected</p>
+                <div className="mt-2 grid gap-1">
+                  {winnerSubs.map((s) => {
+                    const winnerApp = apps.find(
+                      (app) => app.id === s.application_id,
+                    );
+                    const winnerProfile = winnerApp
+                      ? profilesByUser.get(winnerApp.applicant_id)
+                      : null;
+                    return (
+                      <p key={s.id}>
+                        #{s.raffle_winner_position}: @
+                        {winnerProfile?.username ?? "unknown"}
+                      </p>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : canSelectWinners ? (
+              <form action={drawWinners} className="mt-4">
+                <button className="inline-flex min-h-11 items-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ff4fb8] px-4 text-sm font-black uppercase text-white shadow-[4px_4px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#7c3cff]">
+                  <Trophy aria-hidden="true" className="h-4 w-4" />
+                  Randomly select winners
+                </button>
+              </form>
+            ) : (
+              <p className="mt-4 rounded-lg border-2 border-dashed border-[#140625] bg-white p-3 text-sm font-bold leading-6 text-[#5a3b66]">
+                Mark at least {task.raffle_winner_count} eligible{" "}
+                {task.raffle_winner_count === 1 ? "submission" : "submissions"}{" "}
+                before drawing winners.
+              </p>
+            )}
+          </div>
+        ) : null}
 
         <div className="mt-8 grid gap-4">
           {apps.length === 0 ? (
@@ -234,6 +324,18 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                       </p>
                       {subs.map((s) => {
                         const review = reviewSubmissionAction.bind(null, s.id);
+                        const markEligible =
+                          setSubmissionRaffleEligibilityAction.bind(
+                            null,
+                            s.id,
+                            true,
+                          );
+                        const unmarkEligible =
+                          setSubmissionRaffleEligibilityAction.bind(
+                            null,
+                            s.id,
+                            false,
+                          );
                         const editable = s.status === "pending_review";
                         return (
                           <div
@@ -249,6 +351,25 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                               <span className="text-xs font-bold text-[#5a3b66]">
                                 {new Date(s.created_at).toLocaleDateString()}
                               </span>
+                              {isRaffle ? (
+                                s.raffle_winner_position !== null ? (
+                                  <span className="inline-flex items-center gap-1 rounded-md border-2 border-[#140625] bg-[#ffdd3d] px-2 py-1 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#140625]">
+                                    <Trophy
+                                      aria-hidden="true"
+                                      className="h-3 w-3"
+                                    />
+                                    Winner #{s.raffle_winner_position}
+                                  </span>
+                                ) : s.raffle_eligible ? (
+                                  <span className="inline-flex items-center rounded-md border-2 border-[#140625] bg-[#dff7e6] px-2 py-1 text-[0.65rem] font-black uppercase text-[#1f6b3a] shadow-[2px_2px_0_#140625]">
+                                    Eligible
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center rounded-md border-2 border-[#140625] bg-white px-2 py-1 text-[0.65rem] font-black uppercase text-[#5a3b66] shadow-[2px_2px_0_#140625]">
+                                    Not eligible
+                                  </span>
+                                )
+                              ) : null}
                             </div>
                             <a
                               href={s.delivery_url}
@@ -266,6 +387,26 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                               <p className="mt-3 whitespace-pre-line text-sm font-semibold leading-6 text-[#3c214b]">
                                 {s.notes}
                               </p>
+                            ) : null}
+
+                            {isRaffle &&
+                            winnerSubs.length === 0 &&
+                            s.raffle_winner_position === null ? (
+                              <div className="mt-4 flex flex-wrap gap-2">
+                                {s.raffle_eligible ? (
+                                  <form action={unmarkEligible}>
+                                    <button className="inline-flex min-h-10 items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-xs font-black uppercase text-[#8a1742] shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#ffe1ed]">
+                                      Remove eligibility
+                                    </button>
+                                  </form>
+                                ) : (
+                                  <form action={markEligible}>
+                                    <button className="inline-flex min-h-10 items-center gap-2 rounded-lg border-2 border-[#140625] bg-[#23b26d] px-3 py-2 text-xs font-black uppercase text-white shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#1f6b3a]">
+                                      Mark eligible
+                                    </button>
+                                  </form>
+                                )}
+                              </div>
                             ) : null}
 
                             {editable ||
@@ -313,7 +454,11 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                               </p>
                             ) : null}
 
-                            {s.status === "approved" && task.payment_method === "escrow_base" && !s.released_at ? (
+                            {s.status === "approved" &&
+                            task.payment_method === "escrow_base" &&
+                            !s.released_at &&
+                            (!isRaffle ||
+                              s.raffle_winner_position !== null) ? (
                               <EscrowReleasePanel
                                 submissionId={s.id}
                                 taskId={task.id}

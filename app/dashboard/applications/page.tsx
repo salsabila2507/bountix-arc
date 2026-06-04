@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, Trophy } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -161,6 +161,19 @@ export default async function MyApplicationsPage() {
                             <span className="text-xs font-bold text-[#5a3b66]">
                               {new Date(s.created_at).toLocaleDateString()}
                             </span>
+                            {s.raffle_winner_position !== null ? (
+                              <span className="inline-flex items-center gap-1 rounded-md border-2 border-[#140625] bg-[#ffdd3d] px-2 py-1 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#140625]">
+                                <Trophy
+                                  aria-hidden="true"
+                                  className="h-3 w-3"
+                                />
+                                Winner #{s.raffle_winner_position}
+                              </span>
+                            ) : s.raffle_eligible ? (
+                              <span className="inline-flex items-center rounded-md border-2 border-[#140625] bg-[#dff7e6] px-2 py-1 text-[0.65rem] font-black uppercase text-[#1f6b3a] shadow-[2px_2px_0_#140625]">
+                                Raffle eligible
+                              </span>
+                            ) : null}
                           </div>
                           <a
                             href={s.delivery_url}

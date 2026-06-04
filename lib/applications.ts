@@ -69,9 +69,13 @@ export type DbSubmission = {
   assigned_at: string | null;
   release_tx_hash: string | null;
   released_at: string | null;
+  raffle_eligible: boolean;
+  raffle_eligible_at: string | null;
+  raffle_winner_position: number | null;
+  raffle_winner_selected_at: string | null;
   created_at: string;
   updated_at: string;
 };
 
 export const SUBMISSION_COLUMNS =
-  "id, task_id, application_id, submitter_id, delivery_url, notes, review_notes, status, reviewed_at, assign_tx_hash, assigned_at, release_tx_hash, released_at, created_at, updated_at";
+  "id, task_id, application_id, submitter_id, delivery_url, notes, review_notes, status, reviewed_at, assign_tx_hash, assigned_at, release_tx_hash, released_at, raffle_eligible, raffle_eligible_at, raffle_winner_position, raffle_winner_selected_at, created_at, updated_at";

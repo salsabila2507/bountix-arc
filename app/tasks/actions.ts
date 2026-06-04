@@ -7,11 +7,13 @@ import {
   TASK_STATUSES,
   TASK_TYPES,
   PAYMENT_METHODS,
+  REWARD_MODES,
   isAdminTaskType,
   isUuid,
   type TaskStatus,
   type TaskType,
   type PaymentMethod,
+  type RewardMode,
 } from "@/lib/tasks";
 import { ESCROW_CONTRACT_ADDRESS, MIN_ESCROW_USDC } from "@/lib/escrow";
 import type { TaskFormState } from "@/lib/task-form-state";
@@ -26,6 +28,9 @@ type ParsedTaskInput = {
   external_link: string | null;
   start_date: string | null;
   end_date: string | null;
+  reward_mode: RewardMode;
+  raffle_winner_count: number;
+  eligibility_rules: string | null;
   payment_method: PaymentMethod;
 };
 
@@ -51,6 +56,9 @@ function parseTaskInput(formData: FormData): {
   const external_link = String(formData.get("external_link") ?? "").trim();
   const start_date_raw = String(formData.get("start_date") ?? "").trim();
   const end_date_raw = String(formData.get("end_date") ?? "").trim();
+  const reward_mode = String(formData.get("reward_mode") ?? "fixed");
+  const winnerCountRaw = String(formData.get("raffle_winner_count") ?? "").trim();
+  const eligibility_rules = String(formData.get("eligibility_rules") ?? "").trim();
   const payment_method = String(formData.get("payment_method") ?? "manual");
 
   const fieldErrors: TaskFormState["fieldErrors"] = {};
@@ -91,6 +99,36 @@ function parseTaskInput(formData: FormData): {
       fieldErrors.payment_method = `Escrow needs a reward of at least ${MIN_ESCROW_USDC} USDC.`;
     }
   }
+  if (!(REWARD_MODES as readonly string[]).includes(reward_mode)) {
+    fieldErrors.reward_mode = "Invalid reward mode.";
+  }
+
+  let raffle_winner_count = 1;
+  if (reward_mode === "raffle") {
+    const n = Number(winnerCountRaw || "1");
+    if (!Number.isInteger(n) || n < 1 || n > 50) {
+      fieldErrors.raffle_winner_count =
+        "Winner count must be a whole number from 1 to 50.";
+    } else {
+      raffle_winner_count = n;
+    }
+    if (!eligibility_rules) {
+      fieldErrors.eligibility_rules = "Eligibility rules are required.";
+    } else if (eligibility_rules.length > 2000) {
+      fieldErrors.eligibility_rules =
+        "Eligibility rules must be 2000 characters or fewer.";
+    }
+    if (reward_amount === null || reward_amount <= 0) {
+      fieldErrors.reward_amount = "Raffle reward must be greater than 0 USDC.";
+    }
+    if (payment_method === "escrow_base" && raffle_winner_count > 1) {
+      fieldErrors.payment_method =
+        "Escrow V0 supports one payout per task. Use manual payment for multi-winner raffles.";
+    }
+  } else if (eligibility_rules.length > 2000) {
+    fieldErrors.eligibility_rules =
+      "Eligibility rules must be 2000 characters or fewer.";
+  }
   if (external_link) {
     if (external_link.length > 500) {
       fieldErrors.external_link =
@@ -109,6 +147,9 @@ function parseTaskInput(formData: FormData): {
   if (start_date && end_date && new Date(end_date) < new Date(start_date)) {
     fieldErrors.end_date = "End date must be on or after start date.";
   }
+  if (reward_mode === "raffle" && !end_date) {
+    fieldErrors.end_date = "Raffle tasks need a deadline.";
+  }
 
   return {
     data: {
@@ -121,6 +162,10 @@ function parseTaskInput(formData: FormData): {
       external_link: external_link || null,
       start_date,
       end_date,
+      reward_mode: reward_mode as RewardMode,
+      raffle_winner_count,
+      eligibility_rules:
+        reward_mode === "raffle" ? eligibility_rules : null,
       payment_method: payment_method as PaymentMethod,
     },
     fieldErrors,
@@ -218,6 +263,9 @@ export async function createTaskAction(
       external_link: data.external_link,
       start_date: data.start_date,
       end_date: data.end_date,
+      reward_mode: data.reward_mode,
+      raffle_winner_count: data.raffle_winner_count,
+      eligibility_rules: data.eligibility_rules,
       payment_method: data.payment_method,
     })
     .select("id")
@@ -302,6 +350,21 @@ export async function updateTaskAction(
     ? "escrow_base"
     : data.payment_method;
 
+  if (
+    payment_method === "escrow_base" &&
+    data.reward_mode === "raffle" &&
+    data.raffle_winner_count > 1
+  ) {
+    return {
+      status: "error",
+      message: "Check the highlighted fields and try again.",
+      fieldErrors: {
+        payment_method:
+          "Escrow V0 supports one payout per task. Use manual payment for multi-winner raffles.",
+      },
+    };
+  }
+
   const { error } = await supabase
     .from("tasks")
     .update({
@@ -316,6 +379,9 @@ export async function updateTaskAction(
       external_link: data.external_link,
       start_date: data.start_date,
       end_date: data.end_date,
+      reward_mode: data.reward_mode,
+      raffle_winner_count: data.raffle_winner_count,
+      eligibility_rules: data.eligibility_rules,
       payment_method,
     })
     .eq("id", taskId);

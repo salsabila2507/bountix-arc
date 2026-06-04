@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import {
   CheckCircle2,
   LoaderCircle,
@@ -21,7 +21,11 @@ import {
   TASK_TYPE_LABEL,
   PAYMENT_METHODS,
   PAYMENT_METHOD_LABEL,
+  REWARD_MODES,
+  REWARD_MODE_LABEL,
   type DbTask,
+  type PaymentMethod,
+  type RewardMode,
 } from "@/lib/tasks";
 
 function FieldError({ message }: { message?: string }) {
@@ -53,6 +57,16 @@ export function TaskForm({
 
   const def = initialTask;
   const allowedTypes = isAdmin ? TASK_TYPES : (["user_task"] as const);
+  const [rewardMode, setRewardMode] = useState<RewardMode>(
+    def?.reward_mode ?? "fixed",
+  );
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
+    def?.payment_method ?? "manual",
+  );
+  const [winnerCount, setWinnerCount] = useState(
+    def?.raffle_winner_count ?? 1,
+  );
+  const isRaffle = rewardMode === "raffle";
 
   return (
     <form action={formAction} className="comic-card bg-white p-5 sm:p-6">
@@ -136,8 +150,10 @@ export function TaskForm({
 
           <label className="block">
             <span className="text-sm font-black text-[#140625]">
-              Reward (USDC){" "}
-              <span className="text-[#5a3b66]">optional</span>
+              Reward (USDC){isRaffle ? " per winner" : " "}
+              {!isRaffle ? (
+                <span className="text-[#5a3b66]">optional</span>
+              ) : null}
             </span>
             <input
               name="reward_amount"
@@ -151,6 +167,92 @@ export function TaskForm({
             <FieldError message={state.fieldErrors?.reward_amount} />
           </label>
         </div>
+
+        <fieldset className="block">
+          <legend className="text-sm font-black text-[#140625]">
+            Reward mode
+          </legend>
+          <p className="mt-1 text-xs font-bold text-[#5a3b66]">
+            Fixed tasks pay one selected worker. Raffle tasks collect eligible
+            submissions, then randomly select one or more winners.
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {REWARD_MODES.map((modeValue, i) => (
+              <label
+                key={modeValue}
+                className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-[#140625] bg-[#fffaf4] p-3 shadow-[3px_3px_0_#140625] transition hover:bg-white has-[:checked]:bg-[#ffdd3d]"
+              >
+                <input
+                  type="radio"
+                  name="reward_mode"
+                  value={modeValue}
+                  defaultChecked={
+                    def?.reward_mode
+                      ? def.reward_mode === modeValue
+                      : i === 0
+                  }
+                  onChange={() => setRewardMode(modeValue)}
+                  className="mt-1 h-4 w-4 accent-[#7c3cff]"
+                />
+                <span className="text-sm font-black text-[#140625]">
+                  {REWARD_MODE_LABEL[modeValue]}
+                  {modeValue === "raffle" ? (
+                    <span className="mt-1 block text-xs font-bold text-[#5a3b66]">
+                      Select random winners from owner-approved eligible
+                      submissions.
+                    </span>
+                  ) : (
+                    <span className="mt-1 block text-xs font-bold text-[#5a3b66]">
+                      Standard application, submission, review, and payout
+                      flow.
+                    </span>
+                  )}
+                </span>
+              </label>
+            ))}
+          </div>
+          <FieldError message={state.fieldErrors?.reward_mode} />
+        </fieldset>
+
+        {isRaffle ? (
+          <div className="grid gap-5">
+            <label className="block">
+              <span className="text-sm font-black text-[#140625]">
+                Number of winners
+              </span>
+              <input
+                name="raffle_winner_count"
+                type="number"
+                required
+                min="1"
+                max="50"
+                step="1"
+                defaultValue={def?.raffle_winner_count ?? 1}
+                onChange={(event) =>
+                  setWinnerCount(Number(event.currentTarget.value || "1"))
+                }
+                className={input}
+              />
+              <FieldError message={state.fieldErrors?.raffle_winner_count} />
+            </label>
+
+            <label className="block">
+              <span className="text-sm font-black text-[#140625]">
+                Eligibility rules
+              </span>
+              <textarea
+                name="eligibility_rules"
+                rows={4}
+                required
+                maxLength={2000}
+                defaultValue={def?.eligibility_rules ?? ""}
+                placeholder="Who can enter, what counts as a valid submission, and any proof required."
+                className="mt-2 w-full rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 py-3 font-medium text-[#140625] placeholder:text-[#5a3b66]/45 outline-none transition focus:bg-white focus:ring-2 focus:ring-[#38e7ff]"
+              />
+              <FieldError message={state.fieldErrors?.eligibility_rules} />
+            </label>
+          </div>
+        ) : null}
 
         <fieldset className="block">
           <legend className="text-sm font-black text-[#140625]">
@@ -176,6 +278,7 @@ export function TaskForm({
                       ? def.payment_method === method
                       : i === 0
                   }
+                  onChange={() => setPaymentMethod(method)}
                   className="mt-1 h-4 w-4 accent-[#7c3cff]"
                 />
                 <span className="text-sm font-black text-[#140625]">
@@ -193,6 +296,19 @@ export function TaskForm({
               </label>
             ))}
           </div>
+          {isRaffle &&
+          paymentMethod === "escrow_base" &&
+          winnerCount > 1 ? (
+            <p className="mt-3 rounded-lg border-2 border-[#140625] bg-[#ffe1ed] p-3 text-xs font-black leading-5 text-[#8a1742]">
+              Current escrow V0 supports one payout per escrow task. Use manual
+              payment for multi-winner raffles.
+            </p>
+          ) : isRaffle && paymentMethod === "escrow_base" ? (
+            <p className="mt-3 rounded-lg border-2 border-[#140625] bg-[#dff7e6] p-3 text-xs font-black leading-5 text-[#1f6b3a]">
+              Compatible: one winner can be paid through the existing Base
+              escrow release flow after selection.
+            </p>
+          ) : null}
           <FieldError message={state.fieldErrors?.payment_method} />
         </fieldset>
 
@@ -281,12 +397,15 @@ export function TaskForm({
 
           <label className="block">
             <span className="text-sm font-black text-[#140625]">
-              End date{" "}
-              <span className="text-[#5a3b66]">optional</span>
+              {isRaffle ? "Deadline" : "End date"}{" "}
+              {!isRaffle ? (
+                <span className="text-[#5a3b66]">optional</span>
+              ) : null}
             </span>
             <input
               name="end_date"
               type="datetime-local"
+              required={isRaffle}
               defaultValue={
                 def?.end_date
                   ? new Date(def.end_date).toISOString().slice(0, 16)
@@ -304,7 +423,7 @@ export function TaskForm({
             className="mr-2 inline h-4 w-4 text-[#7c3cff]"
           />
           Rewards paid in <span className="font-black">USDC on Base</span>.
-          Manual payment or Base escrow is available.
+          Manual payment or Base escrow is available when compatible.
         </div>
       </div>
 
