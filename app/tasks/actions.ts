@@ -6,12 +6,14 @@ import { createClient } from "@/lib/supabase/server";
 import {
   TASK_STATUSES,
   TASK_TYPES,
+  TASK_ACCESS_LEVELS,
   PAYMENT_METHODS,
   REWARD_MODES,
   isAdminTaskType,
   isUuid,
   type TaskStatus,
   type TaskType,
+  type TaskAccessLevel,
   type PaymentMethod,
   type RewardMode,
 } from "@/lib/tasks";
@@ -31,6 +33,7 @@ type ParsedTaskInput = {
   reward_mode: RewardMode;
   raffle_winner_count: number;
   eligibility_rules: string | null;
+  access_level: TaskAccessLevel;
   payment_method: PaymentMethod;
 };
 
@@ -59,6 +62,7 @@ function parseTaskInput(formData: FormData): {
   const reward_mode = String(formData.get("reward_mode") ?? "fixed");
   const winnerCountRaw = String(formData.get("raffle_winner_count") ?? "").trim();
   const eligibility_rules = String(formData.get("eligibility_rules") ?? "").trim();
+  const access_level = String(formData.get("access_level") ?? "open");
   const payment_method = String(formData.get("payment_method") ?? "manual");
 
   const fieldErrors: TaskFormState["fieldErrors"] = {};
@@ -101,6 +105,9 @@ function parseTaskInput(formData: FormData): {
   }
   if (!(REWARD_MODES as readonly string[]).includes(reward_mode)) {
     fieldErrors.reward_mode = "Invalid reward mode.";
+  }
+  if (!(TASK_ACCESS_LEVELS as readonly string[]).includes(access_level)) {
+    fieldErrors.access_level = "Invalid task access setting.";
   }
 
   let raffle_winner_count = 1;
@@ -166,6 +173,7 @@ function parseTaskInput(formData: FormData): {
       raffle_winner_count,
       eligibility_rules:
         reward_mode === "raffle" ? eligibility_rules : null,
+      access_level: access_level as TaskAccessLevel,
       payment_method: payment_method as PaymentMethod,
     },
     fieldErrors,
@@ -266,6 +274,7 @@ export async function createTaskAction(
       reward_mode: data.reward_mode,
       raffle_winner_count: data.raffle_winner_count,
       eligibility_rules: data.eligibility_rules,
+      access_level: data.access_level,
       payment_method: data.payment_method,
     })
     .select("id")
@@ -382,6 +391,7 @@ export async function updateTaskAction(
       reward_mode: data.reward_mode,
       raffle_winner_count: data.raffle_winner_count,
       eligibility_rules: data.eligibility_rules,
+      access_level: data.access_level,
       payment_method,
     })
     .eq("id", taskId);

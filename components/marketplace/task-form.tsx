@@ -23,6 +23,8 @@ import {
   PAYMENT_METHOD_LABEL,
   REWARD_MODES,
   REWARD_MODE_LABEL,
+  TASK_ACCESS_LEVELS,
+  TASK_ACCESS_LEVEL_LABEL,
   type DbTask,
   type PaymentMethod,
   type RewardMode,
@@ -310,6 +312,48 @@ export function TaskForm({
             </p>
           ) : null}
           <FieldError message={state.fieldErrors?.payment_method} />
+        </fieldset>
+
+        <fieldset className="block">
+          <legend className="text-sm font-black text-[#140625]">
+            Task access
+          </legend>
+          <p className="mt-1 text-xs font-bold text-[#5a3b66]">
+            Open tasks can be worked on by any approved user. Early Contributor
+            tasks stay visible but require the badge to apply or submit work.
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {TASK_ACCESS_LEVELS.map((level, i) => (
+              <label
+                key={level}
+                className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-[#140625] bg-[#fffaf4] p-3 shadow-[3px_3px_0_#140625] transition hover:bg-white has-[:checked]:bg-[#f1d8ff]"
+              >
+                <input
+                  type="radio"
+                  name="access_level"
+                  value={level}
+                  defaultChecked={
+                    def?.access_level ? def.access_level === level : i === 0
+                  }
+                  className="mt-1 h-4 w-4 accent-[#7c3cff]"
+                />
+                <span className="text-sm font-black text-[#140625]">
+                  {TASK_ACCESS_LEVEL_LABEL[level]}
+                  {level === "early_contributor" ? (
+                    <span className="mt-1 block text-xs font-bold text-[#5a3b66]">
+                      Keeps demo or launch tasks visible while limiting work to
+                      badged users.
+                    </span>
+                  ) : (
+                    <span className="mt-1 block text-xs font-bold text-[#5a3b66]">
+                      Standard task flow for all approved Bountix users.
+                    </span>
+                  )}
+                </span>
+              </label>
+            ))}
+          </div>
+          <FieldError message={state.fieldErrors?.access_level} />
         </fieldset>
 
         <div className="grid gap-5 sm:grid-cols-2">

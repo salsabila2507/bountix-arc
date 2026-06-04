@@ -97,6 +97,15 @@ export function FutureBadge({ children }: { children: React.ReactNode }) {
   );
 }
 
+export function EarlyContributorsOnlyBadge() {
+  return (
+    <Badge className="bg-[#f1d8ff]">
+      <LockKeyhole aria-hidden="true" className="h-3.5 w-3.5 text-[#7c3cff]" />
+      Early Contributors only
+    </Badge>
+  );
+}
+
 export function WaitlistOnlyBadge({
   variant = "waitlist",
 }: {

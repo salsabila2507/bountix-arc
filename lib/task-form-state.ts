@@ -14,6 +14,7 @@ export type TaskFormState = {
     reward_mode?: string;
     raffle_winner_count?: string;
     eligibility_rules?: string;
+    access_level?: string;
     payment_method?: string;
   };
   taskId?: string;

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Calendar, ExternalLink, Trophy } from "lucide-react";
+import { EarlyContributorsOnlyBadge } from "@/components/marketplace/badges";
 import {
   TASK_STATUS_LABEL,
   TASK_TYPE_COLOR,
@@ -36,6 +37,7 @@ export function DbTaskCard({
 }) {
   const isOfficial = task.task_type !== "user_task";
   const isRaffle = task.reward_mode === "raffle";
+  const isEarlyContributorOnly = task.access_level === "early_contributor";
 
   return (
     <Link
@@ -73,6 +75,7 @@ export function DbTaskCard({
               Official by Bountix
             </span>
           ) : null}
+          {isEarlyContributorOnly ? <EarlyContributorsOnlyBadge /> : null}
         </div>
 
         <div className="mt-5 flex items-start justify-between gap-4">

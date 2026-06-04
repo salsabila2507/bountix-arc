@@ -12,6 +12,7 @@ import {
   Users,
 } from "lucide-react";
 import {
+  EarlyContributorsOnlyBadge,
   NegotiableBadge,
   PaymentBadge,
   StatusBadge,
@@ -76,6 +77,7 @@ async function loadActorContext(taskId: string) {
         userId: null as string | null,
         isAdmin: false,
         canUse: false,
+        hasEarlyContributorAccess: false,
         ownApplication: null as DbApplication | null,
         ownSubmissions: [] as DbSubmission[],
         applicantCounts: { pending: 0, accepted: 0 },
@@ -84,12 +86,14 @@ async function loadActorContext(taskId: string) {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("id, role, can_use_platform")
+      .select("id, role, can_use_platform, is_early_contributor")
       .eq("id", user.id)
       .maybeSingle();
 
     const isAdmin = profile?.role === "admin";
     const canUse = (profile?.can_use_platform ?? false) || isAdmin;
+    const hasEarlyContributorAccess =
+      (profile?.is_early_contributor ?? false) || isAdmin;
 
     const { data: app } = await supabase
       .from("task_applications")
@@ -112,6 +116,7 @@ async function loadActorContext(taskId: string) {
       userId: user.id,
       isAdmin,
       canUse,
+      hasEarlyContributorAccess,
       ownApplication: (app as DbApplication | null) ?? null,
       ownSubmissions,
       applicantCounts: { pending: 0, accepted: 0 },
@@ -121,6 +126,7 @@ async function loadActorContext(taskId: string) {
       userId: null as string | null,
       isAdmin: false,
       canUse: false,
+      hasEarlyContributorAccess: false,
       ownApplication: null as DbApplication | null,
       ownSubmissions: [] as DbSubmission[],
       applicantCounts: { pending: 0, accepted: 0 },
@@ -154,6 +160,10 @@ export default async function TaskDetailPage({ params }: RouteParams) {
     const isOfficial = dbTask.task_type !== "user_task";
     const isRaffle = dbTask.reward_mode === "raffle";
     const isClosed = ["completed", "cancelled"].includes(dbTask.status);
+    const requiresEarlyContributor =
+      dbTask.access_level === "early_contributor";
+    const canWorkTask =
+      !requiresEarlyContributor || ctx.hasEarlyContributorAccess;
 
     return (
       <main className="comic-page min-h-screen overflow-hidden text-[#140625]">
@@ -192,6 +202,9 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                       <Trophy aria-hidden="true" className="h-3 w-3" />
                       Raffle
                     </span>
+                  ) : null}
+                  {requiresEarlyContributor ? (
+                    <EarlyContributorsOnlyBadge />
                   ) : null}
                 </div>
 
@@ -334,6 +347,11 @@ export default async function TaskDetailPage({ params }: RouteParams) {
               ) : !ctx.userId ? (
                 <div className="comic-card-soft bg-white p-5">
                   <h2 className="text-lg font-black text-[#140625]">Want to apply?</h2>
+                  {requiresEarlyContributor ? (
+                    <p className="mt-2 rounded-lg border-2 border-[#140625] bg-[#f1d8ff] p-3 text-sm font-black leading-6 text-[#140625]">
+                      Only Early Contributors can work on this task.
+                    </p>
+                  ) : null}
                   <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
                     Log in or create an account, then apply with a short pitch.
                   </p>
@@ -342,24 +360,34 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                     <Link href="/signup" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ffdd3d] px-4 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#38e7ff]">Create account</Link>
                   </div>
                 </div>
-              ) : !ctx.canUse ? (
-                <div className="comic-card-soft bg-[#f2e6ff] p-5">
-                  <h2 className="text-lg font-black text-[#140625]">Early access pending</h2>
-                  <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-                    Applying to tasks unlocks once Bountix opens early access for your account.
-                  </p>
-                </div>
               ) : ctx.ownApplication ? (
                 <ApplicationStatusCard
                   app={ctx.ownApplication}
                   submissions={ctx.ownSubmissions}
                   taskClosed={isClosed}
+                  canSubmitWork={ctx.canUse && canWorkTask}
+                  workBlockedReason={
+                    requiresEarlyContributor && !canWorkTask
+                      ? "early_contributor"
+                      : !ctx.canUse
+                        ? "early_access"
+                      : null
+                  }
                 />
               ) : isClosed ? (
                 <div className="comic-card-soft bg-white p-5">
                   <h2 className="text-lg font-black text-[#140625]">This task is closed</h2>
                   <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
                     Applications are no longer open.
+                  </p>
+                </div>
+              ) : !canWorkTask ? (
+                <WorkGateNotice reason="early_contributor" />
+              ) : !ctx.canUse ? (
+                <div className="comic-card-soft bg-[#f2e6ff] p-5">
+                  <h2 className="text-lg font-black text-[#140625]">Early access pending</h2>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
+                    Applying to tasks unlocks once Bountix opens early access for your account.
                   </p>
                 </div>
               ) : (
@@ -485,10 +513,14 @@ function ApplicationStatusCard({
   app,
   submissions,
   taskClosed,
+  canSubmitWork,
+  workBlockedReason,
 }: {
   app: DbApplication;
   submissions: DbSubmission[];
   taskClosed: boolean;
+  canSubmitWork: boolean;
+  workBlockedReason: "early_contributor" | "early_access" | null;
 }) {
   const withdraw = withdrawApplicationAction.bind(null, app.id);
   const latest = submissions[0];
@@ -525,8 +557,11 @@ function ApplicationStatusCard({
         ) : null}
       </div>
 
-      {app.status === "accepted" && !latest ? (
+      {app.status === "accepted" && !latest && canSubmitWork ? (
         <SubmitWorkForm applicationId={app.id} />
+      ) : null}
+      {app.status === "accepted" && !latest && !canSubmitWork && workBlockedReason ? (
+        <WorkGateNotice reason={workBlockedReason} />
       ) : null}
 
       {latest ? (
@@ -584,9 +619,49 @@ function ApplicationStatusCard({
 
       {app.status === "accepted" &&
       latest &&
-      latest.status === "revision_requested" ? (
+      latest.status === "revision_requested" &&
+      canSubmitWork ? (
         <SubmitWorkForm applicationId={app.id} />
       ) : null}
+      {app.status === "accepted" &&
+      latest &&
+      latest.status === "revision_requested" &&
+      !canSubmitWork &&
+      workBlockedReason ? (
+        <WorkGateNotice reason={workBlockedReason} />
+      ) : null}
     </>
+  );
+}
+
+function WorkGateNotice({
+  reason,
+}: {
+  reason: "early_contributor" | "early_access";
+}) {
+  if (reason === "early_contributor") {
+    return (
+      <div className="comic-card-soft bg-[#f1d8ff] p-5">
+        <LockKeyhole
+          aria-hidden="true"
+          className="h-5 w-5 text-[#7c3cff]"
+        />
+        <p className="mt-2 text-sm font-black leading-6 text-[#140625]">
+          Only Early Contributors can work on this task.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="comic-card-soft bg-[#f2e6ff] p-5">
+      <h2 className="text-lg font-black text-[#140625]">
+        Early access pending
+      </h2>
+      <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
+        Submitting work unlocks once Bountix opens early access for your
+        account.
+      </p>
+    </div>
   );
 }

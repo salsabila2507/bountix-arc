@@ -17,16 +17,28 @@ async function loadActor() {
   if (!user) return { supabase, user: null, profile: null as null };
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, role, can_use_platform")
+    .select("id, role, can_use_platform, is_early_contributor")
     .eq("id", user.id)
     .maybeSingle();
   return {
     supabase,
     user,
     profile: profile as
-      | { id: string; role: string; can_use_platform: boolean }
+      | {
+          id: string;
+          role: string;
+          can_use_platform: boolean;
+          is_early_contributor: boolean;
+        }
       | null,
   };
+}
+
+function hasEarlyContributorAccess(profile: {
+  role: string;
+  is_early_contributor: boolean;
+}): boolean {
+  return profile.role === "admin" || profile.is_early_contributor;
 }
 
 function isHttpUrl(value: string): boolean {
@@ -53,6 +65,26 @@ export async function applyToTaskAction(
   if (!user) redirect("/login");
   if (!profile) {
     return { status: "error", message: "Your profile is missing." };
+  }
+
+  const { data: task } = await supabase
+    .from("tasks")
+    .select("id, access_level")
+    .eq("id", taskId)
+    .maybeSingle();
+
+  if (!task) {
+    return { status: "error", message: "Task not found." };
+  }
+
+  if (
+    task.access_level === "early_contributor" &&
+    !hasEarlyContributorAccess(profile)
+  ) {
+    return {
+      status: "error",
+      message: "Only Early Contributors can work on this task.",
+    };
   }
 
   if (!profile.can_use_platform && profile.role !== "admin") {
@@ -195,8 +227,11 @@ export async function createSubmissionAction(
   if (!isUuid(applicationId))
     return { status: "error", message: "Invalid application." };
 
-  const { supabase, user } = await loadActor();
+  const { supabase, user, profile } = await loadActor();
   if (!user) redirect("/login");
+  if (!profile) {
+    return { status: "error", message: "Your profile is missing." };
+  }
 
   const delivery_url = String(formData.get("delivery_url") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
@@ -227,6 +262,30 @@ export async function createSubmissionAction(
     return { status: "error", message: "Application not found." };
   }
 
+  const { data: task } = await supabase
+    .from("tasks")
+    .select("access_level")
+    .eq("id", app.task_id)
+    .maybeSingle();
+
+  if (
+    task?.access_level === "early_contributor" &&
+    !hasEarlyContributorAccess(profile)
+  ) {
+    return {
+      status: "error",
+      message: "Only Early Contributors can work on this task.",
+    };
+  }
+
+  if (!profile.can_use_platform && profile.role !== "admin") {
+    return {
+      status: "error",
+      message:
+        "Early access required. Wait for your account to be activated to submit work.",
+    };
+  }
+
   const { error } = await supabase.from("task_submissions").insert({
     task_id: app.task_id,
     application_id: applicationId,
@@ -253,8 +312,11 @@ export async function updateSubmissionAction(
   if (!isUuid(submissionId))
     return { status: "error", message: "Invalid submission." };
 
-  const { supabase, user } = await loadActor();
+  const { supabase, user, profile } = await loadActor();
   if (!user) redirect("/login");
+  if (!profile) {
+    return { status: "error", message: "Your profile is missing." };
+  }
 
   const delivery_url = String(formData.get("delivery_url") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
@@ -278,6 +340,32 @@ export async function updateSubmissionAction(
     .select("task_id")
     .eq("id", submissionId)
     .maybeSingle();
+
+  if (row?.task_id) {
+    const { data: task } = await supabase
+      .from("tasks")
+      .select("access_level")
+      .eq("id", row.task_id)
+      .maybeSingle();
+
+    if (
+      task?.access_level === "early_contributor" &&
+      !hasEarlyContributorAccess(profile)
+    ) {
+      return {
+        status: "error",
+        message: "Only Early Contributors can work on this task.",
+      };
+    }
+  }
+
+  if (!profile.can_use_platform && profile.role !== "admin") {
+    return {
+      status: "error",
+      message:
+        "Early access required. Wait for your account to be activated to submit work.",
+    };
+  }
 
   const { error } = await supabase
     .from("task_submissions")

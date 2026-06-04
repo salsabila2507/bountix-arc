@@ -49,6 +49,14 @@ export const REWARD_MODE_LABEL: Record<RewardMode, string> = {
   raffle: "Raffle reward",
 };
 
+export const TASK_ACCESS_LEVELS = ["open", "early_contributor"] as const;
+export type TaskAccessLevel = (typeof TASK_ACCESS_LEVELS)[number];
+
+export const TASK_ACCESS_LEVEL_LABEL: Record<TaskAccessLevel, string> = {
+  open: "Open to everyone",
+  early_contributor: "Early Contributors only",
+};
+
 export const TASK_STATUS_LABEL: Record<TaskStatus, string> = {
   draft: "Draft",
   open: "Open",
@@ -97,6 +105,7 @@ export type DbTask = {
   reward_mode: RewardMode;
   raffle_winner_count: number;
   eligibility_rules: string | null;
+  access_level: TaskAccessLevel;
   payment_method: PaymentMethod;
   escrow_contract_address: string | null;
   escrow_tx_hash: string | null;
@@ -106,7 +115,7 @@ export type DbTask = {
 
 /** Lightweight column list for list views — minimises row read size. */
 export const TASK_LIST_COLUMNS =
-  "id, creator_id, title, description, category, reward_amount, reward_currency, chain, status, task_type, external_link, start_date, end_date, reward_mode, raffle_winner_count, eligibility_rules, payment_method, escrow_contract_address, escrow_tx_hash, created_at, updated_at";
+  "id, creator_id, title, description, category, reward_amount, reward_currency, chain, status, task_type, external_link, start_date, end_date, reward_mode, raffle_winner_count, eligibility_rules, access_level, payment_method, escrow_contract_address, escrow_tx_hash, created_at, updated_at";
 
 export const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

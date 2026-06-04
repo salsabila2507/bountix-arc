@@ -40,7 +40,7 @@ async function getSessionAndProfile(): Promise<
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "id, username, display_name, bio, avatar_url, role, skills, wallet_address, social_links, preferred_language, can_use_platform, created_at, updated_at",
+      "id, username, display_name, bio, avatar_url, role, skills, wallet_address, social_links, preferred_language, can_use_platform, is_early_contributor, created_at, updated_at",
     )
     .eq("id", user.id)
     .maybeSingle();
@@ -134,6 +134,15 @@ export default async function DashboardProfilePage() {
                     <Globe aria-hidden="true" className="h-3.5 w-3.5" />
                     {PROFILE_LANGUAGE_LABEL[profile.preferred_language]}
                   </span>
+                  {profile.is_early_contributor ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-lg border-2 border-[#140625] bg-[#f1d8ff] px-3 py-1 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625]">
+                      <BadgeCheck
+                        aria-hidden="true"
+                        className="h-3.5 w-3.5 text-[#7c3cff]"
+                      />
+                      Early Contributor
+                    </span>
+                  ) : null}
                 </div>
               </div>
             </div>
