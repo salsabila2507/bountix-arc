@@ -6,6 +6,11 @@ import {
   TaskTypeBadge,
   WaitlistOnlyBadge,
 } from "@/components/marketplace/badges";
+import {
+  DEFAULT_LOCALE,
+  createTranslator,
+  type Locale,
+} from "@/lib/i18n";
 import type { Service } from "@/lib/marketplace";
 
 const assetBase = "/bountix-comic/bountix_assets_ready";
@@ -18,9 +23,14 @@ const categoryIcons: Record<string, string> = {
 
 type ServiceCardProps = {
   service: Service;
+  locale?: Locale;
 };
 
-export function ServiceCard({ service }: ServiceCardProps) {
+export function ServiceCard({
+  service,
+  locale = DEFAULT_LOCALE,
+}: ServiceCardProps) {
+  const t = createTranslator(locale);
   const icon =
     categoryIcons[service.category] ?? `${assetBase}/icon-community.png`;
 
@@ -36,10 +46,10 @@ export function ServiceCard({ service }: ServiceCardProps) {
       />
       <div className="relative">
         <div className="flex flex-wrap gap-2">
-          <TaskTypeBadge type="service" />
-          <PaymentBadge type={service.paymentType} />
-          <NegotiableBadge negotiable={service.negotiable} />
-          <WaitlistOnlyBadge variant="early" />
+          <TaskTypeBadge type="service" locale={locale} />
+          <PaymentBadge type={service.paymentType} locale={locale} />
+          <NegotiableBadge negotiable={service.negotiable} locale={locale} />
+          <WaitlistOnlyBadge variant="early" locale={locale} />
         </div>
         <div className="mt-5 flex items-start justify-between gap-4">
           <div className="flex min-w-0 items-start gap-3">
@@ -89,7 +99,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
               aria-hidden="true"
               className="h-4 w-4 text-[#7c3cff]"
             />
-            Join waitlist to request
+            {t("service.joinWaitlistRequest")}
           </button>
         </div>
       </div>

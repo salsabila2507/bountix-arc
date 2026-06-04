@@ -1,13 +1,19 @@
 import Image from "next/image";
 import { Bolt, Globe2 } from "lucide-react";
+import {
+  DEFAULT_LOCALE,
+  createTranslator,
+  type Locale,
+  type TranslationKey,
+} from "@/lib/i18n";
 
 const assetBase = "/bountix-comic/bountix_assets_ready";
 
 type CarouselTask = {
-  title: string;
-  category: string;
+  titleKey: TranslationKey;
+  categoryKey: TranslationKey;
   reward: string;
-  badge: "Early Access" | "Preview";
+  badgeKey: TranslationKey;
   cardColor: string;
   badgeColor: string;
   icon: string;
@@ -15,80 +21,88 @@ type CarouselTask = {
 
 const carouselTasks: CarouselTask[] = [
   {
-    title: "Follow & repost a launch post",
-    category: "SOCIAL",
+    titleKey: "landing.bounty.follow.title",
+    categoryKey: "landing.category.social",
     reward: "15 USDC",
-    badge: "Early Access",
+    badgeKey: "early.access",
     cardColor: "bg-[#fff7e8]",
     badgeColor: "bg-[#38e7ff]",
     icon: `${assetBase}/icon-marketing.png`,
   },
   {
-    title: "Be my partner for one day",
-    category: "FUN",
+    titleKey: "landing.bounty.partner.title",
+    categoryKey: "landing.category.fun",
     reward: "80 USDC",
-    badge: "Preview",
+    badgeKey: "common.preview",
     cardColor: "bg-[#ffe8f5]",
     badgeColor: "bg-[#ff4fb8] text-white",
     icon: `${assetBase}/sticker-lets-go.png`,
   },
   {
-    title: "Find my missing dog",
-    category: "LOCAL",
+    titleKey: "landing.bounty.dog.title",
+    categoryKey: "landing.category.local",
     reward: "150 USDC",
-    badge: "Early Access",
+    badgeKey: "early.access",
     cardColor: "bg-[#fff7e8]",
     badgeColor: "bg-[#ffdd3d]",
     icon: `${assetBase}/icon-community.png`,
   },
   {
-    title: "Buy & ship an item from Tokyo",
-    category: "JASTIP",
+    titleKey: "carousel.task.ship.title",
+    categoryKey: "carousel.category.jastip",
     reward: "45 USDC",
-    badge: "Preview",
+    badgeKey: "common.preview",
     cardColor: "bg-[#e7f9ff]",
     badgeColor: "bg-[#7c3cff] text-white",
     icon: `${assetBase}/sticker-earn.png`,
   },
   {
-    title: "Check a location in Singapore",
-    category: "LOCAL",
+    titleKey: "carousel.task.singapore.title",
+    categoryKey: "landing.category.local",
     reward: "30 USDC",
-    badge: "Early Access",
+    badgeKey: "early.access",
     cardColor: "bg-[#fff7e8]",
     badgeColor: "bg-[#ffdd3d]",
     icon: `${assetBase}/icon-community.png`,
   },
   {
-    title: "Create a meme for Bountix",
-    category: "CREATIVE",
+    titleKey: "landing.bounty.meme.title",
+    categoryKey: "landing.category.creative",
     reward: "40 USDC",
-    badge: "Preview",
+    badgeKey: "common.preview",
     cardColor: "bg-[#f5e8ff]",
     badgeColor: "bg-[#f0d7ff]",
     icon: `${assetBase}/icon-writing.png`,
   },
   {
-    title: "Test a new website flow",
-    category: "TESTING",
+    titleKey: "landing.bounty.qa.title",
+    categoryKey: "landing.category.testing",
     reward: "25 USDC",
-    badge: "Early Access",
+    badgeKey: "early.access",
     cardColor: "bg-[#e7f9ff]",
     badgeColor: "bg-[#38e7ff]",
     icon: `${assetBase}/icon-development.png`,
   },
   {
-    title: "Find a local event venue",
-    category: "LOCAL",
+    titleKey: "carousel.task.venue.title",
+    categoryKey: "landing.category.local",
     reward: "60 USDC",
-    badge: "Preview",
+    badgeKey: "common.preview",
     cardColor: "bg-[#fff7e8]",
     badgeColor: "bg-[#ffdd3d]",
     icon: `${assetBase}/sticker-chat-community.png`,
   },
 ];
 
-function CarouselCard({ task }: { task: CarouselTask }) {
+function CarouselCard({
+  task,
+  locale,
+}: {
+  task: CarouselTask;
+  locale: Locale;
+}) {
+  const t = createTranslator(locale);
+
   return (
     <article
       className={`task-carousel-card relative flex w-[260px] shrink-0 flex-col gap-3 rounded-lg border-2 border-[#17072b] p-4 shadow-[5px_5px_0_#17072b] sm:w-[300px] ${task.cardColor}`}
@@ -97,10 +111,10 @@ function CarouselCard({ task }: { task: CarouselTask }) {
         <span
           className={`inline-flex items-center rounded-md border-2 border-[#17072b] px-2 py-1 text-[0.65rem] font-black uppercase text-[#17072b] shadow-[2px_2px_0_#17072b] ${task.badgeColor}`}
         >
-          {task.category}
+          {t(task.categoryKey)}
         </span>
         <span className="inline-flex items-center rounded-md border-2 border-[#17072b] bg-white px-2 py-0.5 text-[0.6rem] font-black uppercase text-[#17072b] shadow-[2px_2px_0_#17072b]">
-          {task.badge}
+          {t(task.badgeKey)}
         </span>
       </div>
       <div className="flex items-start gap-3">
@@ -114,7 +128,7 @@ function CarouselCard({ task }: { task: CarouselTask }) {
           />
         </span>
         <h3 className="text-[0.95rem] font-black leading-tight text-[#17072b]">
-          {task.title}
+          {t(task.titleKey)}
         </h3>
       </div>
       <div className="mt-auto flex items-center justify-between gap-2 border-t-2 border-dashed border-[#17072b]/30 pt-3">
@@ -129,14 +143,19 @@ function CarouselCard({ task }: { task: CarouselTask }) {
           />
         </span>
         <span className="text-[0.65rem] font-black uppercase text-[#7c3cff]">
-          Reward
+          {t("common.reward")}
         </span>
       </div>
     </article>
   );
 }
 
-export function TaskCarousel() {
+export function TaskCarousel({
+  locale = DEFAULT_LOCALE,
+}: {
+  locale?: Locale;
+}) {
+  const t = createTranslator(locale);
   const loopTasks = [...carouselTasks, ...carouselTasks];
 
   return (
@@ -147,30 +166,33 @@ export function TaskCarousel() {
           <div>
             <span className="inline-flex items-center gap-2 rounded-lg border-2 border-[#17072b] bg-[#ffdd3d] px-3 py-1.5 text-xs font-black uppercase text-[#17072b] shadow-[3px_3px_0_#17072b]">
               <Globe2 aria-hidden="true" className="h-4 w-4" />
-              Tasks in motion
+              {t("carousel.badge")}
             </span>
             <h2 className="mt-3 text-3xl font-black uppercase leading-none text-white drop-shadow-[3px_3px_0_#17072b] sm:text-5xl">
-              Tasks moving across the world
+              {t("carousel.title")}
             </h2>
             <p className="mt-3 max-w-2xl text-sm font-bold leading-6 text-white/85 sm:text-base">
-              From online actions to real-world help, Bountix turns requests
-              into rewards.
+              {t("carousel.body")}
             </p>
           </div>
           <div className="hidden items-center gap-2 rounded-lg border-2 border-[#17072b] bg-white px-3 py-2 text-xs font-black uppercase text-[#17072b] shadow-[3px_3px_0_#17072b] sm:inline-flex">
             <Bolt aria-hidden="true" className="h-4 w-4" />
-            Early Access Preview
+            {t("early.preview")}
           </div>
         </div>
       </div>
 
       <div
         className="task-carousel-wrap relative mt-8"
-        aria-label="Bountix preview tasks moving carousel"
+        aria-label={t("carousel.aria")}
       >
         <div className="task-carousel-track flex gap-4 sm:gap-5">
           {loopTasks.map((task, index) => (
-            <CarouselCard key={`${task.title}-${index}`} task={task} />
+            <CarouselCard
+              key={`${task.titleKey}-${index}`}
+              task={task}
+              locale={locale}
+            />
           ))}
         </div>
         <div className="task-carousel-fade task-carousel-fade-left" aria-hidden="true" />

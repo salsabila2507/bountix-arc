@@ -4,6 +4,12 @@ import { ArrowLeft, ExternalLink, Trophy } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { EscrowReleasePanel } from "@/components/marketplace/escrow-release-panel";
 import {
+  createTranslator,
+  formatDate,
+  type TranslationKey,
+} from "@/lib/i18n";
+import { getRequestLocale } from "@/lib/i18n/server";
+import {
   decideApplicationAction,
   restoreApplicationAction,
   reviewSubmissionAction,
@@ -15,10 +21,8 @@ import { TASK_LIST_COLUMNS, isUuid, type DbTask } from "@/lib/tasks";
 import {
   APPLICATION_COLUMNS,
   APPLICATION_STATUS_COLOR,
-  APPLICATION_STATUS_LABEL,
   SUBMISSION_COLUMNS,
   SUBMISSION_STATUS_COLOR,
-  SUBMISSION_STATUS_LABEL,
   type DbApplication,
   type DbSubmission,
 } from "@/lib/applications";
@@ -108,6 +112,8 @@ async function loadPage(taskId: string) {
 }
 
 export default async function ApplicantsPage({ params }: RouteParams) {
+  const locale = await getRequestLocale();
+  const t = createTranslator(locale);
   const { id } = await params;
   const supabase = await createClient();
   const {
@@ -146,16 +152,16 @@ export default async function ApplicantsPage({ params }: RouteParams) {
           className="inline-flex items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-black text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          Back to task
+          {t("applicants.back")}
         </Link>
 
         <div className="mt-6">
-          <p className="comic-chip bg-[#ffdd3d]">Manage applicants</p>
+          <p className="comic-chip bg-[#ffdd3d]">{t("applicants.manage")}</p>
           <h1 className="mt-3 max-w-3xl text-3xl font-black uppercase leading-none sm:text-5xl">
             {task.title}
           </h1>
           <p className="mt-3 text-sm font-bold leading-6 text-[#5a3b66]">
-            Accept or reject applicants. Review submissions when work comes in.
+            {t("applicants.body")}
           </p>
         </div>
 
@@ -165,11 +171,13 @@ export default async function ApplicantsPage({ params }: RouteParams) {
               <div>
                 <p className="comic-chip bg-[#ffdd3d]">
                   <Trophy aria-hidden="true" className="h-3.5 w-3.5" />
-                  Raffle reward
+                  {t("raffle.reward")}
                 </p>
                 <h2 className="mt-4 text-xl font-black text-[#140625]">
                   {task.raffle_winner_count}{" "}
-                  {task.raffle_winner_count === 1 ? "winner" : "winners"}
+                  {task.raffle_winner_count === 1
+                    ? t("raffle.winner")
+                    : t("raffle.winners")}
                 </h2>
                 {task.eligibility_rules ? (
                   <p className="mt-3 max-w-3xl whitespace-pre-line text-sm font-semibold leading-6 text-[#3c214b]">
@@ -179,22 +187,24 @@ export default async function ApplicantsPage({ params }: RouteParams) {
               </div>
               <div className="grid gap-2 text-sm font-black text-[#140625] sm:min-w-48">
                 <span className="rounded-lg border-2 border-[#140625] bg-white px-3 py-2 shadow-[3px_3px_0_#140625]">
-                  Eligible: {eligibleSubs.length}
+                  {t("applicants.eligible", { count: eligibleSubs.length })}
                 </span>
                 <span className="rounded-lg border-2 border-[#140625] bg-white px-3 py-2 shadow-[3px_3px_0_#140625]">
-                  Selected: {winnerSubs.length}/{task.raffle_winner_count}
+                  {t("applicants.selected", {
+                    selected: winnerSubs.length,
+                    total: task.raffle_winner_count,
+                  })}
                 </span>
               </div>
             </div>
 
             {escrowMultiWinnerRaffle ? (
               <p className="mt-4 rounded-lg border-2 border-[#140625] bg-[#ffe1ed] p-3 text-sm font-black leading-6 text-[#8a1742]">
-                Escrow V0 supports one payout per task. Use manual payment for
-                multi-winner raffles.
+                {t("raffle.escrowMultiWinnerWarning")}
               </p>
             ) : winnerSubs.length > 0 ? (
               <div className="mt-4 rounded-lg border-2 border-[#140625] bg-[#dff7e6] p-3 text-sm font-bold leading-6 text-[#1f6b3a]">
-                <p className="font-black">Winners selected</p>
+                <p className="font-black">{t("raffle.winnersSelected")}</p>
                 <div className="mt-2 grid gap-1">
                   {winnerSubs.map((s) => {
                     const winnerApp = apps.find(
@@ -206,7 +216,7 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                     return (
                       <p key={s.id}>
                         #{s.raffle_winner_position}: @
-                        {winnerProfile?.username ?? "unknown"}
+                        {winnerProfile?.username ?? t("applicants.unknown")}
                       </p>
                     );
                   })}
@@ -216,14 +226,18 @@ export default async function ApplicantsPage({ params }: RouteParams) {
               <form action={drawWinners} className="mt-4">
                 <button className="inline-flex min-h-11 items-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ff4fb8] px-4 text-sm font-black uppercase text-white shadow-[4px_4px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#7c3cff]">
                   <Trophy aria-hidden="true" className="h-4 w-4" />
-                  Randomly select winners
+                  {t("raffle.randomlySelectWinners")}
                 </button>
               </form>
             ) : (
               <p className="mt-4 rounded-lg border-2 border-dashed border-[#140625] bg-white p-3 text-sm font-bold leading-6 text-[#5a3b66]">
-                Mark at least {task.raffle_winner_count} eligible{" "}
-                {task.raffle_winner_count === 1 ? "submission" : "submissions"}{" "}
-                before drawing winners.
+                {t("raffle.markEligibleBeforeDrawing", {
+                  count: task.raffle_winner_count,
+                  noun:
+                    task.raffle_winner_count === 1
+                      ? t("common.submission")
+                      : t("common.submissions"),
+                })}
               </p>
             )}
           </div>
@@ -233,10 +247,10 @@ export default async function ApplicantsPage({ params }: RouteParams) {
           {apps.length === 0 ? (
             <div className="comic-card bg-white p-6 text-center sm:p-8">
               <h2 className="text-xl font-black text-[#140625]">
-                No applicants yet
+                {t("applicants.noApplicants")}
               </h2>
               <p className="mt-3 text-sm font-bold leading-6 text-[#5a3b66]">
-                Once people apply they show up here.
+                {t("applicants.noApplicantsBody")}
               </p>
             </div>
           ) : (
@@ -269,7 +283,7 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                         }
                         className="text-sm font-black uppercase text-[#7c3cff]"
                       >
-                        @{applicant?.username ?? "unknown"}
+                        @{applicant?.username ?? t("applicants.unknown")}
                       </Link>
                       {applicant?.display_name ? (
                         <p className="text-base font-bold text-[#140625]">
@@ -280,7 +294,7 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                     <span
                       className={`inline-flex items-center rounded-md border-2 border-[#140625] px-2 py-1 text-[0.7rem] font-black uppercase shadow-[2px_2px_0_#140625] ${APPLICATION_STATUS_COLOR[app.status]}`}
                     >
-                      {APPLICATION_STATUS_LABEL[app.status]}
+                      {t(`market.status.${app.status}` as TranslationKey)}
                     </span>
                   </div>
 
@@ -294,12 +308,12 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                     <div className="mt-4 flex flex-wrap gap-2">
                       <form action={acceptAction}>
                         <button className="inline-flex min-h-10 items-center gap-2 rounded-lg border-2 border-[#140625] bg-[#23b26d] px-3 py-2 text-xs font-black uppercase text-white shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#1f6b3a]">
-                          Accept
+                          {t("applicants.accept")}
                         </button>
                       </form>
                       <form action={rejectAction}>
                         <button className="inline-flex min-h-10 items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-xs font-black uppercase text-[#c42463] shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#ffe1ed]">
-                          Reject
+                          {t("applicants.reject")}
                         </button>
                       </form>
                     </div>
@@ -311,7 +325,7 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                         action={restoreApplicationAction.bind(null, app.id)}
                       >
                         <button className="inline-flex min-h-10 items-center gap-2 rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-3 py-2 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#ffdd3d]">
-                          Restore application
+                          {t("applicants.restore")}
                         </button>
                       </form>
                     </div>
@@ -320,7 +334,7 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                   {subs.length > 0 ? (
                     <div className="mt-5 grid gap-3">
                       <p className="text-xs font-black uppercase text-[#5a3b66]">
-                        Submissions
+                        {t("common.submissions")}
                       </p>
                       {subs.map((s) => {
                         const review = reviewSubmissionAction.bind(null, s.id);
@@ -346,10 +360,10 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                               <span
                                 className={`inline-flex items-center rounded-md border-2 border-[#140625] px-2 py-1 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#140625] ${SUBMISSION_STATUS_COLOR[s.status]}`}
                               >
-                                {SUBMISSION_STATUS_LABEL[s.status]}
+                                {t(`market.status.${s.status}` as TranslationKey)}
                               </span>
                               <span className="text-xs font-bold text-[#5a3b66]">
-                                {new Date(s.created_at).toLocaleDateString()}
+                                {formatDate(s.created_at, locale)}
                               </span>
                               {isRaffle ? (
                                 s.raffle_winner_position !== null ? (
@@ -358,15 +372,17 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                                       aria-hidden="true"
                                       className="h-3 w-3"
                                     />
-                                    Winner #{s.raffle_winner_position}
+                                    {t("raffle.winnerNumber", {
+                                      position: s.raffle_winner_position,
+                                    })}
                                   </span>
                                 ) : s.raffle_eligible ? (
                                   <span className="inline-flex items-center rounded-md border-2 border-[#140625] bg-[#dff7e6] px-2 py-1 text-[0.65rem] font-black uppercase text-[#1f6b3a] shadow-[2px_2px_0_#140625]">
-                                    Eligible
+                                    {t("raffle.eligibleShort")}
                                   </span>
                                 ) : (
                                   <span className="inline-flex items-center rounded-md border-2 border-[#140625] bg-white px-2 py-1 text-[0.65rem] font-black uppercase text-[#5a3b66] shadow-[2px_2px_0_#140625]">
-                                    Not eligible
+                                    {t("raffle.notEligible")}
                                   </span>
                                 )
                               ) : null}
@@ -396,13 +412,13 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                                 {s.raffle_eligible ? (
                                   <form action={unmarkEligible}>
                                     <button className="inline-flex min-h-10 items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-xs font-black uppercase text-[#8a1742] shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#ffe1ed]">
-                                      Remove eligibility
+                                      {t("raffle.removeEligibility")}
                                     </button>
                                   </form>
                                 ) : (
                                   <form action={markEligible}>
                                     <button className="inline-flex min-h-10 items-center gap-2 rounded-lg border-2 border-[#140625] bg-[#23b26d] px-3 py-2 text-xs font-black uppercase text-white shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#1f6b3a]">
-                                      Mark eligible
+                                      {t("raffle.markEligible")}
                                     </button>
                                   </form>
                                 )}
@@ -417,7 +433,9 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                                   rows={3}
                                   maxLength={2000}
                                   defaultValue={s.review_notes ?? ""}
-                                  placeholder="Reviewer notes (optional)"
+                                  placeholder={t(
+                                    "applicants.reviewNotesPlaceholder",
+                                  )}
                                   className="w-full rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-medium text-[#140625] placeholder:text-[#5a3b66]/45 outline-none focus:ring-2 focus:ring-[#38e7ff]"
                                 />
                                 <div className="flex flex-wrap gap-2">
@@ -426,21 +444,21 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                                     value="approved"
                                     className="inline-flex min-h-10 items-center gap-2 rounded-lg border-2 border-[#140625] bg-[#23b26d] px-3 py-2 text-xs font-black uppercase text-white shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5"
                                   >
-                                    Approve
+                                    {t("common.approve")}
                                   </button>
                                   <button
                                     name="decision"
                                     value="revision_requested"
                                     className="inline-flex min-h-10 items-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ffdd3d] px-3 py-2 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5"
                                   >
-                                    Request revision
+                                    {t("applicants.requestRevision")}
                                   </button>
                                   <button
                                     name="decision"
                                     value="rejected"
                                     className="inline-flex min-h-10 items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-xs font-black uppercase text-[#c42463] shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#ffe1ed]"
                                   >
-                                    Reject
+                                    {t("applicants.reject")}
                                   </button>
                                 </div>
                               </form>
@@ -464,12 +482,15 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                                 taskId={task.id}
                                 rewardAmount={task.reward_amount}
                                 workerWalletAddress={applicant ? applicant.wallet_address : null}
+                                locale={locale}
                               />
                             ) : null}
 
                             {s.released_at ? (
                               <div className="mt-4 rounded-lg border-2 border-[#140625] bg-[#dff7e6] p-3 text-sm font-bold text-[#1f6b3a]">
-                                ✓ Escrow released on {new Date(s.released_at).toLocaleDateString()}
+                                {t("escrow.releasedOn", {
+                                  date: formatDate(s.released_at, locale),
+                                })}
                                 {s.assign_tx_hash ? (
                                   <div className="mt-2 space-y-1">
                                     <a
@@ -478,7 +499,7 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                                       rel="noreferrer"
                                       className="block text-xs font-black text-[#7c3cff] hover:underline"
                                     >
-                                      View assign tx
+                                      {t("escrow.release.viewAssignTx")}
                                     </a>
                                   </div>
                                 ) : null}
@@ -490,7 +511,7 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                                       rel="noreferrer"
                                       className="block text-xs font-black text-[#7c3cff] hover:underline"
                                     >
-                                      View release tx
+                                      {t("escrow.release.viewReleaseTx")}
                                     </a>
                                   </div>
                                 ) : null}

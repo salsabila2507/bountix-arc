@@ -16,19 +16,20 @@ import {
 } from "@/lib/task-form-state";
 import {
   TASK_STATUSES,
-  TASK_STATUS_LABEL,
   TASK_TYPES,
-  TASK_TYPE_LABEL,
   PAYMENT_METHODS,
-  PAYMENT_METHOD_LABEL,
   REWARD_MODES,
-  REWARD_MODE_LABEL,
   TASK_ACCESS_LEVELS,
-  TASK_ACCESS_LEVEL_LABEL,
   type DbTask,
   type PaymentMethod,
   type RewardMode,
 } from "@/lib/tasks";
+import {
+  DEFAULT_LOCALE,
+  createTranslator,
+  type Locale,
+  type TranslationKey,
+} from "@/lib/i18n";
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -42,11 +43,14 @@ export function TaskForm({
   mode,
   isAdmin,
   initialTask,
+  locale = DEFAULT_LOCALE,
 }: {
   mode: "create" | "edit";
   isAdmin: boolean;
   initialTask?: DbTask;
+  locale?: Locale;
 }) {
+  const t = createTranslator(locale);
   const boundAction =
     mode === "edit" && initialTask
       ? updateTaskAction.bind(null, initialTask.id)
@@ -73,13 +77,17 @@ export function TaskForm({
   return (
     <form action={formAction} className="comic-card bg-white p-5 sm:p-6">
       <p className="comic-chip bg-[#38e7ff]">
-        {mode === "create" ? "Post a task" : "Edit task"}
+        {mode === "create"
+          ? t("form.postTask.chipCreate")
+          : t("form.postTask.chipEdit")}
       </p>
       <h1 className="mt-5 text-2xl font-black text-[#140625]">
-        {mode === "create" ? "Create a new task" : "Edit your task"}
+        {mode === "create"
+          ? t("form.postTask.titleCreate")
+          : t("form.postTask.titleEdit")}
       </h1>
       <p className="mt-3 text-sm font-medium leading-6 text-[#5a3b66]">
-        Rewards are paid in USDC on Base. Manual payment or Base escrow is available.
+        {t("payment.copy")}
       </p>
 
       {state.status === "error" && state.message ? (
@@ -103,7 +111,9 @@ export function TaskForm({
 
       <div className="mt-6 grid gap-5">
         <label className="block">
-          <span className="text-sm font-black text-[#140625]">Title</span>
+          <span className="text-sm font-black text-[#140625]">
+            {t("form.postTask.titleLabel")}
+          </span>
           <input
             name="title"
             type="text"
@@ -111,7 +121,7 @@ export function TaskForm({
             minLength={4}
             maxLength={140}
             defaultValue={def?.title ?? ""}
-            placeholder="e.g. Map 40 active creator communities for launch outreach"
+            placeholder={t("form.postTask.titlePlaceholder")}
             className={input}
           />
           <FieldError message={state.fieldErrors?.title} />
@@ -119,7 +129,7 @@ export function TaskForm({
 
         <label className="block">
           <span className="text-sm font-black text-[#140625]">
-            Description
+            {t("form.postTask.descriptionLabel")}
           </span>
           <textarea
             name="description"
@@ -127,7 +137,7 @@ export function TaskForm({
             required
             maxLength={4000}
             defaultValue={def?.description ?? ""}
-            placeholder="Brief, deliverables, acceptance criteria, any constraints."
+            placeholder={t("form.postTask.descriptionPlaceholder")}
             className="mt-2 w-full rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 py-3 font-medium text-[#140625] placeholder:text-[#5a3b66]/45 outline-none transition focus:bg-white focus:ring-2 focus:ring-[#38e7ff]"
           />
           <FieldError message={state.fieldErrors?.description} />
@@ -136,15 +146,15 @@ export function TaskForm({
         <div className="grid gap-5 sm:grid-cols-2">
           <label className="block">
             <span className="text-sm font-black text-[#140625]">
-              Category{" "}
-              <span className="text-[#5a3b66]">optional</span>
+              {t("form.postTask.categoryLabel")}{" "}
+              <span className="text-[#5a3b66]">{t("common.optional")}</span>
             </span>
             <input
               name="category"
               type="text"
               maxLength={60}
               defaultValue={def?.category ?? ""}
-              placeholder="Research, growth, design ops"
+              placeholder={t("form.postTask.categoryPlaceholder")}
               className={input}
             />
             <FieldError message={state.fieldErrors?.category} />
@@ -152,9 +162,12 @@ export function TaskForm({
 
           <label className="block">
             <span className="text-sm font-black text-[#140625]">
-              Reward (USDC){isRaffle ? " per winner" : " "}
+              {t("form.postTask.rewardLabel")}
+              {isRaffle ? ` ${t("form.postTask.perWinner")}` : " "}
               {!isRaffle ? (
-                <span className="text-[#5a3b66]">optional</span>
+                <span className="text-[#5a3b66]">
+                  {t("common.optional")}
+                </span>
               ) : null}
             </span>
             <input
@@ -172,11 +185,10 @@ export function TaskForm({
 
         <fieldset className="block">
           <legend className="text-sm font-black text-[#140625]">
-            Reward mode
+            {t("form.postTask.rewardMode")}
           </legend>
           <p className="mt-1 text-xs font-bold text-[#5a3b66]">
-            Fixed tasks pay one selected worker. Raffle tasks collect eligible
-            submissions, then randomly select one or more winners.
+            {t("form.postTask.rewardModeHelp")}
           </p>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {REWARD_MODES.map((modeValue, i) => (
@@ -197,16 +209,14 @@ export function TaskForm({
                   className="mt-1 h-4 w-4 accent-[#7c3cff]"
                 />
                 <span className="text-sm font-black text-[#140625]">
-                  {REWARD_MODE_LABEL[modeValue]}
+                  {t(`task.rewardMode.${modeValue}` as TranslationKey)}
                   {modeValue === "raffle" ? (
                     <span className="mt-1 block text-xs font-bold text-[#5a3b66]">
-                      Select random winners from owner-approved eligible
-                      submissions.
+                      {t("form.postTask.raffleHelp")}
                     </span>
                   ) : (
                     <span className="mt-1 block text-xs font-bold text-[#5a3b66]">
-                      Standard application, submission, review, and payout
-                      flow.
+                      {t("form.postTask.fixedHelp")}
                     </span>
                   )}
                 </span>
@@ -220,7 +230,7 @@ export function TaskForm({
           <div className="grid gap-5">
             <label className="block">
               <span className="text-sm font-black text-[#140625]">
-                Number of winners
+                {t("form.postTask.numberWinners")}
               </span>
               <input
                 name="raffle_winner_count"
@@ -240,7 +250,7 @@ export function TaskForm({
 
             <label className="block">
               <span className="text-sm font-black text-[#140625]">
-                Eligibility rules
+                {t("form.postTask.eligibilityRules")}
               </span>
               <textarea
                 name="eligibility_rules"
@@ -248,7 +258,7 @@ export function TaskForm({
                 required
                 maxLength={2000}
                 defaultValue={def?.eligibility_rules ?? ""}
-                placeholder="Who can enter, what counts as a valid submission, and any proof required."
+                placeholder={t("form.postTask.eligibilityPlaceholder")}
                 className="mt-2 w-full rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 py-3 font-medium text-[#140625] placeholder:text-[#5a3b66]/45 outline-none transition focus:bg-white focus:ring-2 focus:ring-[#38e7ff]"
               />
               <FieldError message={state.fieldErrors?.eligibility_rules} />
@@ -258,12 +268,10 @@ export function TaskForm({
 
         <fieldset className="block">
           <legend className="text-sm font-black text-[#140625]">
-            Payment method
+            {t("form.postTask.paymentMethod")}
           </legend>
           <p className="mt-1 text-xs font-bold text-[#5a3b66]">
-            Manual keeps payment off-platform. Escrow locks USDC in the
-            Bountix contract on Base (reward of at least 1 USDC required); the
-            task opens after you fund it.
+            {t("form.postTask.paymentHelp")}
           </p>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {PAYMENT_METHODS.map((method, i) => (
@@ -284,14 +292,14 @@ export function TaskForm({
                   className="mt-1 h-4 w-4 accent-[#7c3cff]"
                 />
                 <span className="text-sm font-black text-[#140625]">
-                  {PAYMENT_METHOD_LABEL[method]}
+                  {t(`task.payment.${method}` as TranslationKey)}
                   {method === "escrow_base" ? (
                     <span className="mt-1 block text-xs font-bold text-[#5a3b66]">
-                      Connect wallet, approve, and fund after posting.
+                      {t("form.postTask.escrowHelp")}
                     </span>
                   ) : (
                     <span className="mt-1 block text-xs font-bold text-[#5a3b66]">
-                      Works as today. No wallet needed.
+                      {t("form.postTask.manualHelp")}
                     </span>
                   )}
                 </span>
@@ -302,13 +310,11 @@ export function TaskForm({
           paymentMethod === "escrow_base" &&
           winnerCount > 1 ? (
             <p className="mt-3 rounded-lg border-2 border-[#140625] bg-[#ffe1ed] p-3 text-xs font-black leading-5 text-[#8a1742]">
-              Current escrow V0 supports one payout per escrow task. Use manual
-              payment for multi-winner raffles.
+              {t("raffle.escrowMultiWinnerWarning")}
             </p>
           ) : isRaffle && paymentMethod === "escrow_base" ? (
             <p className="mt-3 rounded-lg border-2 border-[#140625] bg-[#dff7e6] p-3 text-xs font-black leading-5 text-[#1f6b3a]">
-              Compatible: one winner can be paid through the existing Base
-              escrow release flow after selection.
+              {t("raffle.oneWinnerEscrowCompatible")}
             </p>
           ) : null}
           <FieldError message={state.fieldErrors?.payment_method} />
@@ -316,11 +322,10 @@ export function TaskForm({
 
         <fieldset className="block">
           <legend className="text-sm font-black text-[#140625]">
-            Task access
+            {t("form.postTask.access")}
           </legend>
           <p className="mt-1 text-xs font-bold text-[#5a3b66]">
-            Open tasks can be worked on by any approved user. Early Contributor
-            tasks stay visible but require the badge to apply or submit work.
+            {t("form.postTask.accessHelp")}
           </p>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {TASK_ACCESS_LEVELS.map((level, i) => (
@@ -338,15 +343,14 @@ export function TaskForm({
                   className="mt-1 h-4 w-4 accent-[#7c3cff]"
                 />
                 <span className="text-sm font-black text-[#140625]">
-                  {TASK_ACCESS_LEVEL_LABEL[level]}
+                  {t(`task.access.${level}` as TranslationKey)}
                   {level === "early_contributor" ? (
                     <span className="mt-1 block text-xs font-bold text-[#5a3b66]">
-                      Keeps demo or launch tasks visible while limiting work to
-                      badged users.
+                      {t("form.postTask.accessEarlyHelp")}
                     </span>
                   ) : (
                     <span className="mt-1 block text-xs font-bold text-[#5a3b66]">
-                      Standard task flow for all approved Bountix users.
+                      {t("form.postTask.accessOpenHelp")}
                     </span>
                   )}
                 </span>
@@ -358,7 +362,9 @@ export function TaskForm({
 
         <div className="grid gap-5 sm:grid-cols-2">
           <label className="block">
-            <span className="text-sm font-black text-[#140625]">Status</span>
+            <span className="text-sm font-black text-[#140625]">
+              {t("form.postTask.status")}
+            </span>
             <select
               name="status"
               defaultValue={def?.status ?? "draft"}
@@ -366,7 +372,7 @@ export function TaskForm({
             >
               {TASK_STATUSES.map((s) => (
                 <option key={s} value={s}>
-                  {TASK_STATUS_LABEL[s]}
+                  {t(`market.status.${s}` as TranslationKey)}
                 </option>
               ))}
             </select>
@@ -375,30 +381,29 @@ export function TaskForm({
 
           <label className="block">
             <span className="text-sm font-black text-[#140625]">
-              Task type
+              {t("form.postTask.taskType")}
             </span>
             <select
               name="task_type"
               defaultValue={def?.task_type ?? "user_task"}
               className="mt-2 h-12 w-full rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 font-bold text-[#140625] outline-none focus:bg-white focus:ring-2 focus:ring-[#38e7ff]"
             >
-              {allowedTypes.map((t) => (
-                <option key={t} value={t}>
-                  {TASK_TYPE_LABEL[t]}
-                  {(t === "official_task" ||
-                    t === "giveaway" ||
-                    t === "campaign" ||
-                    t === "announcement" ||
-                    t === "update") &&
-                    " (admin)"}
+              {allowedTypes.map((taskType) => (
+                <option key={taskType} value={taskType}>
+                  {t(`task.type.${taskType}` as TranslationKey)}
+                  {(taskType === "official_task" ||
+                    taskType === "giveaway" ||
+                    taskType === "campaign" ||
+                    taskType === "announcement" ||
+                    taskType === "update") &&
+                    ` (${t("common.adminOnly")})`}
                 </option>
               ))}
             </select>
             <FieldError message={state.fieldErrors?.task_type} />
             {!isAdmin && (
               <p className="mt-2 text-xs font-bold text-[#5a3b66]">
-                Only admins can post official, giveaway, campaign,
-                announcement, or update.
+                {t("form.postTask.adminTypesHelp")}
               </p>
             )}
           </label>
@@ -406,8 +411,8 @@ export function TaskForm({
 
         <label className="block">
           <span className="text-sm font-black text-[#140625]">
-            External link{" "}
-            <span className="text-[#5a3b66]">optional</span>
+            {t("form.postTask.externalLink")}{" "}
+            <span className="text-[#5a3b66]">{t("common.optional")}</span>
           </span>
           <input
             name="external_link"
@@ -423,8 +428,8 @@ export function TaskForm({
         <div className="grid gap-5 sm:grid-cols-2">
           <label className="block">
             <span className="text-sm font-black text-[#140625]">
-              Start date{" "}
-              <span className="text-[#5a3b66]">optional</span>
+              {t("form.postTask.startDate")}{" "}
+              <span className="text-[#5a3b66]">{t("common.optional")}</span>
             </span>
             <input
               name="start_date"
@@ -441,9 +446,13 @@ export function TaskForm({
 
           <label className="block">
             <span className="text-sm font-black text-[#140625]">
-              {isRaffle ? "Deadline" : "End date"}{" "}
+              {isRaffle
+                ? t("form.postTask.deadline")
+                : t("form.postTask.endDate")}{" "}
               {!isRaffle ? (
-                <span className="text-[#5a3b66]">optional</span>
+                <span className="text-[#5a3b66]">
+                  {t("common.optional")}
+                </span>
               ) : null}
             </span>
             <input
@@ -466,8 +475,9 @@ export function TaskForm({
             aria-hidden="true"
             className="mr-2 inline h-4 w-4 text-[#7c3cff]"
           />
-          Rewards paid in <span className="font-black">USDC on Base</span>.
-          Manual payment or Base escrow is available when compatible.
+          {t("form.postTask.paymentNote", {
+            emphasis: t("common.usdcOnBase"),
+          })}
         </div>
       </div>
 
@@ -483,12 +493,16 @@ export function TaskForm({
                 aria-hidden="true"
                 className="h-4 w-4 animate-spin"
               />
-              {mode === "create" ? "Posting…" : "Saving…"}
+              {mode === "create"
+                ? t("form.postTask.posting")
+                : t("common.saving")}
             </>
           ) : (
             <>
               <Save aria-hidden="true" className="h-4 w-4" />
-              {mode === "create" ? "Post task" : "Save changes"}
+              {mode === "create"
+                ? t("form.postTask.post")
+                : t("common.saveChanges")}
             </>
           )}
         </button>
@@ -496,7 +510,7 @@ export function TaskForm({
           href={mode === "edit" && def ? `/tasks/${def.id}` : "/dashboard/tasks"}
           className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-5 py-3 text-sm font-black uppercase text-[#140625] shadow-[5px_5px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#38e7ff]"
         >
-          Cancel
+          {t("common.cancel")}
         </Link>
       </div>
     </form>

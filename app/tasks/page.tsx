@@ -16,6 +16,8 @@ import { TaskFilters } from "@/components/marketplace/filters";
 import { tasks as previewTasks } from "@/lib/marketplace";
 import { completedWork } from "@/lib/completed-work";
 import { createClient } from "@/lib/supabase/server";
+import { createTranslator } from "@/lib/i18n";
+import { getRequestLocale } from "@/lib/i18n/server";
 import {
   TASK_LIST_COLUMNS,
   TASK_VISIBLE_STATUSES,
@@ -50,6 +52,8 @@ async function fetchVisibleTasks(): Promise<DbTask[]> {
 }
 
 export default async function TasksPage() {
+  const locale = await getRequestLocale();
+  const t = createTranslator(locale);
   const dbTasks = await fetchVisibleTasks();
   const hasReal = dbTasks.length > 0;
 
@@ -79,32 +83,32 @@ export default async function TasksPage() {
                 {hasReal ? (
                   <>
                     <Bolt aria-hidden="true" className="h-3.5 w-3.5" />
-                    Live tasks
+                    {t("market.tasks.liveTasks")}
                   </>
                 ) : (
                   <>
                     <Hourglass aria-hidden="true" className="h-3.5 w-3.5" />
-                    Early access preview
+                    {t("early.preview")}
                   </>
                 )}
               </p>
               <h1 className="mt-5 max-w-3xl text-5xl font-black leading-[0.95] text-[#140625] sm:text-7xl">
-                {hasReal ? "Tasks" : "Bounty Preview"}
+                {hasReal ? t("market.tasks.title") : t("market.tasks.previewTitle")}
               </h1>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-8 text-[#3c214b] sm:text-xl">
                 {hasReal
-                  ? "Pick a task, deliver clean work, and earn rewards in USDC."
-                  : "Bountix is live in gated early access. Approved users can create, apply, submit, and review tasks. The list below is a preview until tasks are seeded."}
+                  ? t("market.tasks.liveBody")
+                  : t("market.tasks.previewBody")}
               </p>
               <p className="mt-3 max-w-2xl text-sm font-bold leading-6 text-[#3c214b]">
-                Rewards paid in USDC on Base. Manual payment or Base escrow is available.
+                {t("payment.copy")}
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link
                   href="/post-task"
                   className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ff4fb8] px-4 py-2 text-sm font-black uppercase text-white shadow-[4px_4px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#7c3cff]"
                 >
-                  Post a task
+                  {t("common.postTask")}
                   <ArrowRight aria-hidden="true" className="h-4 w-4" />
                 </Link>
                 {!hasReal ? (
@@ -112,7 +116,7 @@ export default async function TasksPage() {
                     href="/waitlist"
                     className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-4 py-2 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625] transition hover:bg-[#38e7ff]"
                   >
-                    Join Waitlist
+                    {t("common.joinWaitlist")}
                   </Link>
                 ) : null}
                 <span className="inline-flex min-h-11 items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-4 py-2 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625]">
@@ -120,18 +124,20 @@ export default async function TasksPage() {
                     aria-hidden="true"
                     className="h-4 w-4 text-[#7c3cff]"
                   />
-                  {hasReal ? "USDC rewards" : "Early Access Preview"}
+                  {hasReal ? t("payment.usdcRewards") : t("early.preview")}
                 </span>
               </div>
             </div>
             <div className="grid gap-3 text-sm font-bold leading-6 text-[#5a3b66] sm:grid-cols-3 lg:max-w-md lg:grid-cols-1">
               {[
                 [
-                  hasReal ? "Live tasks" : "Preview tasks",
+                  hasReal
+                    ? t("market.tasks.liveTasks")
+                    : t("market.tasks.previewTasks"),
                   String(hasReal ? dbTasks.length : previewTasks.length),
                 ],
-                ["Negotiable", "2"],
-                ["Escrow-ready", "2"],
+                [t("market.tasks.negotiableCount"), "2"],
+                [t("market.tasks.escrowReadyCount"), "2"],
               ].map(([label, value]) => (
                 <div
                   key={label}
@@ -148,20 +154,24 @@ export default async function TasksPage() {
                   aria-hidden="true"
                   className="mb-2 h-4 w-4 text-[#7c3cff]"
                 />
-                Manual payment or Base USDC escrow is available.
+                {t("payment.manualOrEscrow")}
               </div>
             </div>
           </div>
         </div>
 
         <div className="mt-10">
-          <TaskFilters />
+          <TaskFilters locale={locale} />
         </div>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-3">
           {hasReal
-            ? dbTasks.map((t) => <DbTaskCard key={t.id} task={t} />)
-            : previewTasks.map((t) => <TaskCard key={t.id} task={t} />)}
+            ? dbTasks.map((task) => (
+                <DbTaskCard key={task.id} task={task} locale={locale} />
+              ))
+            : previewTasks.map((task) => (
+                <TaskCard key={task.id} task={task} locale={locale} />
+              ))}
         </div>
 
         <div className="mt-16">
@@ -169,21 +179,20 @@ export default async function TasksPage() {
             <div>
               <p className="comic-chip bg-[#23b26d] text-white">
                 <BadgeCheck aria-hidden="true" className="h-3.5 w-3.5" />
-                Recent completed work
+                {t("market.tasks.recentCompletedWork")}
               </p>
               <h2 className="mt-4 text-3xl font-black leading-tight text-[#140625] sm:text-4xl">
-                Recent completed work
+                {t("market.tasks.recentCompletedWork")}
               </h2>
               <p className="mt-3 max-w-2xl text-sm font-bold leading-6 text-[#3c214b]">
-                Work delivered and approved across the Bountix marketplace.
-                Rewards paid in USDC.
+                {t("market.tasks.completedWorkBody")}
               </p>
             </div>
           </div>
 
           <div className="mt-6 grid gap-4 lg:grid-cols-3">
             {completedWork.map((item) => (
-              <CompletedWorkCard key={item.id} item={item} />
+              <CompletedWorkCard key={item.id} item={item} locale={locale} />
             ))}
           </div>
         </div>

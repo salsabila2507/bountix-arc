@@ -1,27 +1,37 @@
 import Link from "next/link";
 import { LayoutDashboard } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import {
+  DEFAULT_LOCALE,
+  createTranslator,
+  type Locale,
+  type TranslationKey,
+} from "@/lib/i18n";
 
 const dashboardLinks = [
-  { href: "/dashboard", label: "Overview" },
-  { href: "/dashboard/tasks", label: "Tasks" },
-  { href: "/dashboard/services", label: "Services" },
-  { href: "/dashboard/submissions", label: "Submissions" },
-  { href: "/dashboard/deals", label: "Deals" },
-  { href: "/dashboard/profile", label: "Profile" },
-];
+  { href: "/dashboard", labelKey: "dashboard.nav.overview" },
+  { href: "/dashboard/tasks", labelKey: "dashboard.nav.tasks" },
+  { href: "/dashboard/services", labelKey: "dashboard.nav.services" },
+  { href: "/dashboard/submissions", labelKey: "dashboard.nav.submissions" },
+  { href: "/dashboard/deals", labelKey: "dashboard.nav.deals" },
+  { href: "/dashboard/profile", labelKey: "dashboard.nav.profile" },
+] satisfies { href: string; labelKey: TranslationKey }[];
 
 type DashboardShellProps = {
   title: string;
   description: string;
+  locale?: Locale;
   children: React.ReactNode;
 };
 
 export function DashboardShell({
   title,
   description,
+  locale = DEFAULT_LOCALE,
   children,
 }: DashboardShellProps) {
+  const t = createTranslator(locale);
+
   return (
     <main className="min-h-screen text-white">
       <SiteHeader />
@@ -33,7 +43,7 @@ export function DashboardShell({
                 aria-hidden="true"
                 className="h-4 w-4 text-aurora-300"
               />
-              Dashboard
+              {t("common.dashboard")}
             </div>
             <nav className="mt-2 grid gap-1">
               {dashboardLinks.map((link) => (
@@ -42,7 +52,7 @@ export function DashboardShell({
                   href={link.href}
                   className="rounded-md px-3 py-2 text-sm text-white/58 transition hover:bg-white/[0.06] hover:text-white"
                 >
-                  {link.label}
+                  {t(link.labelKey)}
                 </Link>
               ))}
             </nav>
@@ -50,7 +60,7 @@ export function DashboardShell({
 
           <div>
             <p className="text-xs uppercase tracking-[0.18em] text-aurora-300">
-              Marketplace console
+              {t("dashboard.console")}
             </p>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
               {title}

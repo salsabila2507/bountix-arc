@@ -1,23 +1,29 @@
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { EmptyState } from "@/components/marketplace/empty-state";
 import { SubmissionForm } from "@/components/marketplace/submission-form";
+import { createTranslator } from "@/lib/i18n";
+import { getRequestLocale } from "@/lib/i18n/server";
 
 export const metadata = {
   title: "Dashboard Submissions",
 };
 
-export default function DashboardSubmissionsPage() {
+export default async function DashboardSubmissionsPage() {
+  const locale = await getRequestLocale();
+  const t = createTranslator(locale);
+
   return (
     <DashboardShell
-      title="Submissions"
-      description="Review submitted work, proof links, notes, approval state, and reputation outcomes."
+      title={t("dashboard.submissions.title")}
+      description={t("dashboard.submissions.body")}
+      locale={locale}
     >
       <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
         <EmptyState
-          title="No live submissions yet"
-          description="Submitted work will appear here after task_submissions is connected to active deals."
+          title={t("dashboard.submissions.emptyTitle")}
+          description={t("dashboard.submissions.emptyBody")}
         />
-        <SubmissionForm />
+        <SubmissionForm locale={locale} />
       </div>
     </DashboardShell>
   );

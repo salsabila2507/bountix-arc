@@ -8,6 +8,12 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  DEFAULT_LOCALE,
+  createTranslator,
+  type Locale,
+  type TranslationKey,
+} from "@/lib/i18n";
 import type { PaymentType, TaskType, WorkStatus } from "@/lib/marketplace";
 
 type BadgeProps = {
@@ -28,21 +34,39 @@ function Badge({ children, className }: BadgeProps) {
   );
 }
 
-export function TaskTypeBadge({ type }: { type: TaskType }) {
+export function TaskTypeBadge({
+  type,
+  locale = DEFAULT_LOCALE,
+}: {
+  type: TaskType;
+  locale?: Locale;
+}) {
+  const t = createTranslator(locale);
+
   return (
     <Badge className="bg-[#38e7ff]">
       <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />
-      {type === "service" ? "Service Offer" : "Regular Task"}
+      {type === "service"
+        ? t("market.taskType.service")
+        : t("market.taskType.task")}
     </Badge>
   );
 }
 
-export function PaymentBadge({ type }: { type: PaymentType }) {
+export function PaymentBadge({
+  type,
+  locale = DEFAULT_LOCALE,
+}: {
+  type: PaymentType;
+  locale?: Locale;
+}) {
+  const t = createTranslator(locale);
+
   if (type === "escrow") {
     return (
       <Badge className="bg-[#f1d8ff]">
         <LockKeyhole aria-hidden="true" className="h-3.5 w-3.5 text-[#7c3cff]" />
-        Secured Escrow
+        {t("payment.escrow")}
       </Badge>
     );
   }
@@ -53,29 +77,44 @@ export function PaymentBadge({ type }: { type: PaymentType }) {
         aria-hidden="true"
         className="h-3.5 w-3.5 text-[#23b26d]"
       />
-      Manual Payment
+      {t("payment.manualTitle")}
     </Badge>
   );
 }
 
-export function StatusBadge({ status }: { status: WorkStatus }) {
-  const label = {
-    open: "Open",
-    reviewing: "Reviewing",
-    in_progress: "In Progress",
-    submitted: "Submitted",
-    completed: "Completed",
-  }[status];
+export function StatusBadge({
+  status,
+  locale = DEFAULT_LOCALE,
+}: {
+  status: WorkStatus;
+  locale?: Locale;
+}) {
+  const t = createTranslator(locale);
+  const labelKey: Record<WorkStatus, TranslationKey> = {
+    open: "market.status.open",
+    reviewing: "market.status.reviewing",
+    in_progress: "market.status.in_progress",
+    submitted: "market.status.submitted",
+    completed: "market.status.completed",
+  };
 
   return (
     <Badge className="bg-[#ffdd3d]">
       <BadgeCheck aria-hidden="true" className="h-3.5 w-3.5 text-[#7c3cff]" />
-      {label}
+      {t(labelKey[status])}
     </Badge>
   );
 }
 
-export function NegotiableBadge({ negotiable }: { negotiable: boolean }) {
+export function NegotiableBadge({
+  negotiable,
+  locale = DEFAULT_LOCALE,
+}: {
+  negotiable: boolean;
+  locale?: Locale;
+}) {
+  const t = createTranslator(locale);
+
   if (!negotiable) {
     return null;
   }
@@ -83,7 +122,7 @@ export function NegotiableBadge({ negotiable }: { negotiable: boolean }) {
   return (
     <Badge className="bg-[#ff4fb8] text-white">
       <Handshake aria-hidden="true" className="h-3.5 w-3.5" />
-      Negotiable
+      {t("market.badge.negotiable")}
     </Badge>
   );
 }
@@ -97,25 +136,35 @@ export function FutureBadge({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function EarlyContributorsOnlyBadge() {
+export function EarlyContributorsOnlyBadge({
+  locale = DEFAULT_LOCALE,
+}: {
+  locale?: Locale;
+}) {
+  const t = createTranslator(locale);
+
   return (
     <Badge className="bg-[#f1d8ff]">
       <LockKeyhole aria-hidden="true" className="h-3.5 w-3.5 text-[#7c3cff]" />
-      Early Contributors only
+      {t("early.contributorsOnly")}
     </Badge>
   );
 }
 
 export function WaitlistOnlyBadge({
   variant = "waitlist",
+  locale = DEFAULT_LOCALE,
 }: {
   variant?: "waitlist" | "preview" | "early";
+  locale?: Locale;
 }) {
+  const t = createTranslator(locale);
+
   if (variant === "preview") {
     return (
       <Badge className="bg-[#38e7ff]">
         <Sparkles aria-hidden="true" className="h-3.5 w-3.5 text-[#7c3cff]" />
-        Preview
+        {t("common.preview")}
       </Badge>
     );
   }
@@ -124,7 +173,7 @@ export function WaitlistOnlyBadge({
     return (
       <Badge className="bg-[#f1d8ff]">
         <Hourglass aria-hidden="true" className="h-3.5 w-3.5 text-[#7c3cff]" />
-        Early Access
+        {t("early.access")}
       </Badge>
     );
   }
@@ -132,7 +181,7 @@ export function WaitlistOnlyBadge({
   return (
     <Badge className="bg-[#ff4fb8] text-white">
       <LockKeyhole aria-hidden="true" className="h-3.5 w-3.5" />
-      Early Access
+      {t("early.access")}
     </Badge>
   );
 }

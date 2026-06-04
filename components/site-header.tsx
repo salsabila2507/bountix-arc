@@ -1,34 +1,37 @@
 import Image from "next/image";
 import Link from "next/link";
 import { LogOut, User } from "lucide-react";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { ButtonLink } from "@/components/ui/button";
 import { logoutAction } from "@/app/auth/actions";
+import { createTranslator, type TranslationKey } from "@/lib/i18n";
+import { getRequestLocale } from "@/lib/i18n/server";
 
 type NavLink =
   | {
       href: string;
-      label: string;
+      labelKey: TranslationKey;
       external?: boolean;
       soon?: never;
     }
   | {
-      label: string;
+      labelKey: TranslationKey;
       soon: true;
       href?: never;
       external?: never;
     };
 
 const navLinks = [
-  { href: "/tasks", label: "Tasks" },
-  { href: "/creators", label: "Creators" },
-  { href: "/about", label: "About" },
+  { href: "/tasks", labelKey: "nav.tasks" },
+  { href: "/creators", labelKey: "nav.creators" },
+  { href: "/about", labelKey: "nav.about" },
   {
     href: "https://t.me/+V78fuYlQNvcxYTNl",
-    label: "Telegram",
+    labelKey: "nav.telegram",
     external: true,
   },
-  { href: "https://x.com/bountixofc", label: "X", external: true },
-  { label: "Discord soon", soon: true },
+  { href: "https://x.com/bountixofc", labelKey: "nav.x", external: true },
+  { labelKey: "nav.discordSoon", soon: true },
 ] satisfies NavLink[];
 
 /**
@@ -48,14 +51,20 @@ async function getCurrentUser() {
   }
 }
 
-function getDisplayHandle(user: { email?: string | null } | null) {
-  if (!user?.email) return "Account";
+function getDisplayHandle(
+  user: { email?: string | null } | null,
+  fallback: string,
+) {
+  if (!user?.email) return fallback;
   const local = user.email.split("@")[0];
   return local.length > 14 ? `${local.slice(0, 13)}…` : local;
 }
 
 export async function SiteHeader() {
+  const locale = await getRequestLocale();
+  const t = createTranslator(locale);
   const user = await getCurrentUser();
+  const displayHandle = getDisplayHandle(user, t("common.account"));
 
   return (
     <header className="sticky top-0 z-50 border-b-2 border-[#140625] bg-[#fffaf4]/95 backdrop-blur-xl">
@@ -84,10 +93,10 @@ export async function SiteHeader() {
             {navLinks.map((link) =>
               link.soon ? (
                 <span
-                  key={link.label}
+                  key={link.labelKey}
                   className="rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-bold text-[#140625]/55"
                 >
-                  {link.label}
+                  {t(link.labelKey)}
                 </span>
               ) : (
                 <Link
@@ -97,7 +106,7 @@ export async function SiteHeader() {
                   rel={link.external ? "noreferrer" : undefined}
                   className="rounded-lg px-3 py-2 text-sm font-bold text-[#140625] transition hover:bg-[#38e7ff]"
                 >
-                  {link.label}
+                  {t(link.labelKey)}
                 </Link>
               ),
             )}
@@ -105,37 +114,45 @@ export async function SiteHeader() {
 
           {user ? (
             <div className="flex items-center gap-2">
+              <LanguageSwitcher
+                locale={locale}
+                className="hidden sm:inline-flex"
+              />
               <Link
                 href="/dashboard"
                 className="hidden items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff] sm:inline-flex"
               >
                 <User aria-hidden="true" className="h-4 w-4" />
-                {getDisplayHandle(user)}
+                {displayHandle}
               </Link>
               <form action={logoutAction}>
                 <button
                   type="submit"
-                  aria-label="Log out"
+                  aria-label={t("common.logout")}
                   className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border-2 border-[#140625] bg-[#ffdd3d] px-3 py-2 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#ff4fb8] hover:text-white"
                 >
                   <LogOut aria-hidden="true" className="h-4 w-4" />
-                  <span className="hidden sm:inline">Logout</span>
+                  <span className="hidden sm:inline">{t("common.logout")}</span>
                 </button>
               </form>
             </div>
           ) : (
             <div className="flex items-center gap-2">
+              <LanguageSwitcher
+                locale={locale}
+                className="hidden sm:inline-flex"
+              />
               <Link
                 href="/login"
                 className="hidden min-h-10 items-center rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff] sm:inline-flex"
               >
-                Login
+                {t("common.login")}
               </Link>
               <ButtonLink
                 href="/waitlist"
                 className="min-h-10 px-3 py-2 text-xs sm:px-4 sm:text-sm"
               >
-                Join Waitlist
+                {t("common.joinWaitlist")}
               </ButtonLink>
             </div>
           )}
@@ -144,10 +161,10 @@ export async function SiteHeader() {
           {navLinks.map((link) =>
             link.soon ? (
               <span
-                key={link.label}
+                key={link.labelKey}
                 className="shrink-0 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-bold text-[#140625]/55"
               >
-                {link.label}
+                {t(link.labelKey)}
               </span>
             ) : (
               <Link
@@ -157,7 +174,7 @@ export async function SiteHeader() {
                 rel={link.external ? "noreferrer" : undefined}
                 className="shrink-0 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-bold text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
               >
-                {link.label}
+                {t(link.labelKey)}
               </Link>
             ),
           )}
@@ -166,16 +183,17 @@ export async function SiteHeader() {
               href="/dashboard"
               className="shrink-0 rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-3 py-2 text-sm font-bold text-[#140625] shadow-[3px_3px_0_#140625]"
             >
-              {getDisplayHandle(user)}
+              {displayHandle}
             </Link>
           ) : (
             <Link
               href="/login"
               className="shrink-0 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-bold text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
             >
-              Login
+              {t("common.login")}
             </Link>
           )}
+          <LanguageSwitcher locale={locale} className="shrink-0 sm:hidden" />
         </nav>
       </div>
     </header>

@@ -1,8 +1,26 @@
 import { Search, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  DEFAULT_LOCALE,
+  createTranslator,
+  type Locale,
+  type TranslationKey,
+} from "@/lib/i18n";
 
-const taskFilters = ["All", "Escrow", "Regular", "Negotiable", "Open"];
-const creatorFilters = ["All", "Research", "Growth", "Design QA", "Escrow-ready"];
+const taskFilters = [
+  "common.all",
+  "market.filters.escrow",
+  "market.filters.regular",
+  "market.filters.negotiable",
+  "market.filters.open",
+] satisfies TranslationKey[];
+const creatorFilters = [
+  "common.all",
+  "market.filters.research",
+  "market.filters.growth",
+  "market.filters.designQa",
+  "market.filters.escrowReady",
+] satisfies TranslationKey[];
 const filterColors = [
   "bg-[#ff4fb8] text-white",
   "bg-[#ffdd3d] text-[#140625]",
@@ -12,12 +30,16 @@ const filterColors = [
 ];
 
 function FilterShell({
-  label,
+  labelKey,
   filters,
+  locale,
 }: {
-  label: string;
-  filters: string[];
+  labelKey: TranslationKey;
+  filters: TranslationKey[];
+  locale: Locale;
 }) {
+  const t = createTranslator(locale);
+
   return (
     <div className="rounded-lg border-2 border-[#140625] bg-[#fffaf4] p-4 shadow-[6px_6px_0_#140625]">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -28,27 +50,27 @@ function FilterShell({
           />
           <input
             type="search"
-            placeholder={label}
+            placeholder={t(labelKey)}
             className="h-11 w-full rounded-lg border-2 border-[#140625] bg-white pl-10 pr-3 text-sm font-bold text-[#140625] placeholder:text-[#5a3b66]/50 outline-none transition focus:bg-[#fff8ed] focus:ring-2 focus:ring-[#38e7ff]"
           />
         </label>
         <div className="flex flex-wrap gap-2">
-          {filters.map((filter, index) => (
+          {filters.map((filterKey, index) => (
             <button
-              key={filter}
+              key={filterKey}
               type="button"
               className={cn(
                 "inline-flex min-h-10 items-center gap-2 rounded-lg border-2 border-[#140625] px-3 text-sm font-black shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5",
                 filterColors[index % filterColors.length],
               )}
             >
-              {filter === "All" ? (
+              {filterKey === "common.all" ? (
                 <SlidersHorizontal
                   aria-hidden="true"
                   className="h-3.5 w-3.5"
                 />
               ) : null}
-              {filter}
+              {t(filterKey)}
             </button>
           ))}
         </div>
@@ -57,12 +79,30 @@ function FilterShell({
   );
 }
 
-export function TaskFilters() {
-  return <FilterShell label="Search tasks, skills, operators..." filters={taskFilters} />;
+export function TaskFilters({
+  locale = DEFAULT_LOCALE,
+}: {
+  locale?: Locale;
+}) {
+  return (
+    <FilterShell
+      labelKey="market.filters.searchTasks"
+      filters={taskFilters}
+      locale={locale}
+    />
+  );
 }
 
-export function CreatorFilters() {
+export function CreatorFilters({
+  locale = DEFAULT_LOCALE,
+}: {
+  locale?: Locale;
+}) {
   return (
-    <FilterShell label="Search creators, services, specialties..." filters={creatorFilters} />
+    <FilterShell
+      labelKey="market.filters.searchCreators"
+      filters={creatorFilters}
+      locale={locale}
+    />
   );
 }

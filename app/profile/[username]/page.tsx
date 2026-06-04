@@ -10,6 +10,8 @@ import {
   Wallet,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import { createTranslator, formatDate } from "@/lib/i18n";
+import { getRequestLocale } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import {
   PROFILE_LANGUAGE_LABEL,
@@ -63,6 +65,8 @@ export async function generateMetadata({ params }: RouteParams) {
 }
 
 export default async function PublicProfilePage({ params }: RouteParams) {
+  const locale = await getRequestLocale();
+  const t = createTranslator(locale);
   const { username } = await params;
   const profile = await fetchProfile(username);
   if (!profile) {
@@ -81,7 +85,7 @@ export default async function PublicProfilePage({ params }: RouteParams) {
           className="inline-flex items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-black text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          Back home
+          {t("common.backHome")}
         </Link>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
@@ -131,7 +135,7 @@ export default async function PublicProfilePage({ params }: RouteParams) {
                       aria-hidden="true"
                       className="h-3.5 w-3.5 text-[#7c3cff]"
                     />
-                    Early Contributor
+                    {t("early.contributor")}
                   </span>
                 ) : null}
               </div>
@@ -143,14 +147,14 @@ export default async function PublicProfilePage({ params }: RouteParams) {
               </p>
             ) : (
               <p className="mt-6 text-sm font-bold leading-6 text-[#5a3b66]">
-                No bio yet.
+                {t("profile.noBio")}
               </p>
             )}
 
             {profile.skills.length > 0 ? (
               <div className="mt-6">
                 <h2 className="text-xs font-black uppercase text-[#5a3b66]">
-                  Skills
+                  {t("dashboard.profile.skills")}
                 </h2>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {profile.skills.map((skill) => (
@@ -168,26 +172,35 @@ export default async function PublicProfilePage({ params }: RouteParams) {
 
           <aside className="grid h-fit gap-4">
             <div className="comic-card-soft bg-white p-5">
-              <h2 className="text-lg font-black text-[#140625]">Links</h2>
+              <h2 className="text-lg font-black text-[#140625]">
+                {t("profile.links")}
+              </h2>
               <div className="mt-4 grid gap-2 text-sm font-bold">
-                <SocialRow label="X" href={social.x} icon="x" />
+                <SocialRow label="X" href={social.x} icon="x" openLabel={t("common.open")} />
                 <SocialRow
                   label="Telegram"
                   href={social.telegram}
                   icon="telegram"
+                  openLabel={t("common.open")}
                 />
-                <SocialRow label="GitHub" href={social.github} icon="github" />
+                <SocialRow
+                  label="GitHub"
+                  href={social.github}
+                  icon="github"
+                  openLabel={t("common.open")}
+                />
                 <SocialRow
                   label="Website"
                   href={social.website}
                   icon="website"
+                  openLabel={t("common.open")}
                 />
                 {!social.x &&
                 !social.telegram &&
                 !social.github &&
                 !social.website ? (
                   <p className="text-sm font-bold leading-6 text-[#5a3b66]">
-                    No public links yet.
+                    {t("profile.noPublicLinks")}
                   </p>
                 ) : null}
               </div>
@@ -200,15 +213,14 @@ export default async function PublicProfilePage({ params }: RouteParams) {
                   className="h-5 w-5 text-[#7c3cff]"
                 />
                 <h2 className="text-lg font-black text-[#140625]">
-                  Wallet (Base)
+                  {t("profile.walletBase")}
                 </h2>
               </div>
               <p className="mt-3 break-all text-sm font-semibold leading-6 text-[#3c214b]">
-                {profile.wallet_address ?? "Not connected."}
+                {profile.wallet_address ?? t("dashboard.profile.notConnected")}
               </p>
               <p className="mt-3 text-xs font-bold leading-5 text-[#5a3b66]">
-                Wallet connect and on-chain transfer are not live yet. USDC on
-                Base is coming.
+                {t("profile.walletComing")}
               </p>
             </div>
 
@@ -218,14 +230,10 @@ export default async function PublicProfilePage({ params }: RouteParams) {
                 className="h-5 w-5 text-[#7c3cff]"
               />
               <h2 className="mt-3 text-lg font-black text-[#140625]">
-                Joined Bountix
+                {t("profile.joinedBountix")}
               </h2>
               <p className="mt-2 text-sm font-bold leading-6 text-[#5a3b66]">
-                {new Date(profile.created_at).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+                {formatDate(profile.created_at, locale)}
               </p>
             </div>
           </aside>
@@ -239,10 +247,12 @@ function SocialRow({
   label,
   href,
   icon,
+  openLabel,
 }: {
   label: string;
   href?: string;
   icon: "x" | "telegram" | "github" | "website";
+  openLabel: string;
 }) {
   if (!href) return null;
   return (
@@ -260,7 +270,9 @@ function SocialRow({
         )}
         {label}
       </span>
-      <span className="text-xs font-bold normal-case text-[#7c3cff]">Open</span>
+      <span className="text-xs font-bold normal-case text-[#7c3cff]">
+        {openLabel}
+      </span>
     </a>
   );
 }

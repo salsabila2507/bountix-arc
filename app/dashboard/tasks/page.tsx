@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { ArrowLeft, Plus } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { DbTaskCard } from "@/components/marketplace/db-task-card";
+import { createTranslator } from "@/lib/i18n";
+import { getRequestLocale } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { TASK_LIST_COLUMNS, type DbTask } from "@/lib/tasks";
 
@@ -39,6 +41,8 @@ async function loadMyTasks(): Promise<{
 }
 
 export default async function DashboardTasksPage() {
+  const locale = await getRequestLocale();
+  const t = createTranslator(locale);
   const { userId, tasks } = await loadMyTasks();
   if (!userId) {
     redirect("/login");
@@ -54,49 +58,47 @@ export default async function DashboardTasksPage() {
             className="inline-flex items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-black text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
           >
             <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-            Back to dashboard
+            {t("common.backToDashboard")}
           </Link>
           <Link
             href="/post-task"
             className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ff4fb8] px-3 py-2 text-xs font-black uppercase text-white shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#7c3cff]"
           >
             <Plus aria-hidden="true" className="h-4 w-4" />
-            Post task
+            {t("form.postTask.post")}
           </Link>
         </div>
 
         <div className="mt-6">
-          <p className="comic-chip bg-[#ffdd3d]">Your tasks</p>
+          <p className="comic-chip bg-[#ffdd3d]">{t("dashboard.tasks.chip")}</p>
           <h1 className="mt-3 text-3xl font-black uppercase leading-none sm:text-5xl">
-            My tasks
+            {t("dashboard.tasks.title")}
           </h1>
           <p className="mt-3 text-sm font-bold leading-6 text-[#5a3b66]">
-            Includes drafts, open tasks, in-progress work, and completed
-            history.
+            {t("dashboard.tasks.body")}
           </p>
         </div>
 
         {tasks.length > 0 ? (
           <div className="mt-8 grid gap-4 lg:grid-cols-3">
             {tasks.map((t) => (
-              <DbTaskCard key={t.id} task={t} />
+              <DbTaskCard key={t.id} task={t} locale={locale} />
             ))}
           </div>
         ) : (
           <div className="comic-card mt-8 bg-white p-6 text-center sm:p-8">
             <h2 className="text-xl font-black text-[#140625]">
-              No tasks yet
+              {t("dashboard.tasks.emptyTitle")}
             </h2>
             <p className="mt-3 text-sm font-bold leading-6 text-[#5a3b66]">
-              Tasks you create will show up here, including drafts only you
-              can see.
+              {t("dashboard.tasks.emptyBody")}
             </p>
             <Link
               href="/post-task"
               className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ff4fb8] px-4 text-sm font-black uppercase text-white shadow-[4px_4px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#7c3cff]"
             >
               <Plus aria-hidden="true" className="h-4 w-4" />
-              Post your first task
+              {t("dashboard.tasks.postFirst")}
             </Link>
           </div>
         )}

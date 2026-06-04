@@ -4,6 +4,8 @@ import { ArrowLeft, Trash2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { TaskForm } from "@/components/marketplace/task-form";
 import { deleteTaskAction } from "@/app/tasks/actions";
+import { createTranslator } from "@/lib/i18n";
+import { getRequestLocale } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { TASK_LIST_COLUMNS, isUuid, type DbTask } from "@/lib/tasks";
 
@@ -48,6 +50,8 @@ async function loadEditableTask(taskId: string) {
 }
 
 export default async function EditTaskPage({ params }: RouteParams) {
+  const locale = await getRequestLocale();
+  const t = createTranslator(locale);
   const { id } = await params;
   const supabase = await createClient();
   const {
@@ -74,7 +78,7 @@ export default async function EditTaskPage({ params }: RouteParams) {
           className="inline-flex items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-black text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          Back to task
+          {t("common.backToTask")}
         </Link>
 
         <section className="mx-auto mt-8 max-w-2xl">
@@ -82,6 +86,7 @@ export default async function EditTaskPage({ params }: RouteParams) {
             mode="edit"
             isAdmin={result.isAdmin}
             initialTask={result.task}
+            locale={locale}
           />
 
           <form action={handleDelete} className="mt-6">
@@ -90,7 +95,7 @@ export default async function EditTaskPage({ params }: RouteParams) {
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-4 text-sm font-black uppercase text-[#c42463] shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#ffe1ed]"
             >
               <Trash2 aria-hidden="true" className="h-4 w-4" />
-              Delete task
+              {t("common.deleteTask")}
             </button>
           </form>
         </section>

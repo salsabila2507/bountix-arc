@@ -8,6 +8,12 @@ import {
   TaskTypeBadge,
   WaitlistOnlyBadge,
 } from "@/components/marketplace/badges";
+import {
+  DEFAULT_LOCALE,
+  createTranslator,
+  type Locale,
+  type TranslationKey,
+} from "@/lib/i18n";
 import type { Task } from "@/lib/marketplace";
 
 const assetBase = "/bountix-comic/bountix_assets_ready";
@@ -22,10 +28,14 @@ const categoryIcons: Record<string, string> = {
 
 type TaskCardProps = {
   task: Task;
+  locale?: Locale;
 };
 
-export function TaskCard({ task }: TaskCardProps) {
+export function TaskCard({ task, locale = DEFAULT_LOCALE }: TaskCardProps) {
+  const t = createTranslator(locale);
   const icon = categoryIcons[task.category] ?? `${assetBase}/icon-community.png`;
+  const title = t(`preview.${task.id}.title` as TranslationKey);
+  const summary = t(`preview.${task.id}.summary` as TranslationKey);
 
   return (
     <Link
@@ -42,11 +52,11 @@ export function TaskCard({ task }: TaskCardProps) {
       />
       <div className="relative">
         <div className="flex flex-wrap gap-2">
-          <TaskTypeBadge type="task" />
-          <PaymentBadge type={task.paymentType} />
-          <StatusBadge status={task.status} />
-          <NegotiableBadge negotiable={task.negotiable} />
-          <WaitlistOnlyBadge />
+          <TaskTypeBadge type="task" locale={locale} />
+          <PaymentBadge type={task.paymentType} locale={locale} />
+          <StatusBadge status={task.status} locale={locale} />
+          <NegotiableBadge negotiable={task.negotiable} locale={locale} />
+          <WaitlistOnlyBadge locale={locale} />
         </div>
 
         <div className="mt-5 flex items-start justify-between gap-4">
@@ -63,7 +73,7 @@ export function TaskCard({ task }: TaskCardProps) {
                 {task.category}
               </p>
               <h3 className="mt-2 text-xl font-black leading-tight text-[#140625]">
-                {task.title}
+                {title}
               </h3>
             </div>
           </div>
@@ -80,7 +90,7 @@ export function TaskCard({ task }: TaskCardProps) {
         </div>
 
         <p className="mt-4 line-clamp-3 text-sm font-semibold leading-6 text-[#5a3b66]">
-          {task.summary}
+          {summary}
         </p>
 
         <div className="mt-5 flex flex-wrap gap-2">
@@ -101,7 +111,7 @@ export function TaskCard({ task }: TaskCardProps) {
           </span>
           <span className="inline-flex items-center gap-2">
             <Users aria-hidden="true" className="h-3.5 w-3.5" />
-            {task.applicants} applicants
+            {task.applicants} {t("market.card.applicants")}
           </span>
           <span className="inline-flex items-center gap-2">
             <MapPin aria-hidden="true" className="h-3.5 w-3.5" />
@@ -110,7 +120,7 @@ export function TaskCard({ task }: TaskCardProps) {
         </div>
 
         <span className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#7c3cff]">
-          Preview bounty
+          {t("market.card.previewBounty")}
           <ArrowRight
             aria-hidden="true"
             className="h-4 w-4 transition group-hover:translate-x-0.5"

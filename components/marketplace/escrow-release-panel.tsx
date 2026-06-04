@@ -26,6 +26,11 @@ import {
 } from "@/lib/escrow";
 import { formatUsdc } from "@/lib/payments";
 import { releaseEscrowAction } from "@/app/applications/actions";
+import {
+  DEFAULT_LOCALE,
+  createTranslator,
+  type Locale,
+} from "@/lib/i18n";
 
 type Phase =
   | "idle"
@@ -47,12 +52,15 @@ export function EscrowReleasePanel({
   taskId,
   rewardAmount,
   workerWalletAddress,
+  locale = DEFAULT_LOCALE,
 }: {
   submissionId: string;
   taskId: string;
   rewardAmount: number | null;
   workerWalletAddress: string | null;
+  locale?: Locale;
 }) {
+  const t = createTranslator(locale);
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string>("");
@@ -70,14 +78,14 @@ export function EscrowReleasePanel({
 
     if (!workerWalletAddress) {
       setPhase("error");
-      setError("Worker has not set a wallet address in their profile.");
+      setError(t("escrow.release.noWorkerWallet"));
       return;
     }
 
     const provider = getProvider();
     if (!provider) {
       setPhase("error");
-      setError("No Ethereum wallet found. Install MetaMask or a Base wallet.");
+      setError(t("payment.walletNoWallet"));
       return;
     }
 
@@ -86,7 +94,7 @@ export function EscrowReleasePanel({
       const [account] = (await provider.request({
         method: "eth_requestAccounts",
       })) as `0x${string}`[];
-      if (!account) throw new Error("No wallet account authorised.");
+      if (!account) throw new Error(t("payment.walletNoAccount"));
 
       const walletClient = createWalletClient({
         account,
@@ -119,7 +127,7 @@ export function EscrowReleasePanel({
         hash: assignHash,
       });
       if (assignReceipt.status !== "success") {
-        throw new Error("Assign worker transaction reverted on-chain.");
+        throw new Error(t("escrow.release.assignReverted"));
       }
       setAssignTxHash(assignHash);
 
@@ -136,7 +144,7 @@ export function EscrowReleasePanel({
         hash: releaseHash,
       });
       if (releaseReceipt.status !== "success") {
-        throw new Error("Release transaction reverted on-chain.");
+        throw new Error(t("escrow.release.releaseReverted"));
       }
       setReleaseTxHash(releaseHash);
 
@@ -154,7 +162,7 @@ export function EscrowReleasePanel({
     } catch (err) {
       setPhase("error");
       const message =
-        err instanceof Error ? err.message : "Release failed. Try again.";
+        err instanceof Error ? err.message : t("escrow.release.failed");
       setError(message.split("\n")[0].slice(0, 200));
     }
   }
@@ -168,9 +176,13 @@ export function EscrowReleasePanel({
             className="mt-0.5 h-5 w-5 text-[#1f6b3a]"
           />
           <div>
-            <h3 className="font-black text-[#140625]">Escrow released</h3>
+            <h3 className="font-black text-[#140625]">
+              {t("escrow.release.doneTitle")}
+            </h3>
             <p className="mt-1 text-sm font-semibold leading-6 text-[#3c214b]">
-              {formatUsdc(rewardAmount ?? 0)} sent to worker&apos;s wallet on Base.
+              {t("escrow.release.doneBody", {
+                amount: formatUsdc(rewardAmount ?? 0),
+              })}
             </p>
             <div className="mt-3 space-y-2">
               {assignTxHash ? (
@@ -181,7 +193,7 @@ export function EscrowReleasePanel({
                   className="inline-flex items-center gap-2 break-all rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-xs font-black text-[#7c3cff] shadow-[2px_2px_0_#140625] transition hover:bg-[#38e7ff]"
                 >
                   <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
-                  View assign tx
+                  {t("escrow.release.viewAssignTx")}
                 </a>
               ) : null}
               {releaseTxHash ? (
@@ -192,7 +204,7 @@ export function EscrowReleasePanel({
                   className="block inline-flex items-center gap-2 break-all rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-xs font-black text-[#7c3cff] shadow-[2px_2px_0_#140625] transition hover:bg-[#38e7ff]"
                 >
                   <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
-                  View release tx
+                  {t("escrow.release.viewReleaseTx")}
                 </a>
               ) : null}
             </div>
@@ -207,9 +219,13 @@ export function EscrowReleasePanel({
       <div className="flex items-start gap-3">
         <Wallet aria-hidden="true" className="mt-0.5 h-5 w-5 text-[#7c3cff]" />
         <div className="flex-1">
-          <h3 className="font-black text-[#140625]">Release escrow payment</h3>
+          <h3 className="font-black text-[#140625]">
+            {t("escrow.release.title")}
+          </h3>
           <p className="mt-1 text-sm font-semibold leading-6 text-[#3c214b]">
-            Send {formatUsdc(rewardAmount ?? 0)} to the worker&apos;s wallet at{" "}
+            {t("escrow.release.body", {
+              amount: formatUsdc(rewardAmount ?? 0),
+            })}{" "}
             <span className="break-all font-mono text-xs">
               {workerWalletAddress}
             </span>
@@ -232,22 +248,22 @@ export function EscrowReleasePanel({
               <>
                 <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />
                 {phase === "connecting"
-                  ? "Connecting…"
+                  ? t("escrow.release.connecting")
                   : phase === "assigning"
-                    ? "Assigning worker…"
+                    ? t("escrow.release.assigning")
                     : phase === "releasing"
-                      ? "Releasing…"
-                      : "Recording…"}
+                      ? t("escrow.release.releasing")
+                      : t("escrow.fund.recording")}
               </>
             ) : (
               <>
                 <Wallet aria-hidden="true" className="h-4 w-4" />
-                Release on Base
+                {t("escrow.release.button")}
               </>
             )}
           </button>
           <p className="mt-2 text-xs font-bold text-[#5a3b66]">
-            Wallet must be on Base mainnet. Two prompts: assign worker, then release.
+            {t("escrow.release.prompts")}
           </p>
         </div>
       </div>

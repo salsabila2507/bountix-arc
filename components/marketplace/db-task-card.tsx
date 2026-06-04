@@ -3,14 +3,26 @@ import Link from "next/link";
 import { ArrowRight, Calendar, ExternalLink, Trophy } from "lucide-react";
 import { EarlyContributorsOnlyBadge } from "@/components/marketplace/badges";
 import {
-  TASK_STATUS_LABEL,
   TASK_TYPE_COLOR,
-  TASK_TYPE_LABEL,
   type DbTask,
 } from "@/lib/tasks";
 import { formatUsdc } from "@/lib/payments";
+import {
+  DEFAULT_LOCALE,
+  createTranslator,
+  formatDate,
+  type Locale,
+  type TranslationKey,
+} from "@/lib/i18n";
 
-function StatusChip({ status }: { status: DbTask["status"] }) {
+function StatusChip({
+  status,
+  locale,
+}: {
+  status: DbTask["status"];
+  locale: Locale;
+}) {
+  const t = createTranslator(locale);
   const colors: Record<DbTask["status"], string> = {
     draft: "bg-white text-[#5a3b66]",
     open: "bg-[#38e7ff]",
@@ -23,7 +35,7 @@ function StatusChip({ status }: { status: DbTask["status"] }) {
     <span
       className={`inline-flex items-center rounded-md border-2 border-[#140625] px-2 py-1 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#140625] ${colors[status]}`}
     >
-      {TASK_STATUS_LABEL[status]}
+      {t(`market.status.${status}` as TranslationKey)}
     </span>
   );
 }
@@ -31,10 +43,13 @@ function StatusChip({ status }: { status: DbTask["status"] }) {
 export function DbTaskCard({
   task,
   detailHrefPrefix = "/tasks/",
+  locale = DEFAULT_LOCALE,
 }: {
   task: DbTask;
   detailHrefPrefix?: string;
+  locale?: Locale;
 }) {
+  const t = createTranslator(locale);
   const isOfficial = task.task_type !== "user_task";
   const isRaffle = task.reward_mode === "raffle";
   const isEarlyContributorOnly = task.access_level === "early_contributor";
@@ -61,21 +76,23 @@ export function DbTaskCard({
               TASK_TYPE_COLOR[task.task_type]
             }`}
           >
-            {TASK_TYPE_LABEL[task.task_type]}
+            {t(`task.type.${task.task_type}` as TranslationKey)}
           </span>
-          <StatusChip status={task.status} />
+          <StatusChip status={task.status} locale={locale} />
           {isRaffle ? (
             <span className="inline-flex items-center gap-1 rounded-md border-2 border-[#140625] bg-[#ffdd3d] px-2 py-1 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#140625]">
               <Trophy aria-hidden="true" className="h-3 w-3" />
-              Raffle
+              {t("raffle.label")}
             </span>
           ) : null}
           {isOfficial ? (
             <span className="inline-flex items-center rounded-md border-2 border-[#140625] bg-[#fff7e8] px-2 py-1 text-[0.6rem] font-black uppercase text-[#140625] shadow-[2px_2px_0_#140625]">
-              Official by Bountix
+              {t("market.badge.official")}
             </span>
           ) : null}
-          {isEarlyContributorOnly ? <EarlyContributorsOnlyBadge /> : null}
+          {isEarlyContributorOnly ? (
+            <EarlyContributorsOnlyBadge locale={locale} />
+          ) : null}
         </div>
 
         <div className="mt-5 flex items-start justify-between gap-4">
@@ -92,7 +109,7 @@ export function DbTaskCard({
           {task.reward_amount !== null ? (
             <p className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border-2 border-[#140625] bg-[#ffdd3d] px-3 py-2 text-sm font-black text-[#140625] shadow-[3px_3px_0_#140625]">
               {formatUsdc(task.reward_amount)}
-              {isRaffle ? "/ winner" : null}
+              {isRaffle ? t("market.reward.perWinner") : null}
               <Image
                 src="/bountix-comic/base-icon.png"
                 alt="Base"
@@ -113,25 +130,29 @@ export function DbTaskCard({
             <span className="inline-flex items-center gap-2">
               <Trophy aria-hidden="true" className="h-3.5 w-3.5" />
               {task.raffle_winner_count}{" "}
-              {task.raffle_winner_count === 1 ? "winner" : "winners"}
+              {task.raffle_winner_count === 1
+                ? t("raffle.winner")
+                : t("raffle.winners")}
             </span>
           ) : null}
           {task.end_date ? (
             <span className="inline-flex items-center gap-2">
               <Calendar aria-hidden="true" className="h-3.5 w-3.5" />
-              Ends {new Date(task.end_date).toLocaleDateString()}
+              {t("market.card.ends", {
+                date: formatDate(task.end_date, locale),
+              })}
             </span>
           ) : null}
           {task.external_link ? (
             <span className="inline-flex items-center gap-2">
               <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
-              External link
+              {t("market.card.externalLink")}
             </span>
           ) : null}
         </div>
 
         <span className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#7c3cff]">
-          View task
+          {t("market.card.viewTask")}
           <ArrowRight
             aria-hidden="true"
             className="h-4 w-4 transition group-hover:translate-x-0.5"

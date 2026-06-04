@@ -2,14 +2,18 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft, ExternalLink, Trophy } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import {
+  createTranslator,
+  formatDate,
+  type TranslationKey,
+} from "@/lib/i18n";
+import { getRequestLocale } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import {
   APPLICATION_COLUMNS,
   APPLICATION_STATUS_COLOR,
-  APPLICATION_STATUS_LABEL,
   SUBMISSION_COLUMNS,
   SUBMISSION_STATUS_COLOR,
-  SUBMISSION_STATUS_LABEL,
   type DbApplication,
   type DbSubmission,
 } from "@/lib/applications";
@@ -68,6 +72,8 @@ async function loadMine() {
 }
 
 export default async function MyApplicationsPage() {
+  const locale = await getRequestLocale();
+  const t = createTranslator(locale);
   const data = await loadMine();
   if (!data) redirect("/login");
 
@@ -82,32 +88,34 @@ export default async function MyApplicationsPage() {
           className="inline-flex items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-black text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          Back to dashboard
+          {t("common.backToDashboard")}
         </Link>
 
         <div className="mt-6">
-          <p className="comic-chip bg-[#38e7ff]">My applications</p>
+          <p className="comic-chip bg-[#38e7ff]">
+            {t("dashboard.applications.chip")}
+          </p>
           <h1 className="mt-3 text-3xl font-black uppercase leading-none sm:text-5xl">
-            Applications
+            {t("dashboard.applications.title")}
           </h1>
           <p className="mt-3 text-sm font-bold leading-6 text-[#5a3b66]">
-            Track every application and the work you&apos;ve submitted.
+            {t("dashboard.applications.body")}
           </p>
         </div>
 
         {myApps.length === 0 ? (
           <div className="comic-card mt-8 bg-white p-6 text-center sm:p-8">
             <h2 className="text-xl font-black text-[#140625]">
-              No applications yet
+              {t("dashboard.applications.emptyTitle")}
             </h2>
             <p className="mt-3 text-sm font-bold leading-6 text-[#5a3b66]">
-              Browse open tasks and apply to start working.
+              {t("dashboard.applications.emptyBody")}
             </p>
             <Link
               href="/tasks"
               className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ff4fb8] px-4 text-sm font-black uppercase text-white shadow-[4px_4px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#7c3cff]"
             >
-              Browse tasks
+              {t("common.browseTasks")}
             </Link>
           </div>
         ) : (
@@ -126,16 +134,16 @@ export default async function MyApplicationsPage() {
                         href={`/tasks/${a.task_id}`}
                         className="text-sm font-black uppercase text-[#7c3cff]"
                       >
-                        View task
+                        {t("dashboard.applications.viewTask")}
                       </Link>
                       <h2 className="mt-1 text-lg font-black text-[#140625]">
-                        {task?.title ?? "Task"}
+                        {task?.title ?? t("common.tasks")}
                       </h2>
                     </div>
                     <span
                       className={`inline-flex items-center rounded-md border-2 border-[#140625] px-2 py-1 text-[0.7rem] font-black uppercase shadow-[2px_2px_0_#140625] ${APPLICATION_STATUS_COLOR[a.status]}`}
                     >
-                      {APPLICATION_STATUS_LABEL[a.status]}
+                      {t(`market.status.${a.status}` as TranslationKey)}
                     </span>
                   </div>
 
@@ -156,10 +164,10 @@ export default async function MyApplicationsPage() {
                             <span
                               className={`inline-flex items-center rounded-md border-2 border-[#140625] px-2 py-1 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#140625] ${SUBMISSION_STATUS_COLOR[s.status]}`}
                             >
-                              {SUBMISSION_STATUS_LABEL[s.status]}
+                              {t(`market.status.${s.status}` as TranslationKey)}
                             </span>
                             <span className="text-xs font-bold text-[#5a3b66]">
-                              {new Date(s.created_at).toLocaleDateString()}
+                              {formatDate(s.created_at, locale)}
                             </span>
                             {s.raffle_winner_position !== null ? (
                               <span className="inline-flex items-center gap-1 rounded-md border-2 border-[#140625] bg-[#ffdd3d] px-2 py-1 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#140625]">
@@ -167,11 +175,13 @@ export default async function MyApplicationsPage() {
                                   aria-hidden="true"
                                   className="h-3 w-3"
                                 />
-                                Winner #{s.raffle_winner_position}
+                                {t("raffle.winnerNumber", {
+                                  position: s.raffle_winner_position,
+                                })}
                               </span>
                             ) : s.raffle_eligible ? (
                               <span className="inline-flex items-center rounded-md border-2 border-[#140625] bg-[#dff7e6] px-2 py-1 text-[0.65rem] font-black uppercase text-[#1f6b3a] shadow-[2px_2px_0_#140625]">
-                                Raffle eligible
+                                {t("raffle.eligible")}
                               </span>
                             ) : null}
                           </div>

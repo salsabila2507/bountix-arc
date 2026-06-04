@@ -1,6 +1,11 @@
 import { Handshake, LockKeyhole, MessageSquareText } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { FutureBadge } from "@/components/marketplace/badges";
+import {
+  createTranslator,
+  type TranslationKey,
+} from "@/lib/i18n";
+import { getRequestLocale } from "@/lib/i18n/server";
 
 export const metadata = {
   title: "Dashboard Deals",
@@ -9,39 +14,47 @@ export const metadata = {
 const dealSteps = [
   {
     icon: Handshake,
-    title: "Negotiation",
-    description: "Scope, price, and milestones are agreed before work starts.",
+    titleKey: "dashboard.deals.negotiation",
+    descriptionKey: "dashboard.deals.negotiationBody",
   },
   {
     icon: LockKeyhole,
-    title: "Escrow placeholder",
-    description:
-      "Funds will be locked before work starts and released after approval.",
+    titleKey: "dashboard.deals.escrow",
+    descriptionKey: "dashboard.deals.escrowBody",
   },
   {
     icon: MessageSquareText,
-    title: "Message thread",
-    description:
-      "Structured messages are represented in the data model without realtime chat.",
+    titleKey: "dashboard.deals.messages",
+    descriptionKey: "dashboard.deals.messagesBody",
   },
-];
+] satisfies {
+  icon: typeof Handshake;
+  titleKey: TranslationKey;
+  descriptionKey: TranslationKey;
+}[];
 
-export default function DashboardDealsPage() {
+export default async function DashboardDealsPage() {
+  const locale = await getRequestLocale();
+  const t = createTranslator(locale);
+
   return (
     <DashboardShell
-      title="Deals"
-      description="A future deal workspace for negotiations, escrow records, messages, and approval state."
+      title={t("dashboard.deals.title")}
+      description={t("dashboard.deals.body")}
+      locale={locale}
     >
       <div className="grid gap-4 lg:grid-cols-3">
         {dealSteps.map((step) => (
-          <div key={step.title} className="panel rounded-lg p-5">
+          <div key={step.titleKey} className="panel rounded-lg p-5">
             <step.icon aria-hidden="true" className="h-5 w-5 text-aurora-300" />
-            <h2 className="mt-4 text-xl font-semibold text-white">{step.title}</h2>
+            <h2 className="mt-4 text-xl font-semibold text-white">
+              {t(step.titleKey)}
+            </h2>
             <p className="mt-3 text-sm leading-6 text-white/56">
-              {step.description}
+              {t(step.descriptionKey)}
             </p>
             <div className="mt-5">
-              <FutureBadge>Future workflow</FutureBadge>
+              <FutureBadge>{t("dashboard.deals.future")}</FutureBadge>
             </div>
           </div>
         ))}

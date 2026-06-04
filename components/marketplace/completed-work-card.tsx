@@ -1,6 +1,11 @@
 import Image from "next/image";
 import { BadgeCheck, CircleDollarSign, User } from "lucide-react";
 import type { CompletedWork } from "@/lib/completed-work";
+import {
+  DEFAULT_LOCALE,
+  createTranslator,
+  type Locale,
+} from "@/lib/i18n";
 
 const assetBase = "/bountix-comic/bountix_assets_ready";
 
@@ -15,9 +20,14 @@ const taskTypeIcons: Record<string, string> = {
 
 type CompletedWorkCardProps = {
   item: CompletedWork;
+  locale?: Locale;
 };
 
-export function CompletedWorkCard({ item }: CompletedWorkCardProps) {
+export function CompletedWorkCard({
+  item,
+  locale = DEFAULT_LOCALE,
+}: CompletedWorkCardProps) {
+  const t = createTranslator(locale);
   const icon =
     taskTypeIcons[item.taskType] ?? `${assetBase}/icon-community.png`;
 
@@ -35,14 +45,14 @@ export function CompletedWorkCard({ item }: CompletedWorkCardProps) {
         <div className="flex flex-wrap gap-2">
           <span className="inline-flex min-h-8 items-center gap-1.5 rounded-lg border-2 border-[#140625] bg-[#23b26d] px-2.5 py-1 text-xs font-black text-white shadow-[3px_3px_0_#140625]">
             <BadgeCheck aria-hidden="true" className="h-3.5 w-3.5" />
-            Completed task
+            {t("market.card.completedTask")}
           </span>
           <span className="inline-flex min-h-8 items-center gap-1.5 rounded-lg border-2 border-[#140625] bg-white px-2.5 py-1 text-xs font-black text-[#140625] shadow-[3px_3px_0_#140625]">
             <CircleDollarSign
               aria-hidden="true"
               className="h-3.5 w-3.5 text-[#23b26d]"
             />
-            Manual Payment
+            {t("payment.manualTitle")}
           </span>
           <span className="inline-flex min-h-8 items-center gap-1.5 rounded-lg border-2 border-[#140625] bg-[#f1d8ff] px-2.5 py-1 text-xs font-black text-[#140625] shadow-[3px_3px_0_#140625]">
             {item.taskType}
@@ -85,7 +95,7 @@ export function CompletedWorkCard({ item }: CompletedWorkCardProps) {
 
         <div className="mt-5 rounded-lg border-2 border-dashed border-[#140625]/30 bg-[#f6fff9] p-3">
           <p className="text-xs font-black uppercase tracking-wide text-[#23b26d]">
-            Result submitted
+            {t("market.card.resultSubmitted")}
           </p>
           <p className="mt-1.5 text-sm font-semibold leading-6 text-[#3c214b]">
             {item.result}
@@ -94,7 +104,7 @@ export function CompletedWorkCard({ item }: CompletedWorkCardProps) {
 
         <div className="mt-5 flex items-center gap-2 border-t-2 border-dashed border-[#140625]/30 pt-4 text-xs font-black text-[#5a3b66]">
           <User aria-hidden="true" className="h-3.5 w-3.5" />
-          Completed by {item.worker}
+          {t("market.card.completedBy", { worker: item.worker })}
         </div>
       </div>
     </article>

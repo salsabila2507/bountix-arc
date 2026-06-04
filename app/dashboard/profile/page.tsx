@@ -11,6 +11,8 @@ import {
   Wallet,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import { createTranslator } from "@/lib/i18n";
+import { getRequestLocale } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import {
   PROFILE_LANGUAGE_LABEL,
@@ -58,6 +60,8 @@ async function getSessionAndProfile(): Promise<
 }
 
 export default async function DashboardProfilePage() {
+  const locale = await getRequestLocale();
+  const t = createTranslator(locale);
   const { profile } = await getSessionAndProfile();
   if (!profile) {
     redirect("/login");
@@ -72,7 +76,9 @@ export default async function DashboardProfilePage() {
       <section className="container-page py-8 sm:py-12">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="comic-chip bg-[#ffdd3d]">Your dashboard</p>
+            <p className="comic-chip bg-[#ffdd3d]">
+              {t("dashboard.profile.chip")}
+            </p>
             <h1 className="mt-3 text-3xl font-black uppercase leading-none sm:text-5xl">
               Hi, @{profile.username}
             </h1>
@@ -82,7 +88,7 @@ export default async function DashboardProfilePage() {
               href={`/profile/${profile.username}`}
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
             >
-              View public profile
+              {t("dashboard.profile.viewPublic")}
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </Link>
             <Link
@@ -90,7 +96,7 @@ export default async function DashboardProfilePage() {
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ff4fb8] px-3 py-2 text-xs font-black uppercase text-white shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#7c3cff]"
             >
               <Edit3 aria-hidden="true" className="h-4 w-4" />
-              Edit profile
+              {t("common.editProfile")}
             </Link>
           </div>
         </div>
@@ -140,7 +146,7 @@ export default async function DashboardProfilePage() {
                         aria-hidden="true"
                         className="h-3.5 w-3.5 text-[#7c3cff]"
                       />
-                      Early Contributor
+                      {t("early.contributor")}
                     </span>
                   ) : null}
                 </div>
@@ -148,13 +154,13 @@ export default async function DashboardProfilePage() {
             </div>
 
             <p className="mt-6 whitespace-pre-line text-sm font-semibold leading-7 text-[#3c214b]">
-              {profile.bio ?? "No bio yet. Tap Edit profile to add one."}
+              {profile.bio ?? t("dashboard.profile.noBio")}
             </p>
 
             {profile.skills.length > 0 ? (
               <div className="mt-6">
                 <h3 className="text-xs font-black uppercase text-[#5a3b66]">
-                  Skills
+                  {t("dashboard.profile.skills")}
                 </h3>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {profile.skills.map((skill) => (
@@ -189,17 +195,19 @@ export default async function DashboardProfilePage() {
                   />
                 )}
                 <h2 className="text-lg font-black text-[#140625]">
-                  {canUse ? "Full access" : "Early access pending"}
+                  {canUse
+                    ? t("dashboard.profile.fullAccess")
+                    : t("early.accessPending")}
                 </h2>
               </div>
               <p className="mt-3 text-sm font-bold leading-6 text-[#3c214b]">
                 {canUse
-                  ? "You can create tasks, apply, submit work, and offer services once those features go live."
-                  : "Your profile is set. Posting tasks, applying, submitting work, and offering services will unlock when Bountix opens early access for you."}
+                  ? t("dashboard.profile.fullAccessBody")
+                  : t("dashboard.profile.pendingBody")}
               </p>
               {isAdmin ? (
                 <p className="mt-3 inline-flex items-center gap-1.5 rounded-md border-2 border-[#140625] bg-white px-2 py-0.5 text-[0.65rem] font-black uppercase text-[#140625] shadow-[2px_2px_0_#140625]">
-                  Admin bypass active
+                  {t("dashboard.profile.adminBypass")}
                 </p>
               ) : null}
             </div>
@@ -208,12 +216,11 @@ export default async function DashboardProfilePage() {
               <div className="flex items-center gap-2">
                 <Coins aria-hidden="true" className="h-5 w-5 text-[#7c3cff]" />
                 <h2 className="text-lg font-black text-[#140625]">
-                  Payments
+                  {t("dashboard.profile.payments")}
                 </h2>
               </div>
               <p className="mt-2 text-sm font-bold leading-6 text-[#5a3b66]">
-                USDC on Base is the payment direction. Wallet connect and
-                escrow are coming.
+                {t("dashboard.profile.paymentsBody")}
               </p>
             </div>
 
@@ -223,13 +230,15 @@ export default async function DashboardProfilePage() {
                   aria-hidden="true"
                   className="h-5 w-5 text-[#7c3cff]"
                 />
-                <h2 className="text-lg font-black text-[#140625]">Wallet</h2>
+                <h2 className="text-lg font-black text-[#140625]">
+                  {t("dashboard.profile.wallet")}
+                </h2>
               </div>
               <p className="mt-2 break-all text-sm font-semibold leading-6 text-[#3c214b]">
-                {profile.wallet_address ?? "Not connected."}
+                {profile.wallet_address ?? t("dashboard.profile.notConnected")}
               </p>
               <p className="mt-2 text-xs font-bold text-[#5a3b66]">
-                Address is informational only.
+                {t("dashboard.profile.addressInfo")}
               </p>
             </div>
           </aside>

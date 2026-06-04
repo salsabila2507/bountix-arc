@@ -12,6 +12,11 @@ import {
   initialSubmitState,
   type SubmitState,
 } from "@/lib/application-form-state";
+import {
+  DEFAULT_LOCALE,
+  createTranslator,
+  type Locale,
+} from "@/lib/i18n";
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -20,9 +25,12 @@ function FieldError({ message }: { message?: string }) {
 
 export function SubmitWorkForm({
   applicationId,
+  locale = DEFAULT_LOCALE,
 }: {
   applicationId: string;
+  locale?: Locale;
 }) {
+  const t = createTranslator(locale);
   const action = createSubmissionAction.bind(null, applicationId);
   const [state, formAction, isPending] = useActionState<SubmitState, FormData>(
     action,
@@ -31,10 +39,11 @@ export function SubmitWorkForm({
 
   return (
     <form action={formAction} className="comic-card-soft bg-white p-5">
-      <h2 className="text-lg font-black text-[#140625]">Submit your work</h2>
+      <h2 className="text-lg font-black text-[#140625]">
+        {t("form.submit.title")}
+      </h2>
       <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-        Drop a delivery link. Add notes for the reviewer if needed. No file
-        upload. Point to your repo, doc, or hosting.
+        {t("form.submit.body")}
       </p>
 
       {state.status === "error" && state.message ? (
@@ -57,7 +66,9 @@ export function SubmitWorkForm({
       ) : null}
 
       <label className="mt-4 block">
-        <span className="text-sm font-black text-[#140625]">Delivery link</span>
+        <span className="text-sm font-black text-[#140625]">
+          {t("form.submit.delivery")}
+        </span>
         <input
           name="delivery_url"
           type="url"
@@ -71,13 +82,14 @@ export function SubmitWorkForm({
 
       <label className="mt-4 block">
         <span className="text-sm font-black text-[#140625]">
-          Notes <span className="text-[#5a3b66]">optional</span>
+          {t("form.submit.notes")}{" "}
+          <span className="text-[#5a3b66]">{t("common.optional")}</span>
         </span>
         <textarea
           name="notes"
           rows={4}
           maxLength={2000}
-          placeholder="What's done, what to look at, any caveats."
+          placeholder={t("form.submit.notesPlaceholder")}
           className="mt-2 w-full rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 py-3 font-medium text-[#140625] placeholder:text-[#5a3b66]/45 outline-none transition focus:bg-white focus:ring-2 focus:ring-[#38e7ff]"
         />
         <FieldError message={state.fieldErrors?.notes} />
@@ -91,12 +103,12 @@ export function SubmitWorkForm({
         {isPending ? (
           <>
             <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />
-            Submitting…
+            {t("form.submit.submitting")}
           </>
         ) : (
           <>
             <Send aria-hidden="true" className="h-4 w-4" />
-            Submit work
+            {t("form.submit.submit")}
           </>
         )}
       </button>

@@ -29,6 +29,11 @@ import {
 } from "@/lib/escrow";
 import { formatUsdc } from "@/lib/payments";
 import { markTaskEscrowFundedAction } from "@/app/tasks/actions";
+import {
+  DEFAULT_LOCALE,
+  createTranslator,
+  type Locale,
+} from "@/lib/i18n";
 
 type Phase =
   | "idle"
@@ -48,10 +53,13 @@ function getProvider(): EIP1193Provider | null {
 export function EscrowFundPanel({
   taskId,
   rewardAmount,
+  locale = DEFAULT_LOCALE,
 }: {
   taskId: string;
   rewardAmount: number;
+  locale?: Locale;
 }) {
+  const t = createTranslator(locale);
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string>("");
@@ -68,14 +76,14 @@ export function EscrowFundPanel({
     const provider = getProvider();
     if (!provider) {
       setPhase("error");
-      setError("No Ethereum wallet found. Install MetaMask or a Base wallet.");
+      setError(t("payment.walletNoWallet"));
       return;
     }
 
     const amount = usdcToUnits(rewardAmount);
     if (amount <= BigInt(0)) {
       setPhase("error");
-      setError("Reward must be a positive USDC amount.");
+      setError(t("escrow.fund.positiveAmount"));
       return;
     }
 
@@ -84,7 +92,7 @@ export function EscrowFundPanel({
       const [account] = (await provider.request({
         method: "eth_requestAccounts",
       })) as `0x${string}`[];
-      if (!account) throw new Error("No wallet account authorised.");
+      if (!account) throw new Error(t("payment.walletNoAccount"));
 
       const walletClient = createWalletClient({
         account,
@@ -135,7 +143,7 @@ export function EscrowFundPanel({
         hash: fundHash,
       });
       if (receipt.status !== "success") {
-        throw new Error("Funding transaction reverted on-chain.");
+        throw new Error(t("escrow.fund.reverted"));
       }
       setTxHash(fundHash);
 
@@ -149,7 +157,7 @@ export function EscrowFundPanel({
     } catch (err) {
       setPhase("error");
       const message =
-        err instanceof Error ? err.message : "Funding failed. Try again.";
+        err instanceof Error ? err.message : t("escrow.fund.failed");
       // Wallet rejections are long and noisy — trim to the first line.
       setError(message.split("\n")[0].slice(0, 200));
     }
@@ -160,14 +168,13 @@ export function EscrowFundPanel({
       <div className="comic-card-soft bg-[#dff7e6] p-5">
         <p className="comic-chip bg-[#1f6b3a] text-white">
           <CheckCircle2 aria-hidden="true" className="h-3.5 w-3.5" />
-          Escrow funded
+          {t("escrow.fund.doneChip")}
         </p>
         <h2 className="mt-4 text-lg font-black text-[#140625]">
-          USDC locked on Base
+          {t("escrow.fund.doneTitle")}
         </h2>
         <p className="mt-2 text-sm font-semibold leading-6 text-[#3c214b]">
-          The task is now open. Funds are held by the Bountix escrow contract
-          until you release or refund.
+          {t("escrow.fund.doneBody")}
         </p>
         {txHash ? (
           <a
@@ -177,7 +184,7 @@ export function EscrowFundPanel({
             className="mt-4 inline-flex items-center gap-2 break-all rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-black text-[#7c3cff] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
           >
             <ExternalLink aria-hidden="true" className="h-4 w-4" />
-            View funding tx
+            {t("escrow.viewFundingTx")}
           </a>
         ) : null}
       </div>
@@ -188,13 +195,13 @@ export function EscrowFundPanel({
     <div className="comic-card-soft bg-[#f2e6ff] p-5">
       <p className="comic-chip bg-[#7c3cff] text-white">
         <LockKeyhole aria-hidden="true" className="h-3.5 w-3.5" />
-        Escrow USDC on Base
+        {t("escrow.fund.chip")}
       </p>
-      <h2 className="mt-4 text-lg font-black text-[#140625]">Fund the escrow</h2>
+      <h2 className="mt-4 text-lg font-black text-[#140625]">
+        {t("escrow.fund.title")}
+      </h2>
       <p className="mt-2 text-sm font-semibold leading-6 text-[#3c214b]">
-        Lock <span className="font-black">{formatUsdc(rewardAmount)}</span> in
-        the Bountix escrow contract. The task opens once the funding
-        transaction confirms.
+        {t("escrow.fund.body", { amount: formatUsdc(rewardAmount) })}
       </p>
 
       {phase === "error" && error ? (
@@ -214,23 +221,22 @@ export function EscrowFundPanel({
           <>
             <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />
             {phase === "connecting"
-              ? "Connecting wallet…"
+              ? t("escrow.fund.connecting")
               : phase === "approving"
-                ? "Approving USDC…"
+                ? t("escrow.fund.approving")
                 : phase === "funding"
-                  ? "Funding escrow…"
-                  : "Recording…"}
+                  ? t("escrow.fund.funding")
+                  : t("escrow.fund.recording")}
           </>
         ) : (
           <>
             <Wallet aria-hidden="true" className="h-4 w-4" />
-            Connect wallet & fund
+            {t("escrow.fund.button")}
           </>
         )}
       </button>
       <p className="mt-3 text-xs font-bold text-[#5a3b66]">
-        Two wallet prompts: approve USDC, then fund. Make sure your wallet is on
-        Base mainnet.
+        {t("escrow.fund.prompts")}
       </p>
     </div>
   );

@@ -12,8 +12,20 @@ import {
   initialApplyState,
   type ApplyState,
 } from "@/lib/application-form-state";
+import {
+  DEFAULT_LOCALE,
+  createTranslator,
+  type Locale,
+} from "@/lib/i18n";
 
-export function ApplyForm({ taskId }: { taskId: string }) {
+export function ApplyForm({
+  taskId,
+  locale = DEFAULT_LOCALE,
+}: {
+  taskId: string;
+  locale?: Locale;
+}) {
+  const t = createTranslator(locale);
   const action = applyToTaskAction.bind(null, taskId);
   const [state, formAction, isPending] = useActionState<ApplyState, FormData>(
     action,
@@ -31,7 +43,7 @@ export function ApplyForm({ taskId }: { taskId: string }) {
           {state.message}
         </p>
         <p className="mt-2 text-xs font-bold leading-5 text-[#3c214b]">
-          You can track its status under your dashboard.
+          {t("form.apply.successTrack")}
         </p>
       </div>
     );
@@ -39,9 +51,11 @@ export function ApplyForm({ taskId }: { taskId: string }) {
 
   return (
     <form action={formAction} className="comic-card-soft bg-white p-5">
-      <h2 className="text-lg font-black text-[#140625]">Apply to this task</h2>
+      <h2 className="text-lg font-black text-[#140625]">
+        {t("form.apply.title")}
+      </h2>
       <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-        Share why you can ship this. The task creator will review and decide.
+        {t("form.apply.body")}
       </p>
 
       {state.status === "error" && state.message ? (
@@ -56,13 +70,16 @@ export function ApplyForm({ taskId }: { taskId: string }) {
 
       <label className="mt-4 block">
         <span className="text-sm font-black text-[#140625]">
-          Pitch <span className="text-[#5a3b66]">optional, up to 1000</span>
+          {t("form.apply.pitch")}{" "}
+          <span className="text-[#5a3b66]">
+            {t("form.apply.pitchMeta")}
+          </span>
         </span>
         <textarea
           name="message"
           rows={4}
           maxLength={1000}
-          placeholder="Approach, timeline, relevant past work."
+          placeholder={t("form.apply.placeholder")}
           className="mt-2 w-full rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 py-3 font-medium text-[#140625] placeholder:text-[#5a3b66]/45 outline-none transition focus:bg-white focus:ring-2 focus:ring-[#38e7ff]"
         />
       </label>
@@ -75,12 +92,12 @@ export function ApplyForm({ taskId }: { taskId: string }) {
         {isPending ? (
           <>
             <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />
-            Sending…
+            {t("form.apply.sending")}
           </>
         ) : (
           <>
             <Send aria-hidden="true" className="h-4 w-4" />
-            Send application
+            {t("form.apply.send")}
           </>
         )}
       </button>
