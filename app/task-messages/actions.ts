@@ -18,6 +18,19 @@ type MessageScope = {
   receiverId: string | null;
 };
 
+type ApplicationScopeRow = {
+  id: string;
+  task_id: string;
+  applicant_id: string;
+};
+
+type SubmissionScopeRow = {
+  id: string;
+  task_id: string;
+  application_id: string;
+  submitter_id: string;
+};
+
 async function loadMessageScope(
   supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string,
@@ -38,9 +51,7 @@ async function loadMessageScope(
 
   if (!taskCreatorId || typeof taskCreatorId !== "string") return null;
 
-  let application:
-    | { id: string; task_id: string; applicant_id: string }
-    | null = null;
+  let application: ApplicationScopeRow | null = null;
   if (applicationId) {
     const { data } = await supabase
       .from("task_applications")
@@ -48,18 +59,11 @@ async function loadMessageScope(
       .eq("id", applicationId)
       .maybeSingle();
 
-    application = data as typeof application;
+    application = data as ApplicationScopeRow | null;
     if (!application || application.task_id !== taskId) return null;
   }
 
-  let submission:
-    | {
-        id: string;
-        task_id: string;
-        application_id: string;
-        submitter_id: string;
-      }
-    | null = null;
+  let submission: SubmissionScopeRow | null = null;
   if (submissionId) {
     const { data } = await supabase
       .from("task_submissions")
@@ -67,7 +71,7 @@ async function loadMessageScope(
       .eq("id", submissionId)
       .maybeSingle();
 
-    submission = data as typeof submission;
+    submission = data as SubmissionScopeRow | null;
     if (!submission || submission.task_id !== taskId) return null;
     if (applicationId && submission.application_id !== applicationId) {
       return null;
