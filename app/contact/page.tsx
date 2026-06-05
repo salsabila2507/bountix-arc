@@ -22,6 +22,12 @@ const links = [
     external: true,
   },
   {
+    href: "https://t.me/invisiblefoxyasuo",
+    labelKey: "legal.contact.telegram.label",
+    bodyKey: "legal.contact.telegram.body",
+    external: true,
+  },
+  {
     href: "https://x.com/Bountixofc",
     labelKey: "footer.x",
     bodyKey: "legal.contact.x.body",
