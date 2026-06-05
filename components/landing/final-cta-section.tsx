@@ -1,11 +1,9 @@
 import Image from "next/image";
-import { ArrowUpRight } from "lucide-react";
 import { MotionReveal } from "@/components/motion-reveal";
 import { ButtonLink } from "@/components/ui/button";
 
 const assetBase = "/bountix-comic/bountix_assets_ready";
 const telegramGroupUrl = "https://t.me/+V78fuYlQNvcxYTNl";
-const xUrl = "https://x.com/bountixofc";
 
 export function FinalCtaSection() {
   return (
@@ -65,29 +63,6 @@ export function FinalCtaSection() {
               </ButtonLink>
             </div>
           </div>
-          <footer className="mt-12 flex flex-col gap-4 border-t-2 border-[#140625] pt-6 text-sm font-bold text-[#5a3b66] sm:flex-row sm:items-center sm:justify-between">
-            <span className="text-lg font-black text-[#140625]">Bountix</span>
-            <div className="flex flex-wrap gap-3">
-              <a
-                href={telegramGroupUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 transition hover:text-[#7c3cff]"
-              >
-                Telegram
-                <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
-              </a>
-              <a
-                href={xUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 transition hover:text-[#7c3cff]"
-              >
-                X
-                <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
-              </a>
-            </div>
-          </footer>
         </MotionReveal>
       </section>
     </>
