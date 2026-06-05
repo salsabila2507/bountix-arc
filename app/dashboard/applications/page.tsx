@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft, ExternalLink, Trophy } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import { TaskChatBox } from "@/components/marketplace/task-chat-box";
 import {
   createTranslator,
   formatDate,
@@ -17,6 +18,10 @@ import {
   type DbApplication,
   type DbSubmission,
 } from "@/lib/applications";
+import {
+  TASK_MESSAGE_COLUMNS,
+  type DbTaskMessage,
+} from "@/lib/task-messages";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +30,12 @@ export const metadata = {
   description: "Tasks you've applied to and submitted work for.",
 };
 
-type TaskLite = { id: string; title: string };
+type TaskLite = { id: string; title: string; creator_id: string };
+type ProfileLite = {
+  id: string;
+  username: string;
+  display_name: string | null;
+};
 
 async function loadMine() {
   const supabase = await createClient();
@@ -47,7 +57,7 @@ async function loadMine() {
   if (taskIds.length > 0) {
     const { data: tasks } = await supabase
       .from("tasks")
-      .select("id, title")
+      .select("id, title, creator_id")
       .in("id", taskIds);
     for (const t of tasks ?? []) tasksById.set(t.id, t as TaskLite);
   }
@@ -68,7 +78,48 @@ async function loadMine() {
     subsByApp.set(s.application_id, arr);
   }
 
-  return { myApps, tasksById, subsByApp };
+  let taskMessages: DbTaskMessage[] = [];
+  if (taskIds.length > 0) {
+    const { data: messages } = await supabase
+      .from("task_messages")
+      .select(TASK_MESSAGE_COLUMNS)
+      .in("task_id", taskIds)
+      .order("created_at", { ascending: true });
+    taskMessages = (messages ?? []) as DbTaskMessage[];
+  }
+
+  const messagesByApp = new Map<string, DbTaskMessage[]>();
+  for (const message of taskMessages) {
+    if (!message.application_id) continue;
+    const arr = messagesByApp.get(message.application_id) ?? [];
+    arr.push(message);
+    messagesByApp.set(message.application_id, arr);
+  }
+
+  const profileIds = new Set<string>([user.id]);
+  for (const task of tasksById.values()) profileIds.add(task.creator_id);
+  for (const message of taskMessages) {
+    profileIds.add(message.sender_id);
+    if (message.receiver_id) profileIds.add(message.receiver_id);
+  }
+
+  const profilesByUser = new Map<string, ProfileLite>();
+  if (profileIds.size > 0) {
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, username, display_name")
+      .in("id", Array.from(profileIds));
+    for (const p of profiles ?? []) profilesByUser.set(p.id, p as ProfileLite);
+  }
+
+  return {
+    myApps,
+    tasksById,
+    subsByApp,
+    messagesByApp,
+    profilesByUser,
+    currentUserId: user.id,
+  };
 }
 
 export default async function MyApplicationsPage() {
@@ -77,7 +128,14 @@ export default async function MyApplicationsPage() {
   const data = await loadMine();
   if (!data) redirect("/login");
 
-  const { myApps, tasksById, subsByApp } = data;
+  const {
+    myApps,
+    tasksById,
+    subsByApp,
+    messagesByApp,
+    profilesByUser,
+    currentUserId,
+  } = data;
 
   return (
     <main className="comic-page min-h-screen overflow-hidden text-[#140625]">
@@ -123,6 +181,8 @@ export default async function MyApplicationsPage() {
             {myApps.map((a) => {
               const task = tasksById.get(a.task_id);
               const subs = subsByApp.get(a.id) ?? [];
+              const chatMessages = messagesByApp.get(a.id) ?? [];
+              const latestSubmissionId = subs[0]?.id ?? null;
               return (
                 <article
                   key={a.id}
@@ -206,6 +266,16 @@ export default async function MyApplicationsPage() {
                       ))}
                     </div>
                   ) : null}
+
+                  <TaskChatBox
+                    taskId={a.task_id}
+                    applicationId={a.id}
+                    submissionId={latestSubmissionId}
+                    currentUserId={currentUserId}
+                    messages={chatMessages}
+                    senderProfilesById={profilesByUser}
+                    locale={locale}
+                  />
                 </article>
               );
             })}

@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, ExternalLink, Trophy } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { EscrowReleasePanel } from "@/components/marketplace/escrow-release-panel";
+import { TaskChatBox } from "@/components/marketplace/task-chat-box";
 import {
   createTranslator,
   formatDate,
@@ -26,6 +27,10 @@ import {
   type DbApplication,
   type DbSubmission,
 } from "@/lib/applications";
+import {
+  TASK_MESSAGE_COLUMNS,
+  type DbTaskMessage,
+} from "@/lib/task-messages";
 
 export const dynamic = "force-dynamic";
 
@@ -78,16 +83,6 @@ async function loadPage(taskId: string) {
   const apps = (applications ?? []) as DbApplication[];
   const applicantIds = Array.from(new Set(apps.map((a) => a.applicant_id)));
 
-  const profilesByUser = new Map<string, ProfileLite>();
-  if (applicantIds.length > 0) {
-    const { data: profiles } = await supabase
-      .from("profiles")
-      .select("id, username, display_name, wallet_address");
-    for (const p of profiles ?? []) {
-      profilesByUser.set(p.id, p as ProfileLite);
-    }
-  }
-
   const { data: submissions } = await supabase
     .from("task_submissions")
     .select(SUBMISSION_COLUMNS)
@@ -102,12 +97,50 @@ async function loadPage(taskId: string) {
     subsByApp.set(s.application_id, arr);
   }
 
+  const { data: messages } = await supabase
+    .from("task_messages")
+    .select(TASK_MESSAGE_COLUMNS)
+    .eq("task_id", taskId)
+    .order("created_at", { ascending: true });
+
+  const taskMessages = (messages ?? []) as DbTaskMessage[];
+  const messagesByApp = new Map<string, DbTaskMessage[]>();
+  for (const message of taskMessages) {
+    if (!message.application_id) continue;
+    const arr = messagesByApp.get(message.application_id) ?? [];
+    arr.push(message);
+    messagesByApp.set(message.application_id, arr);
+  }
+
+  const profileIds = new Set<string>([
+    user.id,
+    (task as DbTask).creator_id,
+    ...applicantIds,
+  ]);
+  for (const message of taskMessages) {
+    profileIds.add(message.sender_id);
+    if (message.receiver_id) profileIds.add(message.receiver_id);
+  }
+
+  const profilesByUser = new Map<string, ProfileLite>();
+  if (profileIds.size > 0) {
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, username, display_name, wallet_address")
+      .in("id", Array.from(profileIds));
+    for (const p of profiles ?? []) {
+      profilesByUser.set(p.id, p as ProfileLite);
+    }
+  }
+
   return {
     task: task as DbTask,
     apps,
     profilesByUser,
     submissions: subs,
     subsByApp,
+    messagesByApp,
+    currentUserId: user.id,
   };
 }
 
@@ -124,7 +157,15 @@ export default async function ApplicantsPage({ params }: RouteParams) {
   const data = await loadPage(id);
   if (!data) notFound();
 
-  const { task, apps, profilesByUser, submissions, subsByApp } = data;
+  const {
+    task,
+    apps,
+    profilesByUser,
+    submissions,
+    subsByApp,
+    messagesByApp,
+    currentUserId,
+  } = data;
   const isRaffle = task.reward_mode === "raffle";
   const eligibleSubs = submissions.filter((s) => s.raffle_eligible);
   const winnerSubs = submissions
@@ -257,6 +298,8 @@ export default async function ApplicantsPage({ params }: RouteParams) {
             apps.map((app) => {
               const applicant = profilesByUser.get(app.applicant_id);
               const subs = subsByApp.get(app.id) ?? [];
+              const chatMessages = messagesByApp.get(app.id) ?? [];
+              const latestSubmissionId = subs[0]?.id ?? null;
               const acceptAction = decideApplicationAction.bind(
                 null,
                 app.id,
@@ -330,6 +373,16 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                       </form>
                     </div>
                   ) : null}
+
+                  <TaskChatBox
+                    taskId={task.id}
+                    applicationId={app.id}
+                    submissionId={latestSubmissionId}
+                    currentUserId={currentUserId}
+                    messages={chatMessages}
+                    senderProfilesById={profilesByUser}
+                    locale={locale}
+                  />
 
                   {subs.length > 0 ? (
                     <div className="mt-5 grid gap-3">
