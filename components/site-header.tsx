@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { LogOut, User } from "lucide-react";
+import { Bell, LogOut, User } from "lucide-react";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ButtonLink } from "@/components/ui/button";
 import { logoutAction } from "@/app/auth/actions";
 import { createTranslator, type TranslationKey } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
+import { getUnreadNotificationCount } from "@/lib/notifications";
 
 type NavLink = {
   href: string;
@@ -56,6 +57,8 @@ export async function SiteHeader() {
   const t = createTranslator(locale);
   const user = await getCurrentUser();
   const displayHandle = getDisplayHandle(user, t("common.account"));
+  const unreadCount = user ? await getUnreadNotificationCount() : 0;
+  const unreadLabel = unreadCount > 99 ? "99+" : String(unreadCount);
 
   return (
     <header className="sticky top-0 z-50 border-b-2 border-[#140625] bg-[#fffaf4]/95 backdrop-blur-xl">
@@ -100,6 +103,18 @@ export async function SiteHeader() {
                 locale={locale}
                 className="hidden sm:inline-flex"
               />
+              <Link
+                href="/notifications"
+                aria-label={t("notifications.bellLabel")}
+                className="relative inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border-2 border-[#140625] bg-white px-2 py-2 text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
+              >
+                <Bell aria-hidden="true" className="h-4 w-4" />
+                {unreadCount > 0 ? (
+                  <span className="absolute -right-2 -top-2 min-w-6 rounded-full border-2 border-[#140625] bg-[#ff4fb8] px-1.5 py-0.5 text-center text-[0.65rem] font-black leading-none text-white">
+                    {unreadLabel}
+                  </span>
+                ) : null}
+              </Link>
               <Link
                 href="/dashboard"
                 className="hidden items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff] sm:inline-flex"
@@ -152,12 +167,25 @@ export async function SiteHeader() {
             </Link>
           ))}
           {user ? (
-            <Link
-              href="/dashboard"
-              className="shrink-0 rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-3 py-2 text-sm font-bold text-[#140625] shadow-[3px_3px_0_#140625]"
-            >
-              {displayHandle}
-            </Link>
+            <>
+              <Link
+                href="/notifications"
+                className="relative shrink-0 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-bold text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
+              >
+                {t("common.notifications")}
+                {unreadCount > 0 ? (
+                  <span className="ml-2 inline-flex min-w-5 justify-center rounded-full bg-[#ff4fb8] px-1.5 text-[0.65rem] font-black text-white">
+                    {unreadLabel}
+                  </span>
+                ) : null}
+              </Link>
+              <Link
+                href="/dashboard"
+                className="shrink-0 rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-3 py-2 text-sm font-bold text-[#140625] shadow-[3px_3px_0_#140625]"
+              >
+                {displayHandle}
+              </Link>
+            </>
           ) : (
             <Link
               href="/login"

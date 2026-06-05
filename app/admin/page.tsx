@@ -1,9 +1,14 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, ArrowRight, Megaphone } from "lucide-react";
-import { setEarlyContributorAction } from "@/app/admin/actions";
+import { ArrowLeft, ArrowRight, Bell, Megaphone } from "lucide-react";
+import {
+  createGlobalNotificationAction,
+  setEarlyContributorAction,
+} from "@/app/admin/actions";
 import { SiteHeader } from "@/components/site-header";
 import { DbTaskCard } from "@/components/marketplace/db-task-card";
+import { createTranslator } from "@/lib/i18n";
+import { getRequestLocale } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { TASK_LIST_COLUMNS, type DbTask } from "@/lib/tasks";
 
@@ -89,6 +94,8 @@ async function loadAdmin() {
 }
 
 export default async function AdminHomePage() {
+  const locale = await getRequestLocale();
+  const t = createTranslator(locale);
   const result = await loadAdmin();
   if (!result.authorized) redirect("/dashboard/profile");
 
@@ -226,6 +233,52 @@ export default async function AdminHomePage() {
         <div className="mt-6 rounded-lg border-2 border-[#140625] bg-[#f1d8ff] p-4 text-sm font-black text-[#140625] shadow-[4px_4px_0_#140625]">
           Early Contributors: {result.stats.earlyContributors}
         </div>
+
+        <div className="mt-10">
+          <h2 className="flex items-center gap-2 text-2xl font-black uppercase leading-none">
+            <Bell aria-hidden="true" className="h-5 w-5" />
+            {t("admin.notifications.title")}
+          </h2>
+          <p className="mt-2 text-sm font-bold leading-6 text-[#5a3b66]">
+            {t("admin.notifications.body")}
+          </p>
+        </div>
+
+        <form
+          action={createGlobalNotificationAction}
+          className="comic-card mt-6 grid gap-4 bg-white p-5 sm:p-6"
+        >
+          <label className="grid gap-2 text-sm font-black text-[#140625]">
+            {t("admin.notifications.titleLabel")}
+            <input
+              name="title"
+              maxLength={140}
+              required
+              className="min-h-11 rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 py-2 text-sm font-bold text-[#140625] outline-none focus:bg-white"
+            />
+          </label>
+          <label className="grid gap-2 text-sm font-black text-[#140625]">
+            {t("admin.notifications.bodyLabel")}
+            <textarea
+              name="body"
+              maxLength={1000}
+              rows={3}
+              className="min-h-28 rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 py-2 text-sm font-bold text-[#140625] outline-none focus:bg-white"
+            />
+          </label>
+          <label className="grid gap-2 text-sm font-black text-[#140625]">
+            {t("admin.notifications.linkLabel")}
+            <input
+              name="link_url"
+              placeholder={t("admin.notifications.linkPlaceholder")}
+              maxLength={500}
+              className="min-h-11 rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 py-2 text-sm font-bold text-[#140625] outline-none focus:bg-white"
+            />
+          </label>
+          <button className="inline-flex min-h-11 w-fit items-center justify-center rounded-lg border-2 border-[#140625] bg-[#ffdd3d] px-4 py-2 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#38e7ff]">
+            {t("admin.notifications.create")}
+          </button>
+        </form>
 
         <div className="mt-10">
           <h2 className="text-2xl font-black uppercase leading-none">

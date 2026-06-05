@@ -5,13 +5,16 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/tasks";
 
-export async function setEarlyContributorAction(formData: FormData) {
-  const profileId = String(formData.get("profile_id") ?? "");
-  const isEarlyContributor =
-    String(formData.get("is_early_contributor") ?? "") === "true";
+function isInternalPath(value: string): boolean {
+  return (
+    value.startsWith("/") &&
+    !value.startsWith("//") &&
+    !/\s/.test(value) &&
+    value.length <= 500
+  );
+}
 
-  if (!isUuid(profileId)) return;
-
+async function requireAdmin() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -26,6 +29,18 @@ export async function setEarlyContributorAction(formData: FormData) {
     .maybeSingle();
 
   if (actor?.role !== "admin") redirect("/dashboard/profile");
+
+  return { supabase, user };
+}
+
+export async function setEarlyContributorAction(formData: FormData) {
+  const profileId = String(formData.get("profile_id") ?? "");
+  const isEarlyContributor =
+    String(formData.get("is_early_contributor") ?? "") === "true";
+
+  if (!isUuid(profileId)) return;
+
+  const { supabase } = await requireAdmin();
 
   const { data: target } = await supabase
     .from("profiles")
@@ -45,4 +60,29 @@ export async function setEarlyContributorAction(formData: FormData) {
   if (target?.username) {
     revalidatePath(`/profile/${target.username}`);
   }
+}
+
+export async function createGlobalNotificationAction(formData: FormData) {
+  const title = String(formData.get("title") ?? "").trim();
+  const body = String(formData.get("body") ?? "").trim();
+  const linkUrl = String(formData.get("link_url") ?? "").trim();
+
+  if (title.length < 1 || title.length > 140) return;
+  if (body.length > 1000) return;
+  if (linkUrl && !isInternalPath(linkUrl)) return;
+
+  const { supabase } = await requireAdmin();
+
+  const { error } = await supabase.from("notifications").insert({
+    user_id: null,
+    type: "global",
+    title,
+    body,
+    link_url: linkUrl || null,
+  });
+
+  if (error) return;
+
+  revalidatePath("/admin");
+  revalidatePath("/notifications");
 }
