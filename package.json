@@ -16,6 +16,7 @@
   "dependencies": {
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
+    "@vercel/analytics": "^2.0.1",
     "clsx": "latest",
     "framer-motion": "latest",
     "lucide-react": "latest",

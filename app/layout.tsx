@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react";
 import { SiteFooter } from "@/components/site-footer";
 import "./globals.css";
 
@@ -52,6 +53,7 @@ export default function RootLayout({
       <body className="antialiased">
         {children}
         <SiteFooter />
+        <Analytics />
       </body>
     </html>
   );
