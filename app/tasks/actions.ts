@@ -11,6 +11,7 @@ import {
   REWARD_MODES,
   isAdminTaskType,
   isUuid,
+  shouldGateSoftOpenTask,
   type TaskStatus,
   type TaskType,
   type TaskAccessLevel,
@@ -62,7 +63,7 @@ function parseTaskInput(formData: FormData): {
   const reward_mode = String(formData.get("reward_mode") ?? "fixed");
   const winnerCountRaw = String(formData.get("raffle_winner_count") ?? "").trim();
   const eligibility_rules = String(formData.get("eligibility_rules") ?? "").trim();
-  const access_level = String(formData.get("access_level") ?? "open");
+  let access_level = String(formData.get("access_level") ?? "open");
   const payment_method = String(formData.get("payment_method") ?? "manual");
 
   const fieldErrors: TaskFormState["fieldErrors"] = {};
@@ -108,6 +109,16 @@ function parseTaskInput(formData: FormData): {
   }
   if (!(TASK_ACCESS_LEVELS as readonly string[]).includes(access_level)) {
     fieldErrors.access_level = "Invalid task access setting.";
+  }
+
+  if (
+    shouldGateSoftOpenTask({
+      title,
+      description,
+      category: category || null,
+    })
+  ) {
+    access_level = "early_contributor";
   }
 
   let raffle_winner_count = 1;

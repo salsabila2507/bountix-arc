@@ -460,6 +460,9 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                   negotiable={previewTask.negotiable}
                   locale={locale}
                 />
+                {previewTask.accessLevel === "early_contributor" ? (
+                  <EarlyContributorsOnlyBadge locale={locale} />
+                ) : null}
                 <WaitlistOnlyBadge locale={locale} />
               </div>
 

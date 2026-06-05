@@ -22,6 +22,7 @@ export type Task = {
   skills: string[];
   timeline: string;
   negotiable: boolean;
+  accessLevel: "early_contributor";
 };
 
 export type Creator = {
@@ -68,6 +69,7 @@ export const tasks: Task[] = [
     skills: ["Research", "Community", "Spreadsheet ops"],
     timeline: "3 days",
     negotiable: true,
+    accessLevel: "early_contributor",
   },
   {
     id: "task-landing-qa",
@@ -85,6 +87,7 @@ export const tasks: Task[] = [
     skills: ["QA", "Mobile", "Frontend"],
     timeline: "24 hours",
     negotiable: false,
+    accessLevel: "early_contributor",
   },
   {
     id: "task-operator-playbook",
@@ -102,6 +105,7 @@ export const tasks: Task[] = [
     skills: ["Docs", "Ops", "Workflow design"],
     timeline: "5 days",
     negotiable: true,
+    accessLevel: "early_contributor",
   },
 ];
 
