@@ -740,7 +740,6 @@ export default async function Home() {
               <a href={telegramGroupUrl} target="_blank" rel="noreferrer">
                 {t("nav.telegram")}
               </a>
-              <span>{t("nav.discordSoon")}</span>
             </div>
           </div>
         </footer>

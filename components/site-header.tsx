@@ -7,19 +7,11 @@ import { logoutAction } from "@/app/auth/actions";
 import { createTranslator, type TranslationKey } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
 
-type NavLink =
-  | {
-      href: string;
-      labelKey: TranslationKey;
-      external?: boolean;
-      soon?: never;
-    }
-  | {
-      labelKey: TranslationKey;
-      soon: true;
-      href?: never;
-      external?: never;
-    };
+type NavLink = {
+  href: string;
+  labelKey: TranslationKey;
+  external?: boolean;
+};
 
 const navLinks = [
   { href: "/tasks", labelKey: "nav.tasks" },
@@ -31,7 +23,6 @@ const navLinks = [
     external: true,
   },
   { href: "https://x.com/bountixofc", labelKey: "nav.x", external: true },
-  { labelKey: "nav.discordSoon", soon: true },
 ] satisfies NavLink[];
 
 /**
@@ -90,26 +81,17 @@ export async function SiteHeader() {
             </span>
           </Link>
           <nav className="hidden items-center gap-1 lg:flex">
-            {navLinks.map((link) =>
-              link.soon ? (
-                <span
-                  key={link.labelKey}
-                  className="rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-bold text-[#140625]/55"
-                >
-                  {t(link.labelKey)}
-                </span>
-              ) : (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  target={link.external ? "_blank" : undefined}
-                  rel={link.external ? "noreferrer" : undefined}
-                  className="rounded-lg px-3 py-2 text-sm font-bold text-[#140625] transition hover:bg-[#38e7ff]"
-                >
-                  {t(link.labelKey)}
-                </Link>
-              ),
-            )}
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                target={link.external ? "_blank" : undefined}
+                rel={link.external ? "noreferrer" : undefined}
+                className="rounded-lg px-3 py-2 text-sm font-bold text-[#140625] transition hover:bg-[#38e7ff]"
+              >
+                {t(link.labelKey)}
+              </Link>
+            ))}
           </nav>
 
           {user ? (
@@ -158,26 +140,17 @@ export async function SiteHeader() {
           )}
         </div>
         <nav className="-mx-5 mt-3 flex gap-2 overflow-x-auto px-5 pb-1 lg:hidden">
-          {navLinks.map((link) =>
-            link.soon ? (
-              <span
-                key={link.labelKey}
-                className="shrink-0 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-bold text-[#140625]/55"
-              >
-                {t(link.labelKey)}
-              </span>
-            ) : (
-              <Link
-                key={link.href}
-                href={link.href}
-                target={link.external ? "_blank" : undefined}
-                rel={link.external ? "noreferrer" : undefined}
-                className="shrink-0 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-bold text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
-              >
-                {t(link.labelKey)}
-              </Link>
-            ),
-          )}
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              target={link.external ? "_blank" : undefined}
+              rel={link.external ? "noreferrer" : undefined}
+              className="shrink-0 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-bold text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
+            >
+              {t(link.labelKey)}
+            </Link>
+          ))}
           {user ? (
             <Link
               href="/dashboard"

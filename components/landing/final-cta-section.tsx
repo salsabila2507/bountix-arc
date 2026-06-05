@@ -86,7 +86,6 @@ export function FinalCtaSection() {
                 X
                 <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
               </a>
-              <span>Discord soon</span>
             </div>
           </footer>
         </MotionReveal>

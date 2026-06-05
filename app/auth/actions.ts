@@ -37,6 +37,20 @@ function validatePassword(password: string) {
   };
 }
 
+function getPublicSiteUrl() {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(
+    /\/$/,
+    "",
+  );
+  if (configured?.startsWith("https://")) {
+    return configured;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return "https://www.bountix.xyz";
+}
+
 export async function signupAction(
   _previousState: AuthFormState,
   formData: FormData,
@@ -133,7 +147,7 @@ export async function forgotPasswordAction(
   try {
     const supabase = await createClient();
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/auth/reset-password`,
+      redirectTo: `${getPublicSiteUrl()}/auth/reset-password`,
     });
 
     if (error) {

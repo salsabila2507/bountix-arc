@@ -41,10 +41,10 @@ function hasEarlyContributorAccess(profile: {
   return profile.role === "admin" || profile.is_early_contributor;
 }
 
-function isHttpUrl(value: string): boolean {
+function isHttpsUrl(value: string): boolean {
   try {
     const u = new URL(value);
-    return u.protocol === "http:" || u.protocol === "https:";
+    return u.protocol === "https:";
   } catch {
     return false;
   }
@@ -238,8 +238,8 @@ export async function createSubmissionAction(
   const fieldErrors: SubmitState["fieldErrors"] = {};
 
   if (!delivery_url) fieldErrors.delivery_url = "Delivery link is required.";
-  else if (!isHttpUrl(delivery_url))
-    fieldErrors.delivery_url = "Use a valid http(s) URL.";
+  else if (!isHttpsUrl(delivery_url))
+    fieldErrors.delivery_url = "Use a valid HTTPS URL.";
   else if (delivery_url.length > 500)
     fieldErrors.delivery_url = "Link is too long (max 500).";
   if (notes.length > 2000)
@@ -323,8 +323,8 @@ export async function updateSubmissionAction(
   const fieldErrors: SubmitState["fieldErrors"] = {};
 
   if (!delivery_url) fieldErrors.delivery_url = "Delivery link is required.";
-  else if (!isHttpUrl(delivery_url))
-    fieldErrors.delivery_url = "Use a valid http(s) URL.";
+  else if (!isHttpsUrl(delivery_url))
+    fieldErrors.delivery_url = "Use a valid HTTPS URL.";
   if (notes.length > 2000)
     fieldErrors.notes = "Notes must be 2000 chars or fewer.";
   if (Object.keys(fieldErrors).length > 0) {

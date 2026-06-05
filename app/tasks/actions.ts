@@ -38,10 +38,10 @@ type ParsedTaskInput = {
   payment_method: PaymentMethod;
 };
 
-function isHttpsHttp(value: string): boolean {
+function isHttpsUrl(value: string): boolean {
   try {
     const u = new URL(value);
-    return u.protocol === "http:" || u.protocol === "https:";
+    return u.protocol === "https:";
   } catch {
     return false;
   }
@@ -151,8 +151,8 @@ function parseTaskInput(formData: FormData): {
     if (external_link.length > 500) {
       fieldErrors.external_link =
         "Link must be 500 characters or fewer.";
-    } else if (!isHttpsHttp(external_link)) {
-      fieldErrors.external_link = "Use a valid http(s) URL.";
+    } else if (!isHttpsUrl(external_link)) {
+      fieldErrors.external_link = "Use a valid HTTPS URL.";
     }
   }
 

@@ -8,6 +8,17 @@ export function OAuthButtons() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const getRedirectBase = () => {
+    const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(
+      /\/$/,
+      "",
+    );
+    if (configured?.startsWith("https://")) {
+      return configured;
+    }
+    return window.location.origin;
+  };
+
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     setError(null);
@@ -17,7 +28,7 @@ export function OAuthButtons() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/auth/callback`,
+          redirectTo: `${getRedirectBase()}/auth/callback`,
         },
       });
 
@@ -66,38 +77,6 @@ export function OAuthButtons() {
             Continue with Google
           </>
         )}
-      </button>
-
-      <button
-        type="button"
-        disabled
-        className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#c9c0d3] px-5 py-3 text-sm font-black uppercase text-[#5a3b66] shadow-[5px_5px_0_#140625] cursor-not-allowed"
-      >
-        <svg
-          aria-hidden="true"
-          className="h-4 w-4"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-        </svg>
-        Continue with X (Not enabled)
-      </button>
-
-      <button
-        type="button"
-        disabled
-        className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#c9c0d3] px-5 py-3 text-sm font-black uppercase text-[#5a3b66] shadow-[5px_5px_0_#140625] cursor-not-allowed"
-      >
-        <svg
-          aria-hidden="true"
-          className="h-4 w-4"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm9.5 8.5c0 .829-.335 1.58-.879 2.121l-2.121-2.121c.541-.544 1.292-.879 2.121-.879.828 0 1.58.335 2.121.879zm-9.5 13c-3.866 0-7-3.134-7-7s3.134-7 7-7 7 3.134 7 7-3.134 7-7 7zm0-12c-2.761 0-5 2.239-5 5s2.239 5 5 5 5-2.239 5-5-2.239-5-5-5z" />
-        </svg>
-        Continue with Wallet (Not enabled)
       </button>
     </div>
   );
