@@ -10,6 +10,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import { ServiceOfferCard } from "@/components/marketplace/service-offer-card";
 import { createTranslator, formatDate } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
@@ -21,6 +22,11 @@ import {
   type ProfileRole,
   type SocialLinks,
 } from "@/lib/profile";
+import {
+  SERVICE_LIST_COLUMNS,
+  type DbServiceOffer,
+  type PublicServiceOffer,
+} from "@/lib/services";
 
 type RouteParams = { params: Promise<{ username: string }> };
 
@@ -50,6 +56,50 @@ async function fetchProfile(username: string): Promise<Profile | null> {
   }
 }
 
+async function fetchProfileServices(
+  profile: Profile,
+): Promise<PublicServiceOffer[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("services")
+      .select(SERVICE_LIST_COLUMNS)
+      .eq("creator_id", profile.id)
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(12);
+
+    if (error || !data) return [];
+    const creator = {
+      id: profile.id,
+      username: profile.username,
+      display_name: profile.display_name,
+      avatar_url: profile.avatar_url,
+      skills: profile.skills,
+      social_links: profile.social_links,
+      is_early_contributor: profile.is_early_contributor,
+    };
+    return (data as DbServiceOffer[]).map((service) => ({
+      ...service,
+      creator,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+async function getViewerIsAuthed(): Promise<boolean> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return Boolean(user);
+  } catch {
+    return false;
+  }
+}
+
 export async function generateMetadata({ params }: RouteParams) {
   const { username } = await params;
   const profile = await fetchProfile(username);
@@ -73,6 +123,10 @@ export default async function PublicProfilePage({ params }: RouteParams) {
     notFound();
   }
 
+  const [services, viewerIsAuthed] = await Promise.all([
+    fetchProfileServices(profile),
+    getViewerIsAuthed(),
+  ]);
   const social = profile.social_links;
   const displayName = profile.display_name ?? `@${profile.username}`;
 
@@ -238,6 +292,41 @@ export default async function PublicProfilePage({ params }: RouteParams) {
             </div>
           </aside>
         </div>
+
+        <section className="mt-10">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="comic-chip bg-[#ffdd3d]">
+                {t("service.creatorServices")}
+              </p>
+              <h2 className="mt-3 text-3xl font-black uppercase leading-none sm:text-4xl">
+                {t("service.profileServicesTitle")}
+              </h2>
+            </div>
+          </div>
+
+          {services.length > 0 ? (
+            <div className="mt-6 grid gap-4 lg:grid-cols-3">
+              {services.map((service) => (
+                <ServiceOfferCard
+                  key={service.id}
+                  service={service}
+                  locale={locale}
+                  viewerIsAuthed={viewerIsAuthed}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="mt-6 rounded-lg border-2 border-[#140625] bg-white p-6 text-center shadow-[5px_5px_0_#140625]">
+              <h3 className="text-lg font-black text-[#140625]">
+                {t("service.noProfileServicesTitle")}
+              </h3>
+              <p className="mx-auto mt-2 max-w-md text-sm font-bold leading-6 text-[#5a3b66]">
+                {t("service.noProfileServicesBody")}
+              </p>
+            </div>
+          )}
+        </section>
       </section>
     </main>
   );

@@ -16,6 +16,7 @@ type NavLink = {
 
 const guestNavLinks = [
   { href: "/tasks", labelKey: "common.browseTasks" },
+  { href: "/creators", labelKey: "nav.creators" },
   { href: "/about", labelKey: "nav.about" },
 ] satisfies NavLink[];
 
@@ -25,7 +26,10 @@ const authedNavLinks = [
 
 const authedMenuLinks: NavLink[] = [
   { href: "/post-task", labelKey: "common.postTask" },
+  { href: "/post-service", labelKey: "common.postService" },
   { href: "/tasks", labelKey: "common.tasks" },
+  { href: "/creators", labelKey: "service.creatorServices" },
+  { href: "/dashboard/services", labelKey: "service.myServices" },
   { href: "/notifications", labelKey: "common.notifications" },
   { href: "/dashboard/profile", labelKey: "dashboard.nav.profile" },
 ];
