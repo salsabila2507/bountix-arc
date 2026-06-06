@@ -34,6 +34,7 @@ import {
   createTranslator,
   type Locale,
 } from "@/lib/i18n";
+import type { RewardMode } from "@/lib/tasks";
 
 type Phase =
   | "idle"
@@ -53,10 +54,14 @@ function getProvider(): EIP1193Provider | null {
 export function EscrowFundPanel({
   taskId,
   rewardAmount,
+  rewardMode = "fixed",
+  winnerCount = 1,
   locale = DEFAULT_LOCALE,
 }: {
   taskId: string;
   rewardAmount: number;
+  rewardMode?: RewardMode;
+  winnerCount?: number;
   locale?: Locale;
 }) {
   const t = createTranslator(locale);
@@ -80,7 +85,11 @@ export function EscrowFundPanel({
       return;
     }
 
-    const amount = usdcToUnits(rewardAmount);
+    const safeWinnerCount =
+      rewardMode === "raffle" && Number.isInteger(winnerCount)
+        ? Math.max(1, winnerCount)
+        : 1;
+    const amount = usdcToUnits(rewardAmount) * BigInt(safeWinnerCount);
     if (amount <= BigInt(0)) {
       setPhase("error");
       setError(t("escrow.fund.positiveAmount"));
@@ -136,7 +145,7 @@ export function EscrowFundPanel({
       const fundHash = await walletClient.writeContract({
         address: ESCROW_CONTRACT_ADDRESS as `0x${string}`,
         abi: ESCROW_FUND_ABI,
-        functionName: "fundEscrow",
+        functionName: rewardMode === "raffle" ? "fundRaffleEscrow" : "fundEscrow",
         args: [taskKey, amount],
       });
       const receipt = await publicClient.waitForTransactionReceipt({
@@ -162,6 +171,11 @@ export function EscrowFundPanel({
       setError(message.split("\n")[0].slice(0, 200));
     }
   }
+
+  const displayAmount =
+    rewardMode === "raffle"
+      ? rewardAmount * Math.max(1, winnerCount)
+      : rewardAmount;
 
   if (phase === "done") {
     return (
@@ -201,7 +215,7 @@ export function EscrowFundPanel({
         {t("escrow.fund.title")}
       </h2>
       <p className="mt-2 text-sm font-semibold leading-6 text-[#3c214b]">
-        {t("escrow.fund.body", { amount: formatUsdc(rewardAmount) })}
+        {t("escrow.fund.body", { amount: formatUsdc(displayAmount) })}
       </p>
 
       {phase === "error" && error ? (

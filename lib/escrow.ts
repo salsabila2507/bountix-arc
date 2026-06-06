@@ -1,5 +1,5 @@
 /**
- * Bountix escrow (BountixEscrowV0) constants + helpers.
+ * Bountix escrow (BountixEscrowV1) constants + helpers.
  *
  * On-chain USDC escrow on Base mainnet. Optional payment path — manual
  * payment remains the default and does not touch any of this.
@@ -14,9 +14,21 @@ import {
   USDC_DECIMALS,
 } from "@/lib/payments";
 
-/** Deployed BountixEscrowV0 on Base mainnet. */
-export const ESCROW_CONTRACT_ADDRESS =
+/** Historical BountixEscrowV0 on Base mainnet. Kept for V0-funded tasks. */
+export const ESCROW_V0_CONTRACT_ADDRESS =
   "0x89FAF386c052B55363fdEe45B04c48fcDcb5A692";
+
+/** Active BountixEscrowV1 on Base mainnet. */
+export const ESCROW_V1_CONTRACT_ADDRESS =
+  "0x81AcFAbb2D7f99fC68d764f720c731a0fA5C0995";
+
+/** Active escrow contract for newly funded tasks. */
+export const ESCROW_CONTRACT_ADDRESS =
+  ESCROW_V1_CONTRACT_ADDRESS;
+
+export const ESCROW_CONTRACT_VERSION = "v1";
+export const ESCROW_DEFAULT_FEE_BPS = 250;
+export const ESCROW_MAX_FEE_BPS = 1000;
 
 export const ESCROW_USDC_ADDRESS = BASE_MAINNET_USDC_ADDRESS;
 export const ESCROW_CHAIN_ID = BASE_MAINNET_CHAIN_ID;
@@ -84,6 +96,16 @@ export const ESCROW_FUND_ABI = [
     ],
     outputs: [],
   },
+  {
+    type: "function",
+    name: "fundRaffleEscrow",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "taskId", type: "bytes32" },
+      { name: "amount", type: "uint256" },
+    ],
+    outputs: [],
+  },
 ] as const;
 
 /** ABI for admin-only assignWorker function. Must be called before release. */
@@ -110,6 +132,44 @@ export const ESCROW_RELEASE_ABI = [
     outputs: [],
   },
 ] as const;
+
+/** ABI for V1 raffle winner assignment. */
+export const ESCROW_ASSIGN_RAFFLE_ABI = [
+  {
+    type: "function",
+    name: "assignRaffleWinners",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "taskId", type: "bytes32" },
+      { name: "winners", type: "address[]" },
+      { name: "grossAmounts", type: "uint256[]" },
+    ],
+    outputs: [],
+  },
+] as const;
+
+/** ABI for V1 raffle release. */
+export const ESCROW_RELEASE_RAFFLE_ABI = [
+  {
+    type: "function",
+    name: "releaseRaffleEscrow",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "taskId", type: "bytes32" }],
+    outputs: [],
+  },
+] as const;
+
+/**
+ * Use a task's recorded contract for release. Legacy funded tasks without a
+ * recorded address predate V1 and should fall back to V0.
+ */
+export function escrowContractForTask(input: {
+  escrowContractAddress: string | null;
+  escrowTxHash: string | null;
+}): string {
+  if (input.escrowContractAddress) return input.escrowContractAddress;
+  return input.escrowTxHash ? ESCROW_V0_CONTRACT_ADDRESS : ESCROW_CONTRACT_ADDRESS;
+}
 
 /** Basescan tx URL helper for surfacing the funding receipt. */
 export function basescanTxUrl(txHash: string): string {

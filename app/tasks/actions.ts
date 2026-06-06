@@ -139,10 +139,6 @@ function parseTaskInput(formData: FormData): {
     if (reward_amount === null || reward_amount <= 0) {
       fieldErrors.reward_amount = "Raffle reward must be greater than 0 USDC.";
     }
-    if (payment_method === "escrow_base" && raffle_winner_count > 1) {
-      fieldErrors.payment_method =
-        "Escrow V0 supports one payout per task. Use manual payment for multi-winner raffles.";
-    }
   } else if (eligibility_rules.length > 2000) {
     fieldErrors.eligibility_rules =
       "Eligibility rules must be 2000 characters or fewer.";
@@ -369,21 +365,6 @@ export async function updateTaskAction(
   const payment_method: PaymentMethod = isFunded
     ? "escrow_base"
     : data.payment_method;
-
-  if (
-    payment_method === "escrow_base" &&
-    data.reward_mode === "raffle" &&
-    data.raffle_winner_count > 1
-  ) {
-    return {
-      status: "error",
-      message: "Check the highlighted fields and try again.",
-      fieldErrors: {
-        payment_method:
-          "Escrow V0 supports one payout per task. Use manual payment for multi-winner raffles.",
-      },
-    };
-  }
 
   const { error } = await supabase
     .from("tasks")

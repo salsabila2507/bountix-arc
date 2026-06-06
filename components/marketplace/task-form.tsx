@@ -69,9 +69,6 @@ export function TaskForm({
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
     def?.payment_method ?? "manual",
   );
-  const [winnerCount, setWinnerCount] = useState(
-    def?.raffle_winner_count ?? 1,
-  );
   const isRaffle = rewardMode === "raffle";
 
   return (
@@ -240,9 +237,6 @@ export function TaskForm({
                 max="50"
                 step="1"
                 defaultValue={def?.raffle_winner_count ?? 1}
-                onChange={(event) =>
-                  setWinnerCount(Number(event.currentTarget.value || "1"))
-                }
                 className={input}
               />
               <FieldError message={state.fieldErrors?.raffle_winner_count} />
@@ -306,15 +300,9 @@ export function TaskForm({
               </label>
             ))}
           </div>
-          {isRaffle &&
-          paymentMethod === "escrow_base" &&
-          winnerCount > 1 ? (
-            <p className="mt-3 rounded-lg border-2 border-[#140625] bg-[#ffe1ed] p-3 text-xs font-black leading-5 text-[#8a1742]">
-              {t("raffle.escrowMultiWinnerWarning")}
-            </p>
-          ) : isRaffle && paymentMethod === "escrow_base" ? (
+          {isRaffle && paymentMethod === "escrow_base" ? (
             <p className="mt-3 rounded-lg border-2 border-[#140625] bg-[#dff7e6] p-3 text-xs font-black leading-5 text-[#1f6b3a]">
-              {t("raffle.oneWinnerEscrowCompatible")}
+              {t("raffle.escrowV1Compatible")}
             </p>
           ) : null}
           <FieldError message={state.fieldErrors?.payment_method} />

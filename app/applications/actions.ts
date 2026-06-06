@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { ESCROW_V1_CONTRACT_ADDRESS } from "@/lib/escrow";
 import { isUuid } from "@/lib/tasks";
 import type {
   ApplyState,
@@ -49,6 +50,8 @@ function isHttpsUrl(value: string): boolean {
     return false;
   }
 }
+
+const TX_HASH_RE = /^0x[0-9a-fA-F]{64}$/;
 
 // =====================================================================
 // Applications
@@ -490,9 +493,7 @@ export async function selectRaffleWinnersAction(taskId: string) {
 
   const { data: task } = await supabase
     .from("tasks")
-    .select(
-      "id, creator_id, reward_mode, raffle_winner_count, payment_method",
-    )
+    .select("id, creator_id, reward_mode, raffle_winner_count")
     .eq("id", taskId)
     .maybeSingle();
 
@@ -501,10 +502,6 @@ export async function selectRaffleWinnersAction(taskId: string) {
   const isAdmin = profile?.role === "admin";
   const isOwner = task.creator_id === user.id;
   if (!isAdmin && !isOwner) return;
-
-  if (task.payment_method === "escrow_base" && task.raffle_winner_count > 1) {
-    return;
-  }
 
   const { error } = await supabase.rpc("select_raffle_winners", {
     p_task_id: taskId,
@@ -528,6 +525,9 @@ export async function releaseEscrowAction(
 ) {
   if (!isUuid(submissionId)) {
     return { ok: false, message: "Invalid submission." };
+  }
+  if (!TX_HASH_RE.test(assignTxHash) || !TX_HASH_RE.test(releaseTxHash)) {
+    return { ok: false, message: "Invalid transaction hash." };
   }
 
   const { supabase, user, profile } = await loadActor();
@@ -580,7 +580,7 @@ export async function releaseEscrowAction(
       return {
         ok: false,
         message:
-          "Escrow V0 supports one payout per raffle task. Use manual payment for multi-winner raffles.",
+          "Use the raffle escrow release flow for multi-winner raffles.",
       };
     }
     if (submission.raffle_winner_position === null) {
@@ -628,4 +628,106 @@ export async function releaseEscrowAction(
   revalidatePath(`/tasks/${task.id}`);
 
   return { ok: true, message: "Escrow released." };
+}
+
+export async function releaseRaffleEscrowAction(
+  taskId: string,
+  assignTxHash: string,
+  releaseTxHash: string,
+) {
+  if (!isUuid(taskId)) {
+    return { ok: false, message: "Invalid task id." };
+  }
+  if (!TX_HASH_RE.test(assignTxHash) || !TX_HASH_RE.test(releaseTxHash)) {
+    return { ok: false, message: "Invalid transaction hash." };
+  }
+
+  const { supabase, user, profile } = await loadActor();
+  if (!user) redirect("/login");
+
+  const { data: task } = await supabase
+    .from("tasks")
+    .select(
+      "id, creator_id, payment_method, reward_mode, raffle_winner_count, escrow_contract_address",
+    )
+    .eq("id", taskId)
+    .maybeSingle();
+
+  if (!task) {
+    return { ok: false, message: "Task not found." };
+  }
+
+  const isAdmin = profile?.role === "admin";
+  const isOwner = task.creator_id === user.id;
+  if (!isAdmin && !isOwner) {
+    return { ok: false, message: "Permission denied." };
+  }
+
+  if (task.payment_method !== "escrow_base") {
+    return { ok: false, message: "This task uses manual payment." };
+  }
+  if (task.reward_mode !== "raffle") {
+    return { ok: false, message: "This task is not a raffle." };
+  }
+  if (task.raffle_winner_count <= 1) {
+    return { ok: false, message: "Use the single-worker release flow." };
+  }
+  if (
+    (task.escrow_contract_address ?? "").toLowerCase() !==
+    ESCROW_V1_CONTRACT_ADDRESS.toLowerCase()
+  ) {
+    return {
+      ok: false,
+      message: "Multi-winner escrow release requires a V1-funded task.",
+    };
+  }
+
+  const { data: winners } = await supabase
+    .from("task_submissions")
+    .select("id, status, release_tx_hash")
+    .eq("task_id", taskId)
+    .not("raffle_winner_position", "is", null);
+
+  const winnerRows =
+    (winners as
+      | { id: string; status: string; release_tx_hash: string | null }[]
+      | null) ?? [];
+
+  if (winnerRows.length !== task.raffle_winner_count) {
+    return { ok: false, message: "Raffle winners are not fully selected." };
+  }
+  if (winnerRows.some((winner) => winner.status !== "approved")) {
+    return {
+      ok: false,
+      message: "Approve every selected winner before releasing escrow.",
+    };
+  }
+  if (winnerRows.some((winner) => winner.release_tx_hash)) {
+    return { ok: false, message: "This raffle escrow is already released." };
+  }
+
+  const { error } = await supabase
+    .from("task_submissions")
+    .update({
+      assign_tx_hash: assignTxHash,
+      assigned_at: new Date().toISOString(),
+      release_tx_hash: releaseTxHash,
+      released_at: new Date().toISOString(),
+    })
+    .in(
+      "id",
+      winnerRows.map((winner) => winner.id),
+    );
+
+  if (error) {
+    return {
+      ok: false,
+      message: error.message || "Could not record raffle release.",
+    };
+  }
+
+  revalidatePath(`/dashboard/tasks/${task.id}/applicants`);
+  revalidatePath(`/tasks/${task.id}`);
+
+  return { ok: true, message: "Raffle escrow released." };
 }

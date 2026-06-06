@@ -289,10 +289,9 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                             {dbTask.eligibility_rules}
                           </p>
                         ) : null}
-                        {dbTask.payment_method === "escrow_base" &&
-                        dbTask.raffle_winner_count > 1 ? (
-                          <p className="mt-3 rounded-lg border-2 border-[#140625] bg-[#ffe1ed] p-3 text-xs font-black leading-5 text-[#8a1742]">
-                            {t("raffle.escrowMultiWinnerWarning")}
+                        {dbTask.payment_method === "escrow_base" ? (
+                          <p className="mt-3 rounded-lg border-2 border-[#140625] bg-[#dff7e6] p-3 text-xs font-black leading-5 text-[#1f6b3a]">
+                            {t("raffle.escrowV1Compatible")}
                           </p>
                         ) : null}
                       </div>
@@ -362,6 +361,8 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                       <EscrowFundPanel
                         taskId={dbTask.id}
                         rewardAmount={dbTask.reward_amount ?? 0}
+                        rewardMode={dbTask.reward_mode}
+                        winnerCount={dbTask.raffle_winner_count}
                         locale={locale}
                       />
                     )

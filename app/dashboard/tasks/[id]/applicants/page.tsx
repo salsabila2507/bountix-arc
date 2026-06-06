@@ -2,7 +2,10 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, ExternalLink, Trophy } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
-import { EscrowReleasePanel } from "@/components/marketplace/escrow-release-panel";
+import {
+  EscrowRaffleReleasePanel,
+  EscrowReleasePanel,
+} from "@/components/marketplace/escrow-release-panel";
 import { TaskChatBox } from "@/components/marketplace/task-chat-box";
 import {
   createTranslator,
@@ -19,6 +22,7 @@ import {
 } from "@/app/applications/actions";
 import { createClient } from "@/lib/supabase/server";
 import { TASK_LIST_COLUMNS, isUuid, type DbTask } from "@/lib/tasks";
+import { escrowContractForTask } from "@/lib/escrow";
 import {
   APPLICATION_COLUMNS,
   APPLICATION_STATUS_COLOR,
@@ -178,10 +182,30 @@ export default async function ApplicantsPage({ params }: RouteParams) {
     isRaffle &&
     winnerSubs.length === 0 &&
     eligibleSubs.length >= task.raffle_winner_count;
-  const escrowMultiWinnerRaffle =
-    isRaffle &&
+  const escrowContractAddress = escrowContractForTask({
+    escrowContractAddress: task.escrow_contract_address,
+    escrowTxHash: task.escrow_tx_hash,
+  });
+  const isMultiWinnerRaffle = isRaffle && task.raffle_winner_count > 1;
+  const raffleReleaseWinners = winnerSubs.map((s) => {
+    const winnerApp = apps.find((app) => app.id === s.application_id);
+    const winnerProfile = winnerApp
+      ? profilesByUser.get(winnerApp.applicant_id)
+      : null;
+    return {
+      submissionId: s.id,
+      walletAddress: winnerProfile?.wallet_address ?? null,
+      grossAmount: task.reward_amount ?? 0,
+      label: `#${s.raffle_winner_position}: @${
+        winnerProfile?.username ?? t("applicants.unknown")
+      }`,
+    };
+  });
+  const canReleaseRaffleEscrow =
+    isMultiWinnerRaffle &&
     task.payment_method === "escrow_base" &&
-    task.raffle_winner_count > 1;
+    winnerSubs.length === task.raffle_winner_count &&
+    winnerSubs.every((s) => s.status === "approved" && !s.released_at);
   const drawWinners = selectRaffleWinnersAction.bind(null, task.id);
 
   return (
@@ -239,11 +263,7 @@ export default async function ApplicantsPage({ params }: RouteParams) {
               </div>
             </div>
 
-            {escrowMultiWinnerRaffle ? (
-              <p className="mt-4 rounded-lg border-2 border-[#140625] bg-[#ffe1ed] p-3 text-sm font-black leading-6 text-[#8a1742]">
-                {t("raffle.escrowMultiWinnerWarning")}
-              </p>
-            ) : winnerSubs.length > 0 ? (
+            {winnerSubs.length > 0 ? (
               <div className="mt-4 rounded-lg border-2 border-[#140625] bg-[#dff7e6] p-3 text-sm font-bold leading-6 text-[#1f6b3a]">
                 <p className="font-black">{t("raffle.winnersSelected")}</p>
                 <div className="mt-2 grid gap-1">
@@ -262,6 +282,14 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                     );
                   })}
                 </div>
+                {canReleaseRaffleEscrow ? (
+                  <EscrowRaffleReleasePanel
+                    taskId={task.id}
+                    winners={raffleReleaseWinners}
+                    contractAddress={escrowContractAddress}
+                    locale={locale}
+                  />
+                ) : null}
               </div>
             ) : canSelectWinners ? (
               <form action={drawWinners} className="mt-4">
@@ -529,12 +557,14 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                             task.payment_method === "escrow_base" &&
                             !s.released_at &&
                             (!isRaffle ||
-                              s.raffle_winner_position !== null) ? (
+                              (task.raffle_winner_count === 1 &&
+                                s.raffle_winner_position !== null)) ? (
                               <EscrowReleasePanel
                                 submissionId={s.id}
                                 taskId={task.id}
                                 rewardAmount={task.reward_amount}
                                 workerWalletAddress={applicant ? applicant.wallet_address : null}
+                                contractAddress={escrowContractAddress}
                                 locale={locale}
                               />
                             ) : null}
