@@ -11,7 +11,9 @@
     "compile": "hardhat compile",
     "test:contract": "hardhat test",
     "estimate:base": "hardhat run scripts/estimate.cjs --network base",
-    "deploy:base": "hardhat run scripts/deploy.cjs --network base"
+    "deploy:base": "hardhat run scripts/deploy.cjs --network base",
+    "estimate:v1:base": "hardhat run scripts/estimate-v1.cjs --network base",
+    "deploy:v1:base": "hardhat run scripts/deploy-v1.cjs --network base"
   },
   "dependencies": {
     "@supabase/ssr": "latest",
