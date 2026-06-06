@@ -528,9 +528,9 @@ export default async function TaskDetailPage({ params }: RouteParams) {
               <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
                 {t("taskDetail.applyPreviewBody")}
               </p>
-              <Link href="/signup" className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ffdd3d] px-4 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#38e7ff]">
+              <Link href="/tasks" className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ffdd3d] px-4 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#38e7ff]">
                 <Users aria-hidden="true" className="h-4 w-4" />
-                {t("taskDetail.joinWaitlistStart")}
+                {t("common.browseTasks")}
               </Link>
             </div>
 

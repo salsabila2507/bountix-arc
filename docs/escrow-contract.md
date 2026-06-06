@@ -15,8 +15,9 @@ USDC-only escrow for Bountix task rewards on **Base mainnet**.
 | Treasury | `0xc123D813037fA84623bc733Fc910A27aD708E0EA` |
 | USDC | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` (native Circle USDC on Base) |
 | Min escrow | 1 USDC = `1_000_000` (USDC has 6 decimals) |
-| Default platform fee | 2.5% = `250` bps |
-| Max platform fee | 10% = `1000` bps |
+| Contract default platform fee | 2.5% = `250` bps |
+| Public platform fee range | 2-10% |
+| Current platform fee | 10% = `1000` bps |
 
 Deploy cost: gas used `1,868,542` at `0.006136911` gwei = `0.000011467075953762` ETH.
 
@@ -30,7 +31,8 @@ Roles:
 - **Treasury** - receives platform fees.
 
 Fee policy:
-- `feeBps` defaults to `250` (2.5%).
+- `feeBps` defaults to `250` (2.5%) at contract deployment.
+- Bountix public V1 copy currently presents the configured fee as `1000` (10%).
 - `MAX_FEE_BPS` is `1000` (10%).
 - On release, treasury receives the fee.
 - Workers and raffle winners receive net payout after fee.

@@ -9,8 +9,8 @@ export function PostServiceForm() {
           Offer a service
         </h2>
         <p className="mt-3 text-sm font-semibold leading-6 text-[#5a3b66]">
-          Package your strongest repeatable skill so clients can send inquiries
-          and negotiate a clean deal.
+          Creator service listings are being prepared. Task posting,
+          applications, submissions, chat, and payouts are available now.
         </p>
       </div>
 
@@ -19,7 +19,7 @@ export function PostServiceForm() {
           <span className="text-sm font-black text-[#140625]">Service title</span>
           <input
             type="text"
-            placeholder="Community market map"
+            placeholder="Service listings are not open yet"
             className="mt-2 h-12 w-full rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 font-semibold text-[#140625] placeholder:text-[#5a3b66]/50 outline-none transition focus:bg-white focus:ring-2 focus:ring-[#38e7ff]"
           />
         </label>
@@ -28,7 +28,7 @@ export function PostServiceForm() {
           <span className="text-sm font-black text-[#140625]">What you deliver</span>
           <textarea
             rows={5}
-            placeholder="Explain scope, deliverables, revision rules, and what a client should provide."
+            placeholder="Production service listing tools will appear here when they are ready."
             className="mt-2 w-full rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 py-3 font-semibold text-[#140625] placeholder:text-[#5a3b66]/50 outline-none transition focus:bg-white focus:ring-2 focus:ring-[#38e7ff]"
           />
         </label>
@@ -62,7 +62,7 @@ export function PostServiceForm() {
               Accept negotiated inquiries
             </span>
             <span className="mt-1 block text-sm font-semibold leading-6 text-[#5a3b66]">
-              Clients can request a custom scope before a deal is opened.
+              Service inquiries will open after production listings are ready.
             </span>
           </span>
         </label>
@@ -72,10 +72,10 @@ export function PostServiceForm() {
         type="button"
         disabled
         aria-disabled="true"
-        title="Service requests are preview-only"
+        title="Service listings are being prepared"
         className="mt-6 inline-flex min-h-12 w-full cursor-not-allowed items-center justify-center rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-5 py-3 text-sm font-black uppercase text-[#140625] shadow-[5px_5px_0_#140625] opacity-90"
       >
-        Sign up to request
+        Services not open yet
       </button>
     </form>
   );

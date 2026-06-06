@@ -17,10 +17,25 @@ import { SiteHeader } from "@/components/site-header";
 export const metadata = {
   title: "About",
   description:
-    "Bountix is an early-access task marketplace built around USDC on Base with manual payment and Base escrow.",
+    "Bountix is a task marketplace built around USDC on Base with manual payment and Base escrow.",
 };
 
-export default function AboutPage() {
+async function getCurrentUser() {
+  try {
+    const { createClient } = await import("@/lib/supabase/server");
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return user;
+  } catch {
+    return null;
+  }
+}
+
+export default async function AboutPage() {
+  const user = await getCurrentUser();
+
   return (
     <main className="comic-page min-h-screen overflow-hidden text-[#140625]">
       <SiteHeader />
@@ -40,11 +55,11 @@ export default function AboutPage() {
                 Bountix is a task marketplace for Web3 projects, creators, and communities.
               </h1>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-8 text-[#3c214b] sm:text-lg">
-                Bountix is open in early access. Signed-in users can create,
-                apply to, submit, chat, and review tasks. Bountix and partners
-                publish official tasks, campaigns, announcements, and
-                giveaways. Rewards can be paid in USDC on Base through manual
-                payment or Base escrow.
+                Bountix is open for signed-in users. They can create, apply to,
+                submit, chat, and review tasks. Bountix and partners publish
+                official tasks, campaigns, announcements, and giveaways.
+                Rewards can be paid in USDC on Base through manual payment or
+                Base escrow.
               </p>
               <p className="mt-4 max-w-2xl text-base font-semibold leading-8 text-[#3c214b] sm:text-lg">
                 Bountix helps projects turn community work into structured
@@ -68,10 +83,10 @@ export default function AboutPage() {
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
               </Link>
               <Link
-                href="/signup"
+                href={user ? "/dashboard/profile" : "/signup"}
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-5 py-3 text-sm font-black uppercase text-[#140625] shadow-[5px_5px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#38e7ff]"
               >
-                Sign up
+                {user ? "Profile" : "Sign up"}
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
               </Link>
             </div>
@@ -98,8 +113,8 @@ export default function AboutPage() {
             </span>
             <h3 className="mt-4 text-lg font-black uppercase">Solution</h3>
             <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-              Bountix is open in early access. Signed-in users
-              create tasks, applicants pitch, accepted workers ship, and task
+              Bountix is open for signed-in users. They create tasks,
+              applicants pitch, accepted workers ship, and task
               creators review with approve, revision, or reject. Rewards can
               be paid in USDC on Base through manual payment or Base escrow.
             </p>
@@ -125,7 +140,7 @@ export default function AboutPage() {
             What works today
           </h2>
           <p className="mt-3 max-w-3xl text-sm font-bold leading-6 text-[#5a3b66]">
-            Bountix is open in early access. Signed-in users can create, apply,
+            Bountix is open for signed-in users. They can create, apply,
             submit, chat, and review tasks. Rewards can be paid in USDC on
             Base through manual payment or Base escrow.
           </p>
@@ -139,7 +154,7 @@ export default function AboutPage() {
               ["Review flow", "Owners and admins approve, request a revision, or reject with feedback notes."],
               ["Admin official content", "official_task, giveaway, campaign, announcement, and update. Admin-only at the database layer."],
               ["Secure access controls", "Role-based permissions protect admin tools, task actions, applications, and submissions."],
-              ["Waitlist preserved", "Old waitlist data and tables stay intact; the active access path is signup."],
+              ["Legacy signup data preserved", "Old signup data and tables stay intact; the active access path is account signup."],
             ].map(([title, body]) => (
               <li
                 key={title}
@@ -189,7 +204,7 @@ export default function AboutPage() {
               Honest status
             </h3>
             <ul className="mt-3 grid gap-2 text-sm font-semibold leading-6 text-[#3c214b]">
-              <li>Live MVP in early access. Signup is open for public soft open.</li>
+              <li>Live MVP. Signup is open for the public platform.</li>
               <li>Demo / fake / test tasks stay Early Contributors only.</li>
               <li>Rewards can be paid in USDC on Base through manual payment or Base escrow.</li>
               <li>No file uploads, no analytics tables. Free-tier-friendly by design.</li>
@@ -224,8 +239,8 @@ export default function AboutPage() {
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
           <Stat
             title="Status"
-            body="Phase 3 MVP: tasks, applications, submissions, chat, manual payment copy, and Base escrow flows are live in early access."
-            chip="Early access"
+            body="Phase 3 MVP: tasks, applications, submissions, chat, manual payment copy, and Base escrow flows are live."
+            chip="Live platform"
             chipColor="bg-[#ff4fb8] text-white"
             icon={<Hourglass className="h-4 w-4" />}
           />

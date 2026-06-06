@@ -50,6 +50,12 @@ type ProfileLite = {
   username: string;
   display_name: string | null;
   wallet_address: string | null;
+  social_links: {
+    x?: string;
+    telegram?: string;
+    github?: string;
+    website?: string;
+  } | null;
 };
 
 async function loadPage(taskId: string) {
@@ -130,7 +136,7 @@ async function loadPage(taskId: string) {
   if (profileIds.size > 0) {
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("id, username, display_name, wallet_address")
+      .select("id, username, display_name, wallet_address, social_links")
       .in("id", Array.from(profileIds));
     for (const p of profiles ?? []) {
       profilesByUser.set(p.id, p as ProfileLite);
@@ -325,6 +331,13 @@ export default async function ApplicantsPage({ params }: RouteParams) {
           ) : (
             apps.map((app) => {
               const applicant = profilesByUser.get(app.applicant_id);
+              const socialLinks = applicant?.social_links ?? {};
+              const publicLinks = [
+                ["X", socialLinks.x],
+                ["Telegram", socialLinks.telegram],
+                ["GitHub", socialLinks.github],
+                ["Website", socialLinks.website],
+              ].filter((entry): entry is [string, string] => Boolean(entry[1]));
               const subs = subsByApp.get(app.id) ?? [];
               const chatMessages = messagesByApp.get(app.id) ?? [];
               const latestSubmissionId = subs[0]?.id ?? null;
@@ -360,6 +373,31 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                         <p className="text-base font-bold text-[#140625]">
                           {applicant.display_name}
                         </p>
+                      ) : null}
+                      {applicant ? (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <Link
+                            href={`/profile/${applicant.username}`}
+                            className="inline-flex min-h-9 items-center gap-2 rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-3 py-1.5 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#ffdd3d]"
+                          >
+                            {t("dashboard.profile.viewPublic")}
+                          </Link>
+                          {publicLinks.map(([label, href]) => (
+                            <a
+                              key={label}
+                              href={href}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border-2 border-[#140625] bg-white px-3 py-1.5 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#f1d8ff]"
+                            >
+                              <ExternalLink
+                                aria-hidden="true"
+                                className="h-3.5 w-3.5 text-[#7c3cff]"
+                              />
+                              {label}
+                            </a>
+                          ))}
+                        </div>
                       ) : null}
                     </div>
                     <span

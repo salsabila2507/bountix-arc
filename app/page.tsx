@@ -31,6 +31,28 @@ const navItems = [
   { href: "#rewards", labelKey: "landing.nav.rewards" },
 ] satisfies { href: string; labelKey: TranslationKey }[];
 
+const guestActions = [
+  { href: "/tasks", labelKey: "common.browseTasks", variant: "pink" },
+  { href: "/signup", labelKey: "common.joinWaitlist", variant: "yellow" },
+  { href: "/login", labelKey: "common.login", variant: "white" },
+] satisfies {
+  href: string;
+  labelKey: TranslationKey;
+  variant: "pink" | "yellow" | "cyan" | "white";
+}[];
+
+const authedActions = [
+  { href: "/dashboard", labelKey: "common.dashboard", variant: "pink" },
+  { href: "/post-task", labelKey: "common.postTask", variant: "yellow" },
+  { href: "/tasks", labelKey: "common.tasks", variant: "white" },
+  { href: "/notifications", labelKey: "common.notifications", variant: "cyan" },
+  { href: "/dashboard/profile", labelKey: "dashboard.nav.profile", variant: "white" },
+] satisfies {
+  href: string;
+  labelKey: TranslationKey;
+  variant: "pink" | "yellow" | "cyan" | "white";
+}[];
+
 const stickerItems = [
   {
     labelKey: "landing.sticker.post",
@@ -145,10 +167,26 @@ const whyItems = [
 
 const stats = [
   ["LIVE", "landing.stats.live"],
-  ["GATED", "landing.stats.gated"],
+  ["OPEN", "landing.stats.gated"],
   ["USDC", "landing.stats.usdc"],
   ["BASE", "landing.stats.base"],
 ] satisfies [string, TranslationKey][];
+
+/**
+ * Public landing must render even if Supabase env is not configured locally.
+ */
+async function getCurrentUser() {
+  try {
+    const { createClient } = await import("@/lib/supabase/server");
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return user;
+  } catch {
+    return null;
+  }
+}
 
 function ComicButton({
   href,
@@ -274,6 +312,8 @@ function BountyCard({
 export default async function Home() {
   const locale = await getRequestLocale();
   const t = createTranslator(locale);
+  const user = await getCurrentUser();
+  const actions = user ? authedActions : guestActions;
   const stickers = stickerItems.map((sticker) => ({
     ...sticker,
     label: t(sticker.labelKey),
@@ -333,13 +373,32 @@ export default async function Home() {
               ))}
             </nav>
 
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 items-center gap-2">
               <LanguageSwitcher locale={locale} className="hidden sm:inline-flex" />
+              <div className="hidden max-w-[58vw] gap-2 overflow-x-auto md:flex">
+                {actions.map((action, index) => (
+                  <Link
+                    key={action.href}
+                    href={action.href}
+                    className={`shrink-0 rounded-lg border-2 border-[#17072b] px-3 py-2 text-xs font-black uppercase shadow-[3px_3px_0_#17072b] transition hover:-translate-y-0.5 ${
+                      action.variant === "pink"
+                        ? "bg-[#ff4fb8] text-white hover:bg-[#ff72c7]"
+                        : action.variant === "yellow"
+                          ? "bg-[#ffdd3d] text-[#17072b] hover:bg-[#ffe775]"
+                          : action.variant === "cyan"
+                            ? "bg-[#38e7ff] text-[#17072b] hover:bg-[#74f0ff]"
+                            : "bg-white text-[#17072b] hover:bg-[#f0d7ff]"
+                    } ${index > 2 ? "hidden xl:inline-flex" : "inline-flex"}`}
+                  >
+                    {t(action.labelKey)}
+                  </Link>
+                ))}
+              </div>
               <ButtonLink
-                href="/signup"
+                href={user ? "/dashboard" : "/signup"}
                 className="min-h-10 bg-[#ff4fb8] px-3 py-2 text-xs sm:px-4"
               >
-                {t("common.createAccount")}
+                {user ? t("common.dashboard") : t("common.joinWaitlist")}
               </ButtonLink>
             </div>
           </div>
@@ -400,14 +459,16 @@ export default async function Home() {
               <p className="mt-4 max-w-xl text-base font-bold leading-7 text-white/86 sm:text-xl sm:leading-8">
                 {t("landing.hero.body")}
               </p>
-              <div className="mt-5 grid gap-3 sm:flex">
-                <ComicButton href="/tasks">{t("common.browseTasks")}</ComicButton>
-                <ComicButton href="/post-task" variant="yellow">
-                  {t("common.postTask")}
-                </ComicButton>
-                <ComicButton href="/signup" variant="white">
-                  {t("common.createAccount")}
-                </ComicButton>
+              <div className="mt-5 grid gap-3 sm:flex sm:flex-wrap">
+                {actions.map((action) => (
+                  <ComicButton
+                    key={action.href}
+                    href={action.href}
+                    variant={action.variant}
+                  >
+                    {t(action.labelKey)}
+                  </ComicButton>
+                ))}
               </div>
             </div>
 
@@ -704,13 +765,15 @@ export default async function Home() {
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[320px] lg:grid-cols-1">
-                <ComicButton href="/tasks">{t("common.browseTasks")}</ComicButton>
-                <ComicButton href="/post-task" variant="yellow">
-                  {t("common.postTask")}
-                </ComicButton>
-                <ComicButton href="/signup" variant="white">
-                  {t("common.createAccount")}
-                </ComicButton>
+                {actions.map((action) => (
+                  <ComicButton
+                    key={action.href}
+                    href={action.href}
+                    variant={action.variant}
+                  >
+                    {t(action.labelKey)}
+                  </ComicButton>
+                ))}
                 <ComicButton href={telegramGroupUrl} variant="cyan">
                   {t("common.joinTelegram")}
                 </ComicButton>

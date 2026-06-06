@@ -28,8 +28,8 @@ export function FinalCtaSection() {
                   The community layer for trusted internet work.
                 </h2>
                 <p className="mt-5 max-w-2xl text-base font-medium leading-8 text-white/88">
-                  Bountix is open in early access for creators and operators,
-                  with proof, payout flow, and reputation kept easy to follow.
+                  Bountix is open for signed-in creators and operators, with
+                  proof, payout flow, and reputation kept easy to follow.
                 </p>
               </div>
             </div>
@@ -45,7 +45,7 @@ export function FinalCtaSection() {
                 Sign up to create, apply, submit, chat, and earn through tasks.
               </h2>
               <p className="mt-4 max-w-xl text-base font-medium leading-7 text-[#5a3b66]">
-                Bountix is open in early access.
+                Bountix is open for signed-in users.
               </p>
             </div>
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">

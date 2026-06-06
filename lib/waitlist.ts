@@ -67,7 +67,7 @@ export function validateWaitlistForm(formData: FormData) {
     !commentedAnnouncement
   ) {
     errors.confirmations =
-      "All four social confirmations are required to join the waitlist.";
+      "All four social confirmations are required for this legacy update form.";
   }
 
   return {

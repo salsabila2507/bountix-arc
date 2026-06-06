@@ -27,7 +27,7 @@ export async function joinWaitlist(
     if (error?.code === "23505") {
       return {
         status: "error",
-        message: "That email is already on the Bountix waitlist.",
+        message: "That email is already registered for Bountix updates.",
       };
     }
 
@@ -58,7 +58,7 @@ export async function joinWaitlist(
     return {
       status: "success",
       message:
-        "You are on the Bountix waitlist. We will use this email for early access updates.",
+        "You are registered for Bountix updates. You can sign up to use the platform now.",
     };
   } catch (error) {
     return {

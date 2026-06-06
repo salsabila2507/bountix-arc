@@ -109,92 +109,9 @@ export const tasks: Task[] = [
   },
 ];
 
-export const creators: Creator[] = [
-  {
-    id: "maya-research",
-    name: "Maya Chen",
-    handle: "@mayaresearch",
-    title: "Launch researcher and community mapper",
-    summary:
-      "Specializes in market maps, community intelligence, and structured outreach lists for early-stage products.",
-    reputation: 94,
-    completedTasks: 68,
-    approvalRate: "98%",
-    responseTime: "2h",
-    specialties: ["Research", "Community", "Lead lists"],
-    services: ["Community market map", "Competitor landscape"],
-    availableForEscrow: true,
-  },
-  {
-    id: "rio-growth",
-    name: "Rio Tan",
-    handle: "@riogrowth",
-    title: "Growth systems operator",
-    summary:
-      "Builds lean launch systems, creator pipelines, campaign tracking, and weekly execution dashboards.",
-    reputation: 89,
-    completedTasks: 51,
-    approvalRate: "96%",
-    responseTime: "4h",
-    specialties: ["Growth", "Automation", "Ops"],
-    services: ["Launch ops sprint", "Campaign tracker setup"],
-    availableForEscrow: true,
-  },
-  {
-    id: "nina-designops",
-    name: "Nina Park",
-    handle: "@ninadesignops",
-    title: "Design QA and product polish reviewer",
-    summary:
-      "Reviews product surfaces for layout quality, copy clarity, edge states, and startup-grade polish.",
-    reputation: 87,
-    completedTasks: 44,
-    approvalRate: "97%",
-    responseTime: "1 day",
-    specialties: ["Design QA", "Copy review", "Frontend polish"],
-    services: ["Landing page audit", "Mobile polish pass"],
-    availableForEscrow: false,
-  },
-];
+export const creators: Creator[] = [];
 
-export const services: Service[] = [
-  {
-    id: "service-community-map",
-    creatorId: "maya-research",
-    title: "Community market map",
-    summary:
-      "A scored database of communities, owners, activity signals, and outreach priority.",
-    startingAt: "$350",
-    category: "Research",
-    delivery: "3-5 days",
-    negotiable: true,
-    paymentType: "escrow",
-  },
-  {
-    id: "service-growth-system",
-    creatorId: "rio-growth",
-    title: "Launch ops sprint",
-    summary:
-      "Set up the operating board, owner cadence, weekly reporting, and campaign task queue.",
-    startingAt: "$700",
-    category: "Growth",
-    delivery: "1 week",
-    negotiable: true,
-    paymentType: "escrow",
-  },
-  {
-    id: "service-mobile-polish",
-    creatorId: "nina-designops",
-    title: "Mobile polish pass",
-    summary:
-      "A focused UI audit covering responsive layout, hierarchy, readability, and form states.",
-    startingAt: "$220",
-    category: "Design QA",
-    delivery: "48 hours",
-    negotiable: false,
-    paymentType: "regular",
-  },
-];
+export const services: Service[] = [];
 
 export const dashboardStats = [
   { label: "Open tasks", value: "8" },

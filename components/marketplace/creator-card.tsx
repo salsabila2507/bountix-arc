@@ -99,7 +99,7 @@ export function CreatorCard({ creator }: CreatorCardProps) {
         </div>
 
         <span className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#7c3cff]">
-          Preview profile
+          View profile
           <ArrowRight
             aria-hidden="true"
             className="h-4 w-4 transition group-hover:translate-x-0.5"

@@ -14,17 +14,17 @@ type NavLink = {
   external?: boolean;
 };
 
-const navLinks = [
-  { href: "/tasks", labelKey: "nav.tasks" },
-  { href: "/post-task", labelKey: "common.postTask" },
-  { href: "/creators", labelKey: "nav.creators" },
+const guestNavLinks = [
+  { href: "/tasks", labelKey: "common.browseTasks" },
   { href: "/about", labelKey: "nav.about" },
-  {
-    href: "https://t.me/+V78fuYlQNvcxYTNl",
-    labelKey: "nav.telegram",
-    external: true,
-  },
-  { href: "https://x.com/bountixofc", labelKey: "nav.x", external: true },
+] satisfies NavLink[];
+
+const authedNavLinks = [
+  { href: "/dashboard", labelKey: "common.dashboard" },
+  { href: "/post-task", labelKey: "common.postTask" },
+  { href: "/tasks", labelKey: "common.tasks" },
+  { href: "/notifications", labelKey: "common.notifications" },
+  { href: "/dashboard/profile", labelKey: "dashboard.nav.profile" },
 ] satisfies NavLink[];
 
 /**
@@ -60,6 +60,7 @@ export async function SiteHeader() {
   const displayHandle = getDisplayHandle(user, t("common.account"));
   const unreadCount = user ? await getUnreadNotificationCount() : 0;
   const unreadLabel = unreadCount > 99 ? "99+" : String(unreadCount);
+  const navLinks: NavLink[] = user ? authedNavLinks : guestNavLinks;
 
   return (
     <header className="sticky top-0 z-50 border-b-2 border-[#140625] bg-[#fffaf4]/95 backdrop-blur-xl">
@@ -121,7 +122,7 @@ export async function SiteHeader() {
                 className="hidden items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff] sm:inline-flex"
               >
                 <User aria-hidden="true" className="h-4 w-4" />
-                {displayHandle}
+                {t("common.dashboard")}
               </Link>
               <form action={logoutAction}>
                 <button
@@ -150,7 +151,7 @@ export async function SiteHeader() {
                 href="/signup"
                 className="min-h-10 px-3 py-2 text-xs sm:px-4 sm:text-sm"
               >
-                {t("common.createAccount")}
+                {t("common.joinWaitlist")}
               </ButtonLink>
             </div>
           )}
@@ -170,18 +171,7 @@ export async function SiteHeader() {
           {user ? (
             <>
               <Link
-                href="/notifications"
-                className="relative shrink-0 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-bold text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
-              >
-                {t("common.notifications")}
-                {unreadCount > 0 ? (
-                  <span className="ml-2 inline-flex min-w-5 justify-center rounded-full bg-[#ff4fb8] px-1.5 text-[0.65rem] font-black text-white">
-                    {unreadLabel}
-                  </span>
-                ) : null}
-              </Link>
-              <Link
-                href="/dashboard"
+                href="/dashboard/profile"
                 className="shrink-0 rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-3 py-2 text-sm font-bold text-[#140625] shadow-[3px_3px_0_#140625]"
               >
                 {displayHandle}
@@ -199,7 +189,7 @@ export async function SiteHeader() {
                 href="/signup"
                 className="shrink-0 rounded-lg border-2 border-[#140625] bg-[#ffdd3d] px-3 py-2 text-sm font-bold text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
               >
-                {t("common.createAccount")}
+                {t("common.joinWaitlist")}
               </Link>
             </>
           )}

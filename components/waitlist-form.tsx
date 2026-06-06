@@ -48,7 +48,7 @@ export function WaitlistForm() {
           <CheckCircle2 aria-hidden="true" className="h-6 w-6" />
         </div>
         <h2 className="mt-6 text-2xl font-black text-[#140625]">
-          You are on the waitlist.
+          You are registered for Bountix updates.
         </h2>
         <p className="mt-3 text-sm font-medium leading-6 text-[#5a3b66]">
           {state.message}
@@ -82,7 +82,7 @@ export function WaitlistForm() {
       <div>
         <p className="comic-chip bg-[#38e7ff]">Early access</p>
         <h1 className="mt-5 text-2xl font-black text-[#140625]">
-          Join the Bountix waitlist
+          Register for Bountix updates
         </h1>
         <p className="mt-3 text-sm font-medium leading-6 text-[#5a3b66]">
           Tell us how you plan to use Bountix. We are onboarding the first
@@ -235,7 +235,7 @@ export function WaitlistForm() {
             className="mt-1 h-4 w-4 shrink-0 rounded border-[#140625] text-[#7c3cff] focus:ring-[#38e7ff]"
           />
           <span>
-            I have reposted the official waitlist announcement{" "}
+            I have reposted the official Bountix announcement{" "}
             <a
               href={announcementUrl}
               target="_blank"
@@ -256,7 +256,7 @@ export function WaitlistForm() {
             className="mt-1 h-4 w-4 shrink-0 rounded border-[#140625] text-[#7c3cff] focus:ring-[#38e7ff]"
           />
           <span>
-            I have commented on the official waitlist announcement{" "}
+            I have commented on the official Bountix announcement{" "}
             <a
               href={announcementUrl}
               target="_blank"
