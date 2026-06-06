@@ -8,6 +8,7 @@ import {
   Coins,
   Globe2,
   LockKeyhole,
+  Menu,
   MessageCircle,
   Rocket,
   ShieldCheck,
@@ -15,7 +16,6 @@ import {
   Zap,
 } from "lucide-react";
 import { LanguageSwitcher } from "@/components/language-switcher";
-import { ButtonLink } from "@/components/ui/button";
 import { TaskCarousel } from "@/components/landing/task-carousel";
 import { createTranslator, type TranslationKey } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
@@ -31,27 +31,54 @@ const navItems = [
   { href: "#rewards", labelKey: "landing.nav.rewards" },
 ] satisfies { href: string; labelKey: TranslationKey }[];
 
-const guestActions = [
-  { href: "/tasks", labelKey: "common.browseTasks", variant: "pink" },
-  { href: "/signup", labelKey: "common.joinWaitlist", variant: "yellow" },
-  { href: "/login", labelKey: "common.login", variant: "white" },
-] satisfies {
+type ActionVariant = "pink" | "yellow" | "cyan" | "white";
+
+type LandingAction = {
   href: string;
   labelKey: TranslationKey;
-  variant: "pink" | "yellow" | "cyan" | "white";
-}[];
+  variant: ActionVariant;
+};
 
-const authedActions = [
-  { href: "/dashboard", labelKey: "common.dashboard", variant: "pink" },
+const actionVariantClasses = {
+  pink: "bg-[#ff4fb8] text-white hover:bg-[#ff72c7]",
+  yellow: "bg-[#ffdd3d] text-[#17072b] hover:bg-[#ffe775]",
+  cyan: "bg-[#38e7ff] text-[#17072b] hover:bg-[#74f0ff]",
+  white: "bg-white text-[#17072b] hover:bg-[#f0d7ff]",
+} satisfies Record<ActionVariant, string>;
+
+const guestHeaderActions = [
+  { href: "/login", labelKey: "common.login", variant: "white" },
+  { href: "/signup", labelKey: "common.joinWaitlist", variant: "pink" },
+] satisfies LandingAction[];
+
+const authedHeaderSecondaryActions = [
   { href: "/post-task", labelKey: "common.postTask", variant: "yellow" },
   { href: "/tasks", labelKey: "common.tasks", variant: "white" },
   { href: "/notifications", labelKey: "common.notifications", variant: "cyan" },
   { href: "/dashboard/profile", labelKey: "dashboard.nav.profile", variant: "white" },
-] satisfies {
-  href: string;
-  labelKey: TranslationKey;
-  variant: "pink" | "yellow" | "cyan" | "white";
-}[];
+] satisfies LandingAction[];
+
+const guestHeroActions = [
+  { href: "/signup", labelKey: "common.joinWaitlist", variant: "pink" },
+  { href: "/tasks", labelKey: "common.browseTasks", variant: "yellow" },
+] satisfies LandingAction[];
+
+const authedHeroActions = [
+  { href: "/post-task", labelKey: "common.postTask", variant: "yellow" },
+  { href: "/tasks", labelKey: "common.tasks", variant: "white" },
+] satisfies LandingAction[];
+
+const guestFinalActions = [
+  { href: "/signup", labelKey: "common.joinWaitlist", variant: "pink" },
+  { href: "/login", labelKey: "common.login", variant: "white" },
+  { href: "/tasks", labelKey: "common.browseTasks", variant: "yellow" },
+] satisfies LandingAction[];
+
+const authedFinalActions = [
+  { href: "/dashboard", labelKey: "common.dashboard", variant: "pink" },
+  { href: "/post-task", labelKey: "common.postTask", variant: "yellow" },
+  { href: "/tasks", labelKey: "common.tasks", variant: "white" },
+] satisfies LandingAction[];
 
 const stickerItems = [
   {
@@ -195,19 +222,12 @@ function ComicButton({
 }: {
   href: string;
   children: React.ReactNode;
-  variant?: "pink" | "yellow" | "cyan" | "white";
+  variant?: ActionVariant;
 }) {
-  const colors = {
-    pink: "bg-[#ff4fb8] text-white hover:bg-[#ff72c7]",
-    yellow: "bg-[#ffdd3d] text-[#17072b] hover:bg-[#ffe775]",
-    cyan: "bg-[#38e7ff] text-[#17072b] hover:bg-[#74f0ff]",
-    white: "bg-white text-[#17072b] hover:bg-[#f0d7ff]",
-  }[variant];
-
   return (
     <Link
       href={href}
-      className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#17072b] px-5 py-3 text-sm font-black uppercase shadow-[5px_5px_0_#17072b] transition hover:-translate-y-0.5 ${colors}`}
+      className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#17072b] px-5 py-3 text-center text-sm font-black uppercase shadow-[5px_5px_0_#17072b] transition hover:-translate-y-0.5 ${actionVariantClasses[variant]}`}
     >
       {children}
       <ArrowRight aria-hidden="true" className="h-4 w-4" />
@@ -313,7 +333,18 @@ export default async function Home() {
   const locale = await getRequestLocale();
   const t = createTranslator(locale);
   const user = await getCurrentUser();
-  const actions = user ? authedActions : guestActions;
+  const heroActions = user ? authedHeroActions : guestHeroActions;
+  const finalActions = user ? authedFinalActions : guestFinalActions;
+  const mobileHeaderActions = user
+    ? [
+        {
+          href: "/dashboard",
+          labelKey: "common.dashboard",
+          variant: "pink",
+        } satisfies LandingAction,
+        ...authedHeaderSecondaryActions,
+      ]
+    : guestFinalActions;
   const stickers = stickerItems.map((sticker) => ({
     ...sticker,
     label: t(sticker.labelKey),
@@ -373,34 +404,85 @@ export default async function Home() {
               ))}
             </nav>
 
-            <div className="flex min-w-0 items-center gap-2">
-              <LanguageSwitcher locale={locale} className="hidden sm:inline-flex" />
-              <div className="hidden max-w-[58vw] gap-2 overflow-x-auto md:flex">
-                {actions.map((action, index) => (
+            <div className="hidden min-w-0 items-center gap-2 lg:flex">
+              <LanguageSwitcher locale={locale} />
+              {user ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    className="inline-flex min-h-10 items-center justify-center rounded-lg border-2 border-[#17072b] bg-[#ff4fb8] px-3 py-2 text-xs font-black uppercase text-white shadow-[3px_3px_0_#17072b] transition hover:-translate-y-0.5 hover:bg-[#ff72c7]"
+                  >
+                    {t("common.dashboard")}
+                  </Link>
+                  <details className="relative">
+                    <summary className="inline-flex min-h-10 cursor-pointer list-none items-center justify-center gap-2 rounded-lg border-2 border-[#17072b] bg-white px-3 py-2 text-xs font-black uppercase text-[#17072b] shadow-[3px_3px_0_#17072b] transition hover:-translate-y-0.5 hover:bg-[#f0d7ff] [&::-webkit-details-marker]:hidden">
+                      <Menu aria-hidden="true" className="h-4 w-4" />
+                      Menu
+                    </summary>
+                    <div className="absolute right-0 top-full z-50 mt-3 w-64 rounded-lg border-2 border-[#17072b] bg-[#fff7e8] p-3 shadow-[7px_7px_0_#17072b]">
+                      <div className="grid gap-2">
+                        {authedHeaderSecondaryActions.map((action) => (
+                          <Link
+                            key={action.href}
+                            href={action.href}
+                            className={`flex min-h-10 items-center rounded-lg border-2 border-[#17072b] px-3 py-2 text-xs font-black uppercase shadow-[3px_3px_0_#17072b] transition hover:-translate-y-0.5 ${actionVariantClasses[action.variant]}`}
+                          >
+                            {t(action.labelKey)}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </details>
+                </>
+              ) : (
+                guestHeaderActions.map((action) => (
                   <Link
                     key={action.href}
                     href={action.href}
-                    className={`shrink-0 rounded-lg border-2 border-[#17072b] px-3 py-2 text-xs font-black uppercase shadow-[3px_3px_0_#17072b] transition hover:-translate-y-0.5 ${
-                      action.variant === "pink"
-                        ? "bg-[#ff4fb8] text-white hover:bg-[#ff72c7]"
-                        : action.variant === "yellow"
-                          ? "bg-[#ffdd3d] text-[#17072b] hover:bg-[#ffe775]"
-                          : action.variant === "cyan"
-                            ? "bg-[#38e7ff] text-[#17072b] hover:bg-[#74f0ff]"
-                            : "bg-white text-[#17072b] hover:bg-[#f0d7ff]"
-                    } ${index > 2 ? "hidden xl:inline-flex" : "inline-flex"}`}
+                    className={`inline-flex min-h-10 items-center justify-center rounded-lg border-2 border-[#17072b] px-3 py-2 text-xs font-black uppercase shadow-[3px_3px_0_#17072b] transition hover:-translate-y-0.5 ${actionVariantClasses[action.variant]}`}
                   >
                     {t(action.labelKey)}
                   </Link>
-                ))}
-              </div>
-              <ButtonLink
-                href={user ? "/dashboard" : "/signup"}
-                className="min-h-10 bg-[#ff4fb8] px-3 py-2 text-xs sm:px-4"
-              >
-                {user ? t("common.dashboard") : t("common.joinWaitlist")}
-              </ButtonLink>
+                ))
+              )}
             </div>
+
+            <details className="relative lg:hidden">
+              <summary className="inline-flex min-h-10 cursor-pointer list-none items-center justify-center rounded-lg border-2 border-[#17072b] bg-white px-3 py-2 text-[#17072b] shadow-[3px_3px_0_#17072b] transition hover:bg-[#f0d7ff] [&::-webkit-details-marker]:hidden">
+                <Menu aria-hidden="true" className="h-5 w-5" />
+                <span className="sr-only">Menu</span>
+              </summary>
+              <div className="absolute right-0 top-full z-50 mt-3 w-[min(20rem,calc(100vw-2rem))] rounded-lg border-2 border-[#17072b] bg-[#fff7e8] p-3 shadow-[7px_7px_0_#17072b]">
+                <div className="grid gap-2">
+                  {navItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="rounded-lg border-2 border-[#17072b] bg-white px-3 py-2 text-sm font-black uppercase text-[#17072b] shadow-[3px_3px_0_#17072b] transition hover:bg-[#ffdd3d]"
+                    >
+                      {t(item.labelKey)}
+                    </Link>
+                  ))}
+                </div>
+                <div className="mt-3 border-t-2 border-[#17072b]/20 pt-3">
+                  <LanguageSwitcher
+                    locale={locale}
+                    className="w-full justify-between"
+                  />
+                </div>
+                <div className="mt-3 grid gap-2 border-t-2 border-[#17072b]/20 pt-3">
+                  {mobileHeaderActions.map((action) => (
+                    <Link
+                      key={action.href}
+                      href={action.href}
+                      className={`rounded-lg border-2 border-[#17072b] px-3 py-2 text-sm font-black uppercase shadow-[3px_3px_0_#17072b] transition hover:-translate-y-0.5 ${actionVariantClasses[action.variant]}`}
+                    >
+                      {t(action.labelKey)}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </details>
           </div>
         </header>
 
@@ -460,7 +542,7 @@ export default async function Home() {
                 {t("landing.hero.body")}
               </p>
               <div className="mt-5 grid gap-3 sm:flex sm:flex-wrap">
-                {actions.map((action) => (
+                {heroActions.map((action) => (
                   <ComicButton
                     key={action.href}
                     href={action.href}
@@ -764,8 +846,8 @@ export default async function Home() {
                   {t("payment.copy")}
                 </p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[320px] lg:grid-cols-1">
-                {actions.map((action) => (
+              <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[320px] lg:grid-cols-1">
+                {finalActions.map((action) => (
                   <ComicButton
                     key={action.href}
                     href={action.href}
@@ -774,9 +856,6 @@ export default async function Home() {
                     {t(action.labelKey)}
                   </ComicButton>
                 ))}
-                <ComicButton href={telegramGroupUrl} variant="cyan">
-                  {t("common.joinTelegram")}
-                </ComicButton>
               </div>
             </div>
           </div>
