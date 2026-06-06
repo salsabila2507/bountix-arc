@@ -7,7 +7,6 @@ import {
   PaymentBadge,
   StatusBadge,
   TaskTypeBadge,
-  WaitlistOnlyBadge,
 } from "@/components/marketplace/badges";
 import {
   DEFAULT_LOCALE,
@@ -60,7 +59,6 @@ export function TaskCard({ task, locale = DEFAULT_LOCALE }: TaskCardProps) {
           {task.accessLevel === "early_contributor" ? (
             <EarlyContributorsOnlyBadge locale={locale} />
           ) : null}
-          <WaitlistOnlyBadge locale={locale} />
         </div>
 
         <div className="mt-5 flex items-start justify-between gap-4">

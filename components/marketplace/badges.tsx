@@ -151,11 +151,11 @@ export function EarlyContributorsOnlyBadge({
   );
 }
 
-export function WaitlistOnlyBadge({
-  variant = "waitlist",
+export function AccessBadge({
+  variant = "preview",
   locale = DEFAULT_LOCALE,
 }: {
-  variant?: "waitlist" | "preview" | "early";
+  variant?: "preview" | "early";
   locale?: Locale;
 }) {
   const t = createTranslator(locale);
@@ -178,10 +178,5 @@ export function WaitlistOnlyBadge({
     );
   }
 
-  return (
-    <Badge className="bg-[#ff4fb8] text-white">
-      <LockKeyhole aria-hidden="true" className="h-3.5 w-3.5" />
-      {t("early.access")}
-    </Badge>
-  );
+  return null;
 }

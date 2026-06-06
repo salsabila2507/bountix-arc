@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Bountix | Task Marketplace for Community Work",
     description:
-      "A task marketplace for approved users to post work, submit results, and manage USDC rewards on Base.",
+      "A task marketplace for posting work, submitting results, chatting, and managing USDC rewards on Base.",
     images: ["/bountix-comic/hero-logo-latest.png"],
   },
 };

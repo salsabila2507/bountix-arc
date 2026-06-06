@@ -56,7 +56,7 @@ export function SubmissionForm({
         type="button"
         disabled
         aria-disabled="true"
-        title="Bountix is in early access"
+        title="Open a real task to submit work"
         className="mt-5 inline-flex min-h-11 w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#f1d8ff] px-4 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625] opacity-90"
       >
         <Hourglass aria-hidden="true" className="h-4 w-4 text-[#7c3cff]" />
@@ -64,7 +64,7 @@ export function SubmissionForm({
       </button>
 
       <Link
-        href="/waitlist"
+        href="/signup"
         className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ff4fb8] px-4 text-sm font-black uppercase text-white shadow-[4px_4px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#7c3cff]"
       >
         {t("form.submissionPreview.join")}

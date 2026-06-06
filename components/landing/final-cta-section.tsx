@@ -28,9 +28,8 @@ export function FinalCtaSection() {
                   The community layer for trusted internet work.
                 </h2>
                 <p className="mt-5 max-w-2xl text-base font-medium leading-8 text-white/88">
-                  Bountix starts with waitlisted creators and operators, then
-                  grows into a marketplace where proof, payout flow, and
-                  reputation stay easy to follow.
+                  Bountix is open in early access for creators and operators,
+                  with proof, payout flow, and reputation kept easy to follow.
                 </p>
               </div>
             </div>
@@ -43,15 +42,15 @@ export function FinalCtaSection() {
           <div className="flex flex-col items-start justify-between gap-6 border-t-2 border-[#140625] pt-10 sm:flex-row sm:items-center">
             <div>
               <h2 className="max-w-2xl text-3xl font-black leading-tight text-[#140625] sm:text-5xl">
-                Join the first operators and creators shaping Bountix.
+                Sign up to create, apply, submit, chat, and earn through tasks.
               </h2>
               <p className="mt-4 max-w-xl text-base font-medium leading-7 text-[#5a3b66]">
-                Get early access as the first task loops open.
+                Bountix is open in early access.
               </p>
             </div>
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-              <ButtonLink href="/waitlist" className="shrink-0">
-                Join Waitlist
+              <ButtonLink href="/signup" className="shrink-0">
+                Sign up
               </ButtonLink>
               <ButtonLink
                 href={telegramGroupUrl}

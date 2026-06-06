@@ -5,7 +5,6 @@ import { NextResponse, type NextRequest } from "next/server";
  * Supabase auth session refresh middleware.
  * Per @supabase/ssr docs: must run on every request that needs auth state.
  * Does not touch the database — only refreshes JWT cookies if needed.
- * Waitlist anonymous insert path is preserved (no auth required).
  */
 export async function updateSession(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -14,7 +13,7 @@ export async function updateSession(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   // If Supabase env is missing (e.g. local dev without secrets), skip
-  // gracefully so the waitlist preview still renders.
+  // gracefully so public pages still render.
   if (!supabaseUrl || !supabaseKey) {
     return NextResponse.next({ request });
   }

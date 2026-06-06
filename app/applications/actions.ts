@@ -18,7 +18,7 @@ async function loadActor() {
   if (!user) return { supabase, user: null, profile: null as null };
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, role, can_use_platform, is_early_contributor")
+    .select("id, role, is_early_contributor")
     .eq("id", user.id)
     .maybeSingle();
   return {
@@ -28,7 +28,6 @@ async function loadActor() {
       | {
           id: string;
           role: string;
-          can_use_platform: boolean;
           is_early_contributor: boolean;
         }
       | null,
@@ -87,14 +86,6 @@ export async function applyToTaskAction(
     return {
       status: "error",
       message: "Only Early Contributors can work on this task.",
-    };
-  }
-
-  if (!profile.can_use_platform && profile.role !== "admin") {
-    return {
-      status: "error",
-      message:
-        "Early access required. Wait for your account to be activated to apply.",
     };
   }
 
@@ -281,14 +272,6 @@ export async function createSubmissionAction(
     };
   }
 
-  if (!profile.can_use_platform && profile.role !== "admin") {
-    return {
-      status: "error",
-      message:
-        "Early access required. Wait for your account to be activated to submit work.",
-    };
-  }
-
   const { error } = await supabase.from("task_submissions").insert({
     task_id: app.task_id,
     application_id: applicationId,
@@ -360,14 +343,6 @@ export async function updateSubmissionAction(
         message: "Only Early Contributors can work on this task.",
       };
     }
-  }
-
-  if (!profile.can_use_platform && profile.role !== "admin") {
-    return {
-      status: "error",
-      message:
-        "Early access required. Wait for your account to be activated to submit work.",
-    };
   }
 
   const { error } = await supabase

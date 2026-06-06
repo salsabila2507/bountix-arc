@@ -16,6 +16,7 @@ type NavLink = {
 
 const navLinks = [
   { href: "/tasks", labelKey: "nav.tasks" },
+  { href: "/post-task", labelKey: "common.postTask" },
   { href: "/creators", labelKey: "nav.creators" },
   { href: "/about", labelKey: "nav.about" },
   {
@@ -28,7 +29,7 @@ const navLinks = [
 
 /**
  * Read the current Supabase user without throwing if env vars are missing
- * (waitlist preview must keep rendering even before auth is fully wired).
+ * (public pages must keep rendering even before auth is fully wired).
  */
 async function getCurrentUser() {
   try {
@@ -146,10 +147,10 @@ export async function SiteHeader() {
                 {t("common.login")}
               </Link>
               <ButtonLink
-                href="/waitlist"
+                href="/signup"
                 className="min-h-10 px-3 py-2 text-xs sm:px-4 sm:text-sm"
               >
-                {t("common.joinWaitlist")}
+                {t("common.createAccount")}
               </ButtonLink>
             </div>
           )}
@@ -187,12 +188,20 @@ export async function SiteHeader() {
               </Link>
             </>
           ) : (
-            <Link
-              href="/login"
-              className="shrink-0 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-bold text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
-            >
-              {t("common.login")}
-            </Link>
+            <>
+              <Link
+                href="/login"
+                className="shrink-0 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-bold text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
+              >
+                {t("common.login")}
+              </Link>
+              <Link
+                href="/signup"
+                className="shrink-0 rounded-lg border-2 border-[#140625] bg-[#ffdd3d] px-3 py-2 text-sm font-bold text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
+              >
+                {t("common.createAccount")}
+              </Link>
+            </>
           )}
           <LanguageSwitcher locale={locale} className="shrink-0 sm:hidden" />
         </nav>

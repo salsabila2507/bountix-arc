@@ -7,7 +7,6 @@ import {
   Coins,
   Edit3,
   Globe,
-  Hourglass,
   Wallet,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
@@ -27,7 +26,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Your Profile",
-  description: "Your Bountix profile, status, and early-access gate.",
+  description: "Your Bountix profile, status, and task access.",
 };
 
 async function getSessionAndProfile(): Promise<
@@ -68,7 +67,6 @@ export default async function DashboardProfilePage() {
   }
 
   const isAdmin = profile.role === "admin";
-  const canUse = profile.can_use_platform || isAdmin;
 
   return (
     <main className="comic-page min-h-screen overflow-hidden text-[#140625]">
@@ -177,33 +175,18 @@ export default async function DashboardProfilePage() {
           </article>
 
           <aside className="grid h-fit gap-4">
-            <div
-              className={`comic-card-soft p-5 ${
-                canUse ? "bg-[#dff7e6]" : "bg-[#f2e6ff]"
-              }`}
-            >
+            <div className="comic-card-soft bg-[#dff7e6] p-5">
               <div className="flex items-center gap-2">
-                {canUse ? (
-                  <BadgeCheck
-                    aria-hidden="true"
-                    className="h-5 w-5 text-[#1f6b3a]"
-                  />
-                ) : (
-                  <Hourglass
-                    aria-hidden="true"
-                    className="h-5 w-5 text-[#7c3cff]"
-                  />
-                )}
+                <BadgeCheck
+                  aria-hidden="true"
+                  className="h-5 w-5 text-[#1f6b3a]"
+                />
                 <h2 className="text-lg font-black text-[#140625]">
-                  {canUse
-                    ? t("dashboard.profile.fullAccess")
-                    : t("early.accessPending")}
+                  {t("dashboard.profile.fullAccess")}
                 </h2>
               </div>
               <p className="mt-3 text-sm font-bold leading-6 text-[#3c214b]">
-                {canUse
-                  ? t("dashboard.profile.fullAccessBody")
-                  : t("dashboard.profile.pendingBody")}
+                {t("dashboard.profile.fullAccessBody")}
               </p>
               {isAdmin ? (
                 <p className="mt-3 inline-flex items-center gap-1.5 rounded-md border-2 border-[#140625] bg-white px-2 py-0.5 text-[0.65rem] font-black uppercase text-[#140625] shadow-[2px_2px_0_#140625]">

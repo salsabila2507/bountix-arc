@@ -70,14 +70,17 @@ bandwidth. These rules keep us well under those limits.
 
 ---
 
-## 3. Waitlist Is Sacred
+## 3. Waitlist Is Legacy
 
 - `public.waitlist` table and its rows must **never** be dropped,
   truncated, altered destructively, renamed, or mass-updated.
 - Adding new columns is OK (and was already done for the 4 social
   confirmations) — but only via a reviewed SQL migration file.
-- The `/waitlist` route + form must remain functional at all times,
-  regardless of what new features ship.
+- Bountix public access is now a soft-open signup flow. `/waitlist` may
+  remain as a legacy route, but the active public path should redirect
+  to signup or the main platform.
+- Waitlist state must not be used as the main access gate. Keep
+  Early Contributor gating only for tasks marked Early Contributors only.
 
 ---
 

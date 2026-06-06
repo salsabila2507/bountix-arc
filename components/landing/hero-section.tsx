@@ -176,14 +176,14 @@ export function HeroSection() {
             </p>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <ButtonLink href="/waitlist" className="sm:min-w-44">
-                Join Waitlist
+              <ButtonLink href="/signup" className="sm:min-w-44">
+                Sign up
               </ButtonLink>
               <ButtonLink
                 href="/tasks"
                 className="bg-[#ffdd3d] text-[#140625] hover:bg-[#38e7ff]"
               >
-                Explore Preview
+                Browse tasks
               </ButtonLink>
             </div>
 

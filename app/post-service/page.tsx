@@ -21,7 +21,8 @@ export default function PostServicePage() {
           </h1>
           <p className="mt-5 max-w-xl text-base font-semibold leading-8 text-[#5a3b66]">
             This is an early access preview of how creators will package
-            repeatable work. Listing opens to waitlist members at launch.
+            repeatable work. Sign up to create, apply, submit, chat, and earn
+            through tasks.
           </p>
           <div className="mt-8 grid max-w-xl gap-3 text-sm font-black text-[#140625] sm:grid-cols-3">
             {["Scope", "Starting price", "Inquiry flow"].map((item) => (

@@ -113,10 +113,10 @@ export default async function TasksPage() {
                 </Link>
                 {!hasReal ? (
                   <Link
-                    href="/waitlist"
+                    href="/signup"
                     className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-4 py-2 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625] transition hover:bg-[#38e7ff]"
                   >
-                    {t("common.joinWaitlist")}
+                    {t("common.createAccount")}
                   </Link>
                 ) : null}
                 <span className="inline-flex min-h-11 items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-4 py-2 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625]">

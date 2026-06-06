@@ -17,7 +17,6 @@ import {
   PaymentBadge,
   StatusBadge,
   TaskTypeBadge,
-  WaitlistOnlyBadge,
 } from "@/components/marketplace/badges";
 import { SubmissionForm } from "@/components/marketplace/submission-form";
 import { ApplyForm } from "@/components/marketplace/apply-form";
@@ -79,7 +78,6 @@ async function loadActorContext(taskId: string) {
       return {
         userId: null as string | null,
         isAdmin: false,
-        canUse: false,
         hasEarlyContributorAccess: false,
         ownApplication: null as DbApplication | null,
         ownSubmissions: [] as DbSubmission[],
@@ -89,12 +87,11 @@ async function loadActorContext(taskId: string) {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("id, role, can_use_platform, is_early_contributor")
+      .select("id, role, is_early_contributor")
       .eq("id", user.id)
       .maybeSingle();
 
     const isAdmin = profile?.role === "admin";
-    const canUse = (profile?.can_use_platform ?? false) || isAdmin;
     const hasEarlyContributorAccess =
       (profile?.is_early_contributor ?? false) || isAdmin;
 
@@ -118,7 +115,6 @@ async function loadActorContext(taskId: string) {
     return {
       userId: user.id,
       isAdmin,
-      canUse,
       hasEarlyContributorAccess,
       ownApplication: (app as DbApplication | null) ?? null,
       ownSubmissions,
@@ -128,7 +124,6 @@ async function loadActorContext(taskId: string) {
     return {
       userId: null as string | null,
       isAdmin: false,
-      canUse: false,
       hasEarlyContributorAccess: false,
       ownApplication: null as DbApplication | null,
       ownSubmissions: [] as DbSubmission[],
@@ -391,12 +386,10 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                   app={ctx.ownApplication}
                   submissions={ctx.ownSubmissions}
                   taskClosed={isClosed}
-                  canSubmitWork={ctx.canUse && canWorkTask}
+                  canSubmitWork={canWorkTask}
                   workBlockedReason={
                     requiresEarlyContributor && !canWorkTask
                       ? "early_contributor"
-                      : !ctx.canUse
-                        ? "early_access"
                       : null
                   }
                   locale={locale}
@@ -409,14 +402,7 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                   </p>
                 </div>
               ) : !canWorkTask ? (
-                <WorkGateNotice reason="early_contributor" locale={locale} />
-              ) : !ctx.canUse ? (
-                <div className="comic-card-soft bg-[#f2e6ff] p-5">
-                  <h2 className="text-lg font-black text-[#140625]">{t("early.accessPending")}</h2>
-                  <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-                    {t("early.applyingUnlocks")}
-                  </p>
-                </div>
+                <WorkGateNotice locale={locale} />
               ) : (
                 <ApplyForm taskId={dbTask.id} locale={locale} />
               )}
@@ -464,7 +450,6 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                 {previewTask.accessLevel === "early_contributor" ? (
                   <EarlyContributorsOnlyBadge locale={locale} />
                 ) : null}
-                <WaitlistOnlyBadge locale={locale} />
               </div>
 
               <div className="mt-5 rounded-lg border-2 border-[#140625] bg-[#f1d8ff] px-4 py-3 text-sm font-black leading-6 text-[#140625] shadow-[4px_4px_0_#140625]">
@@ -543,7 +528,7 @@ export default async function TaskDetailPage({ params }: RouteParams) {
               <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
                 {t("taskDetail.applyPreviewBody")}
               </p>
-              <Link href="/waitlist" className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ffdd3d] px-4 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#38e7ff]">
+              <Link href="/signup" className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ffdd3d] px-4 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#38e7ff]">
                 <Users aria-hidden="true" className="h-4 w-4" />
                 {t("taskDetail.joinWaitlistStart")}
               </Link>
@@ -569,7 +554,7 @@ function ApplicationStatusCard({
   submissions: DbSubmission[];
   taskClosed: boolean;
   canSubmitWork: boolean;
-  workBlockedReason: "early_contributor" | "early_access" | null;
+  workBlockedReason: "early_contributor" | null;
   locale: Locale;
 }) {
   const t = createTranslator(locale);
@@ -614,7 +599,7 @@ function ApplicationStatusCard({
         <SubmitWorkForm applicationId={app.id} locale={locale} />
       ) : null}
       {app.status === "accepted" && !latest && !canSubmitWork && workBlockedReason ? (
-        <WorkGateNotice reason={workBlockedReason} locale={locale} />
+        <WorkGateNotice locale={locale} />
       ) : null}
 
       {latest ? (
@@ -685,42 +670,27 @@ function ApplicationStatusCard({
       latest.status === "revision_requested" &&
       !canSubmitWork &&
       workBlockedReason ? (
-        <WorkGateNotice reason={workBlockedReason} locale={locale} />
+        <WorkGateNotice locale={locale} />
       ) : null}
     </>
   );
 }
 
 function WorkGateNotice({
-  reason,
   locale,
 }: {
-  reason: "early_contributor" | "early_access";
   locale: Locale;
 }) {
   const t = createTranslator(locale);
 
-  if (reason === "early_contributor") {
-    return (
-      <div className="comic-card-soft bg-[#f1d8ff] p-5">
-        <LockKeyhole
-          aria-hidden="true"
-          className="h-5 w-5 text-[#7c3cff]"
-        />
-        <p className="mt-2 text-sm font-black leading-6 text-[#140625]">
-          {t("early.onlyContributorsCanWork")}
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="comic-card-soft bg-[#f2e6ff] p-5">
-      <h2 className="text-lg font-black text-[#140625]">
-        {t("early.accessPending")}
-      </h2>
-      <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-        {t("early.submittingUnlocks")}
+    <div className="comic-card-soft bg-[#f1d8ff] p-5">
+      <LockKeyhole
+        aria-hidden="true"
+        className="h-5 w-5 text-[#7c3cff]"
+      />
+      <p className="mt-2 text-sm font-black leading-6 text-[#140625]">
+        {t("early.onlyContributorsCanWork")}
       </p>
     </div>
   );

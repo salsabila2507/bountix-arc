@@ -187,10 +187,7 @@ function parseTaskInput(formData: FormData): {
   };
 }
 
-/**
- * Read role + can_use_platform via dedicated query.
- * Cheap (single row, primary key, RLS allows owner read).
- */
+/** Read actor role via dedicated query. */
 async function loadActor() {
   const supabase = await createClient();
   const {
@@ -200,16 +197,14 @@ async function loadActor() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, role, can_use_platform")
+    .select("id, role")
     .eq("id", user.id)
     .maybeSingle();
 
   return {
     supabase,
     user,
-    profile: profile as
-      | { id: string; role: string; can_use_platform: boolean }
-      | null,
+    profile: profile as | { id: string; role: string } | null,
   };
 }
 
@@ -227,15 +222,6 @@ export async function createTaskAction(
   }
 
   const isAdmin = profile.role === "admin";
-  const canCreate = profile.can_use_platform || isAdmin;
-
-  if (!canCreate) {
-    return {
-      status: "error",
-      message:
-        "Your account does not have create access yet. Wait for early access to unlock.",
-    };
-  }
 
   const { data, fieldErrors } = parseTaskInput(formData);
   if (Object.keys(fieldErrors ?? {}).length > 0) {
@@ -323,15 +309,6 @@ export async function updateTaskAction(
   }
 
   const isAdmin = profile.role === "admin";
-  const canEdit = profile.can_use_platform || isAdmin;
-
-  if (!canEdit) {
-    return {
-      status: "error",
-      message:
-        "Your account does not have edit access yet. Wait for early access to unlock.",
-    };
-  }
 
   const { data, fieldErrors } = parseTaskInput(formData);
   if (Object.keys(fieldErrors ?? {}).length > 0) {

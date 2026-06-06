@@ -1,10 +1,10 @@
 # Bountix
 
-Phase 1 waitlist landing page for [bountix.xyz](https://bountix.xyz).
+Public soft-open task marketplace for [bountix.xyz](https://bountix.xyz).
 
 > **Read before contributing:** [`docs/constraints.md`](docs/constraints.md) —
 > Supabase free-tier rules, payment direction (USDC on Base only),
-> waitlist protection, migration policy, and design lock.
+> legacy waitlist protection, migration policy, and design lock.
 
 ## Stack
 
@@ -12,7 +12,8 @@ Phase 1 waitlist landing page for [bountix.xyz](https://bountix.xyz).
 - TypeScript
 - Tailwind CSS
 - Framer Motion
-- Supabase waitlist storage
+- Supabase auth, profiles, tasks, applications, submissions, messages, and
+  legacy waitlist storage
 - Vercel-ready deployment
 
 ## Local Setup
@@ -45,27 +46,9 @@ uses the older key naming.
 
 ## Supabase Setup
 
-Create this table in the Supabase SQL Editor:
-
-```sql
-create table if not exists public.waitlist (
-  id uuid primary key default gen_random_uuid(),
-  name text not null,
-  email text unique not null,
-  telegram_username text not null,
-  role text not null,
-  specialty text,
-  created_at timestamp with time zone default now()
-);
-
-alter table public.waitlist enable row level security;
-
-create policy "Allow public waitlist inserts"
-on public.waitlist
-for insert
-to anon
-with check (true);
-```
+Apply SQL files from `supabase/migrations/` in order. The old
+`public.waitlist` table is retained for history, but signup is the active
+public access path.
 
 ## Deploying to Vercel
 

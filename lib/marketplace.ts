@@ -73,7 +73,7 @@ export const tasks: Task[] = [
   },
   {
     id: "task-landing-qa",
-    title: "Run mobile QA pass across Bountix landing and waitlist",
+    title: "Run mobile QA pass across Bountix landing and signup",
     summary:
       "Audit visual layout, form states, copy issues, and edge-case responsiveness across common mobile widths.",
     budget: "180 USDC",

@@ -4,7 +4,7 @@ import {
   NegotiableBadge,
   PaymentBadge,
   TaskTypeBadge,
-  WaitlistOnlyBadge,
+  AccessBadge,
 } from "@/components/marketplace/badges";
 import {
   DEFAULT_LOCALE,
@@ -49,7 +49,7 @@ export function ServiceCard({
           <TaskTypeBadge type="service" locale={locale} />
           <PaymentBadge type={service.paymentType} locale={locale} />
           <NegotiableBadge negotiable={service.negotiable} locale={locale} />
-          <WaitlistOnlyBadge variant="early" locale={locale} />
+          <AccessBadge variant="early" locale={locale} />
         </div>
         <div className="mt-5 flex items-start justify-between gap-4">
           <div className="flex min-w-0 items-start gap-3">
@@ -92,7 +92,7 @@ export function ServiceCard({
             type="button"
             disabled
             aria-disabled="true"
-            title="Bountix is in early access"
+            title="Service requests are preview-only"
             className="inline-flex min-h-10 cursor-not-allowed items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-3 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] opacity-90"
           >
             <MessageSquareText

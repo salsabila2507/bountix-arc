@@ -28,7 +28,7 @@ async function loadActor() {
   if (!user) return null;
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, username, role, can_use_platform")
+    .select("id, username, role")
     .eq("id", user.id)
     .maybeSingle();
   return { user, profile };

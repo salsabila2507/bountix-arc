@@ -336,10 +336,10 @@ export default async function Home() {
             <div className="flex items-center gap-2">
               <LanguageSwitcher locale={locale} className="hidden sm:inline-flex" />
               <ButtonLink
-                href="/waitlist"
+                href="/signup"
                 className="min-h-10 bg-[#ff4fb8] px-3 py-2 text-xs sm:px-4"
               >
-                {t("common.joinWaitlist")}
+                {t("common.createAccount")}
               </ButtonLink>
             </div>
           </div>
@@ -405,8 +405,8 @@ export default async function Home() {
                 <ComicButton href="/post-task" variant="yellow">
                   {t("common.postTask")}
                 </ComicButton>
-                <ComicButton href="/waitlist" variant="white">
-                  {t("common.joinWaitlist")}
+                <ComicButton href="/signup" variant="white">
+                  {t("common.createAccount")}
                 </ComicButton>
               </div>
             </div>
@@ -708,8 +708,8 @@ export default async function Home() {
                 <ComicButton href="/post-task" variant="yellow">
                   {t("common.postTask")}
                 </ComicButton>
-                <ComicButton href="/waitlist" variant="white">
-                  {t("common.joinWaitlist")}
+                <ComicButton href="/signup" variant="white">
+                  {t("common.createAccount")}
                 </ComicButton>
                 <ComicButton href={telegramGroupUrl} variant="cyan">
                   {t("common.joinTelegram")}

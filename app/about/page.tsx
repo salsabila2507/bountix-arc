@@ -40,8 +40,8 @@ export default function AboutPage() {
                 Bountix is a task marketplace for Web3 projects, creators, and communities.
               </h1>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-8 text-[#3c214b] sm:text-lg">
-                An early-access task marketplace. Approved users create,
-                apply to, submit, and review tasks. Bountix and partners
+                Bountix is open in early access. Signed-in users can create,
+                apply to, submit, chat, and review tasks. Bountix and partners
                 publish official tasks, campaigns, announcements, and
                 giveaways. Rewards can be paid in USDC on Base through manual
                 payment or Base escrow.
@@ -68,10 +68,10 @@ export default function AboutPage() {
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
               </Link>
               <Link
-                href="/waitlist"
+                href="/signup"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-5 py-3 text-sm font-black uppercase text-[#140625] shadow-[5px_5px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#38e7ff]"
               >
-                Join waitlist
+                Sign up
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
               </Link>
             </div>
@@ -98,7 +98,7 @@ export default function AboutPage() {
             </span>
             <h3 className="mt-4 text-lg font-black uppercase">Solution</h3>
             <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-              Bountix is an early-access task marketplace. Approved users
+              Bountix is open in early access. Signed-in users
               create tasks, applicants pitch, accepted workers ship, and task
               creators review with approve, revision, or reject. Rewards can
               be paid in USDC on Base through manual payment or Base escrow.
@@ -125,21 +125,21 @@ export default function AboutPage() {
             What works today
           </h2>
           <p className="mt-3 max-w-3xl text-sm font-bold leading-6 text-[#5a3b66]">
-            Bountix is live in early access. Approved users can create, apply,
-            submit, and review tasks. Rewards can be paid in USDC on Base
-            through manual payment or Base escrow.
+            Bountix is open in early access. Signed-in users can create, apply,
+            submit, chat, and review tasks. Rewards can be paid in USDC on
+            Base through manual payment or Base escrow.
           </p>
           <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[
               ["Email auth via Supabase", "Sign up, log in, log out. Public and owner profile views with username, bio, skills, and Base wallet field."],
-              ["can_use_platform gate", "Admin-controlled approval gate. Only approved profiles can create tasks or apply."],
+              ["Public soft open", "Signed-in profiles can create tasks, apply, submit, chat, and use payment flows."],
               ["Task lifecycle", "Create → open → in-progress → submitted → completed / cancelled. Owner edit + delete, per-user drafts."],
               ["Applications", "Workers apply, withdraw, get accepted or rejected. One application per (task, user)."],
               ["Submissions", "Accepted workers submit external delivery URLs and notes. No file uploads. Links only."],
               ["Review flow", "Owners and admins approve, request a revision, or reject with feedback notes."],
               ["Admin official content", "official_task, giveaway, campaign, announcement, and update. Admin-only at the database layer."],
               ["Secure access controls", "Role-based permissions protect admin tools, task actions, applications, and submissions."],
-              ["Waitlist remains", "The original waitlist flow with social confirmations is still live and untouched by the MVP."],
+              ["Waitlist preserved", "Old waitlist data and tables stay intact; the active access path is signup."],
             ].map(([title, body]) => (
               <li
                 key={title}
@@ -189,10 +189,10 @@ export default function AboutPage() {
               Honest status
             </h3>
             <ul className="mt-3 grid gap-2 text-sm font-semibold leading-6 text-[#3c214b]">
-              <li>Live MVP in early access. Admin approval per user.</li>
-              <li>Demo / official tasks are seeded by Bountix admins.</li>
+              <li>Live MVP in early access. Signup is open for public soft open.</li>
+              <li>Demo / fake / test tasks stay Early Contributors only.</li>
               <li>Rewards can be paid in USDC on Base through manual payment or Base escrow.</li>
-              <li>No realtime chat, no file uploads, no analytics tables. Free-tier-friendly by design.</li>
+              <li>No file uploads, no analytics tables. Free-tier-friendly by design.</li>
             </ul>
           </article>
         </div>
@@ -208,12 +208,12 @@ export default function AboutPage() {
           </h2>
           <p className="mt-3 max-w-3xl text-sm font-bold leading-6 text-white/85 sm:text-base">
             Base escrow and manual payment are available now. The next work is
-            expanding approved users, services, safety, and multilingual
+            growing users, services, safety, and multilingual
             coverage on top of the existing marketplace.
           </p>
           <ol className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <RoadmapStep n="1" title="USDC escrow on Base" body="Base mainnet escrow is deployed and wired for fund and release flows." />
-            <RoadmapStep n="2" title="Approved beta users" body="Onboard the next wave of creators and operators. Build initial task liquidity." />
+            <RoadmapStep n="2" title="Public soft open" body="Let signed-in creators and operators create, apply, submit, chat, and build initial task liquidity." />
             <RoadmapStep n="3" title="Services + deals" body="Long-running creator services and negotiated deals on top of the marketplace." />
             <RoadmapStep n="4" title="Reporting + safety" body="Report task / profile / submission. Admin review queue and audit trail." />
             <RoadmapStep n="5" title="Multilingual EN/ID/ZH" body="Profile language already supports en/id/zh. Wire UI strings." />
@@ -224,7 +224,7 @@ export default function AboutPage() {
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
           <Stat
             title="Status"
-            body="Phase 3 MVP: tasks, applications, submissions, manual payment copy, and Base escrow flows are live in early access."
+            body="Phase 3 MVP: tasks, applications, submissions, chat, manual payment copy, and Base escrow flows are live in early access."
             chip="Early access"
             chipColor="bg-[#ff4fb8] text-white"
             icon={<Hourglass className="h-4 w-4" />}

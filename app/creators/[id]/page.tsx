@@ -140,16 +140,16 @@ export default async function CreatorDetailPage({
                 Request a service
               </h2>
               <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-                Bountix is live in early access. Approved users can send scope,
-                timing, and budget. Rewards can be paid in USDC on Base through
-                manual payment or Base escrow.
+                Bountix is open in early access. Sign up to create, apply,
+                submit, chat, and earn through tasks. Rewards can be paid in
+                USDC on Base through manual payment or Base escrow.
               </p>
               <Link
-                href="/waitlist"
+                href="/signup"
                 className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#38e7ff] px-4 text-sm font-black uppercase text-[#140625] shadow-[4px_4px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#ffdd3d]"
               >
                 <MessageSquareText aria-hidden="true" className="h-4 w-4" />
-                Join waitlist to request
+                Sign up to request
               </Link>
             </div>
 
