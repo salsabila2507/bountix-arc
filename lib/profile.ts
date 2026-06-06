@@ -38,6 +38,7 @@ export type Profile = {
   preferred_language: ProfileLanguage;
   can_use_platform: boolean;
   is_early_contributor: boolean;
+  referral_code: string;
   created_at: string;
   updated_at: string;
 };

@@ -12,7 +12,7 @@ function FieldError({ message }: { message?: string }) {
   return <p className="mt-2 text-sm font-bold text-[#c42463]">{message}</p>;
 }
 
-export function SignupForm() {
+export function SignupForm({ referralCode }: { referralCode?: string }) {
   const [state, formAction, isPending] = useActionState<
     AuthFormState,
     FormData
@@ -20,6 +20,9 @@ export function SignupForm() {
 
   return (
     <form action={formAction} className="comic-card bg-white p-5 sm:p-6">
+      {referralCode ? (
+        <input type="hidden" name="referral_code" value={referralCode} />
+      ) : null}
       <p className="comic-chip bg-[#38e7ff]">Create account</p>
       <h1 className="mt-5 text-2xl font-black text-[#140625]">
         Sign up for Bountix
@@ -91,7 +94,7 @@ export function SignupForm() {
         <div className="h-px flex-1 bg-[#140625]/20" />
       </div>
 
-      <OAuthButtons />
+      <OAuthButtons referralCode={referralCode} />
 
       <p className="mt-4 text-center text-sm font-medium leading-6 text-[#5a3b66]">
         Already on Bountix?{" "}

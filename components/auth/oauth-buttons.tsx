@@ -4,7 +4,7 @@ import { useState } from "react";
 import { LoaderCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
-export function OAuthButtons() {
+export function OAuthButtons({ referralCode }: { referralCode?: string }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,10 +25,14 @@ export function OAuthButtons() {
 
     try {
       const supabase = createClient();
+      const redirectUrl = new URL("/auth/callback", getRedirectBase());
+      if (referralCode) {
+        redirectUrl.searchParams.set("ref", referralCode);
+      }
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${getRedirectBase()}/auth/callback`,
+          redirectTo: redirectUrl.toString(),
         },
       });
 

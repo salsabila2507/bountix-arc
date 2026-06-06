@@ -2,7 +2,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { SignupForm } from "@/components/auth/signup-form";
+import { normalizeReferralCode } from "@/lib/referrals";
 import { createClient } from "@/lib/supabase/server";
+
+type SignupPageProps = {
+  searchParams: Promise<{
+    ref?: string | string[];
+  }>;
+};
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +18,11 @@ export const metadata = {
   description: "Create your Bountix account.",
 };
 
-export default async function SignupPage() {
+export default async function SignupPage({ searchParams }: SignupPageProps) {
+  const params = await searchParams;
+  const referralParam = Array.isArray(params.ref) ? params.ref[0] : params.ref;
+  const referralCode = normalizeReferralCode(referralParam ?? null);
+
   try {
     const supabase = await createClient();
     const {
@@ -36,7 +47,7 @@ export default async function SignupPage() {
         </Link>
 
         <section className="mx-auto mt-10 max-w-md">
-          <SignupForm />
+          <SignupForm referralCode={referralCode} />
         </section>
       </div>
     </main>

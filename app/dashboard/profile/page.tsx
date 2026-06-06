@@ -6,12 +6,20 @@ import {
   BadgeCheck,
   Coins,
   Edit3,
+  Gift,
   Globe,
+  Link as LinkIcon,
+  Users,
   Wallet,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { createTranslator } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
+import {
+  getReferralLink,
+  getReferralReviewStatus,
+  type ReferralReviewStatus,
+} from "@/lib/referrals";
 import { createClient } from "@/lib/supabase/server";
 import {
   PROFILE_LANGUAGE_LABEL,
@@ -22,6 +30,19 @@ import {
   type SocialLinks,
 } from "@/lib/profile";
 
+type ReferredUser = {
+  id: string;
+  username: string;
+  display_name: string | null;
+  created_at: string;
+  referred_at: string;
+};
+
+type ReferralSummary = {
+  totalInvited: number;
+  referredUsers: ReferredUser[];
+};
+
 export const dynamic = "force-dynamic";
 
 export const metadata = {
@@ -30,7 +51,7 @@ export const metadata = {
 };
 
 async function getSessionAndProfile(): Promise<
-  { profile: Profile } | { profile: null }
+  { profile: Profile; referrals: ReferralSummary } | { profile: null }
 > {
   const supabase = await createClient();
   const {
@@ -41,12 +62,49 @@ async function getSessionAndProfile(): Promise<
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "id, username, display_name, bio, avatar_url, role, skills, wallet_address, social_links, preferred_language, can_use_platform, is_early_contributor, created_at, updated_at",
+      "id, username, display_name, bio, avatar_url, role, skills, wallet_address, social_links, preferred_language, can_use_platform, is_early_contributor, referral_code, created_at, updated_at",
     )
     .eq("id", user.id)
     .maybeSingle();
 
   if (error || !data) return { profile: null };
+  const { data: referralRows, count } = await supabase
+    .from("referrals")
+    .select("referred_id, created_at", { count: "exact" })
+    .eq("referrer_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(5);
+
+  const rows = (referralRows ?? []) as {
+    referred_id: string;
+    created_at: string;
+  }[];
+  const referredIds = rows.map((row) => row.referred_id);
+  const { data: referredProfiles } = referredIds.length
+    ? await supabase
+        .from("profiles")
+        .select("id, username, display_name, created_at")
+        .in("id", referredIds)
+    : { data: [] };
+  const referredById = new Map(
+    ((referredProfiles ?? []) as {
+      id: string;
+      username: string;
+      display_name: string | null;
+      created_at: string;
+    }[]).map((referred) => [referred.id, referred]),
+  );
+  const referredUsers = rows
+    .map((row) => {
+      const referred = referredById.get(row.referred_id);
+      if (!referred) return null;
+      return {
+        ...referred,
+        referred_at: row.created_at,
+      };
+    })
+    .filter((referred): referred is ReferredUser => referred !== null);
+
   return {
     profile: {
       ...data,
@@ -55,16 +113,39 @@ async function getSessionAndProfile(): Promise<
       social_links: (data.social_links ?? {}) as SocialLinks,
       skills: data.skills ?? [],
     } as Profile,
+    referrals: {
+      totalInvited: count ?? rows.length,
+      referredUsers,
+    },
   };
+}
+
+function getReferralStatusLabel(
+  status: ReferralReviewStatus,
+  t: ReturnType<typeof createTranslator>,
+) {
+  if (status === "approved") return t("referral.status.approved");
+  if (status === "pending_review") {
+    return t("referral.status.pendingReview");
+  }
+  return t("referral.status.inviteToQualify");
 }
 
 export default async function DashboardProfilePage() {
   const locale = await getRequestLocale();
   const t = createTranslator(locale);
-  const { profile } = await getSessionAndProfile();
-  if (!profile) {
+  const result = await getSessionAndProfile();
+  if (!result.profile) {
     redirect("/login");
   }
+  const profile = result.profile;
+  const referrals = result.referrals;
+  const referralLink = getReferralLink(profile.referral_code);
+  const referralReviewStatus = getReferralReviewStatus({
+    invitedCount: referrals.totalInvited,
+    isEarlyContributor: profile.is_early_contributor,
+  });
+  const referralStatusLabel = getReferralStatusLabel(referralReviewStatus, t);
 
   const isAdmin = profile.role === "admin";
 
@@ -192,6 +273,91 @@ export default async function DashboardProfilePage() {
                 <p className="mt-3 inline-flex items-center gap-1.5 rounded-md border-2 border-[#140625] bg-white px-2 py-0.5 text-[0.65rem] font-black uppercase text-[#140625] shadow-[2px_2px_0_#140625]">
                   {t("dashboard.profile.adminBypass")}
                 </p>
+              ) : null}
+            </div>
+
+            <div className="comic-card-soft bg-[#f1d8ff] p-5">
+              <div className="flex items-center gap-2">
+                <Gift aria-hidden="true" className="h-5 w-5 text-[#7c3cff]" />
+                <h2 className="text-lg font-black text-[#140625]">
+                  {t("referral.inviteFriends")}
+                </h2>
+              </div>
+              <p className="mt-3 text-sm font-bold leading-6 text-[#3c214b]">
+                {t("referral.earnChance")}
+              </p>
+              <p className="mt-1 text-sm font-bold leading-6 text-[#3c214b]">
+                {t("referral.earlyTasks")}
+              </p>
+
+              <div className="mt-4 grid gap-3">
+                <div>
+                  <p className="text-xs font-black uppercase text-[#5a3b66]">
+                    {t("referral.code")}
+                  </p>
+                  <p className="mt-1 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-black text-[#140625] shadow-[3px_3px_0_#140625]">
+                    {profile.referral_code}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-black uppercase text-[#5a3b66]">
+                    {t("referral.link")}
+                  </p>
+                  <a
+                    href={referralLink}
+                    className="mt-1 flex items-start gap-2 break-all rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-bold text-[#7c3cff] shadow-[3px_3px_0_#140625] underline decoration-2 underline-offset-2"
+                  >
+                    <LinkIcon
+                      aria-hidden="true"
+                      className="mt-0.5 h-4 w-4 shrink-0"
+                    />
+                    {referralLink}
+                  </a>
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                <div className="rounded-lg border-2 border-[#140625] bg-[#ffdd3d] p-3 shadow-[3px_3px_0_#140625]">
+                  <p className="flex items-center gap-1.5 text-xs font-black uppercase text-[#5a3b66]">
+                    <Users aria-hidden="true" className="h-3.5 w-3.5" />
+                    {t("referral.totalInvited")}
+                  </p>
+                  <p className="mt-1 text-2xl font-black text-[#140625]">
+                    {referrals.totalInvited}
+                  </p>
+                </div>
+                <div className="rounded-lg border-2 border-[#140625] bg-white p-3 shadow-[3px_3px_0_#140625]">
+                  <p className="text-xs font-black uppercase text-[#5a3b66]">
+                    {t("referral.reviewStatus")}
+                  </p>
+                  <p className="mt-1 text-sm font-black text-[#140625]">
+                    {referralStatusLabel}
+                  </p>
+                </div>
+              </div>
+
+              {referrals.referredUsers.length > 0 ? (
+                <div className="mt-4">
+                  <p className="text-xs font-black uppercase text-[#5a3b66]">
+                    {t("referral.recentInvites")}
+                  </p>
+                  <div className="mt-2 grid gap-2">
+                    {referrals.referredUsers.map((referred) => (
+                      <Link
+                        key={referred.id}
+                        href={`/profile/${referred.username}`}
+                        className="rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-bold text-[#3c214b] shadow-[2px_2px_0_#140625] transition hover:bg-[#fffaf4]"
+                      >
+                        <span className="font-black text-[#7c3cff]">
+                          @{referred.username}
+                        </span>
+                        <span className="ml-1 text-[#5a3b66]">
+                          {referred.display_name ?? ""}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
               ) : null}
             </div>
 

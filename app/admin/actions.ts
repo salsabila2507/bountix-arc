@@ -62,6 +62,35 @@ export async function setEarlyContributorAction(formData: FormData) {
   }
 }
 
+export async function grantEarlyContributorFromReferralAction(
+  formData: FormData,
+) {
+  const profileId = String(formData.get("profile_id") ?? "");
+
+  if (!isUuid(profileId)) return;
+
+  const { supabase } = await requireAdmin();
+
+  const { data: target } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", profileId)
+    .maybeSingle();
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ is_early_contributor: true })
+    .eq("id", profileId);
+
+  if (error) return;
+
+  revalidatePath("/admin");
+  revalidatePath("/dashboard/profile");
+  if (target?.username) {
+    revalidatePath(`/profile/${target.username}`);
+  }
+}
+
 export async function createGlobalNotificationAction(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();

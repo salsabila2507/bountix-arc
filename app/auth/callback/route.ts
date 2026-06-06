@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { normalizeReferralCode } from "@/lib/referrals";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -8,6 +9,7 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get("code");
   const error = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
+  const referralCode = normalizeReferralCode(searchParams.get("ref"));
 
   // Handle OAuth errors
   if (error) {
@@ -32,7 +34,8 @@ export async function GET(request: NextRequest) {
 
   try {
     const supabase = await createClient();
-    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+    const { error: exchangeError } =
+      await supabase.auth.exchangeCodeForSession(code);
 
     if (exchangeError) {
       return NextResponse.redirect(
@@ -41,6 +44,16 @@ export async function GET(request: NextRequest) {
           request.url,
         ),
       );
+    }
+
+    if (referralCode) {
+      try {
+        await supabase.rpc("record_referral_by_code", {
+          referral_code_input: referralCode,
+        });
+      } catch {
+        // Referral tracking must not block a successful auth callback.
+      }
     }
 
     // Successful OAuth - redirect to profile

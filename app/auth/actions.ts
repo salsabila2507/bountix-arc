@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { getPublicSiteUrl, normalizeReferralCode } from "@/lib/referrals";
 import { createClient } from "@/lib/supabase/server";
 import type { AuthFormState } from "@/lib/auth-form";
 
@@ -37,20 +38,6 @@ function validatePassword(password: string) {
   };
 }
 
-function getPublicSiteUrl() {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(
-    /\/$/,
-    "",
-  );
-  if (configured?.startsWith("https://")) {
-    return configured;
-  }
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  return "https://www.bountix.xyz";
-}
-
 export async function signupAction(
   _previousState: AuthFormState,
   formData: FormData,
@@ -67,9 +54,17 @@ export async function signupAction(
 
   try {
     const supabase = await createClient();
+    const referralCode = normalizeReferralCode(formData.get("referral_code"));
     const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: referralCode
+        ? {
+            data: {
+              referral_code: referralCode,
+            },
+          }
+        : undefined,
     });
     if (error) {
       // Common: "User already registered" → 422
@@ -77,6 +72,16 @@ export async function signupAction(
         ? "That email is already registered. Try logging in instead or use the forgot password link."
         : error.message;
       return { status: "error", message: friendly };
+    }
+
+    if (referralCode) {
+      try {
+        await supabase.rpc("record_referral_by_code", {
+          referral_code_input: referralCode,
+        });
+      } catch {
+        // The auth trigger also records password-signup referrals.
+      }
     }
   } catch (error) {
     return {
