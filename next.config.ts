@@ -27,6 +27,15 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  webpack(config) {
+    config.resolve = config.resolve ?? {};
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      bufferutil: false,
+      "utf-8-validate": false,
+    };
+    return config;
+  },
   async headers() {
     return [
       {
