@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import zlib from "node:zlib";
 import { createClient } from "@/lib/supabase/server";
 
 export const TENCENT_CHAT_USER_ID_PREFIX = "bx_";
@@ -58,12 +59,13 @@ function getTencentChatSecretKey() {
   return secretKey;
 }
 
-function base64UrlEncode(input: string) {
-  return Buffer.from(input, "utf8")
+function encodeTencentUserSigPayload(payload: Record<string, unknown>) {
+  return zlib
+    .deflateSync(Buffer.from(JSON.stringify(payload), "utf8"))
     .toString("base64")
     .replace(/\+/g, "*")
     .replace(/\//g, "-")
-    .replace(/=/g, "~");
+    .replace(/=/g, "_");
 }
 
 function hmacSha256Base64(secretKey: string, content: string) {
@@ -104,7 +106,7 @@ export function createTencentChatUserSig({
     "TLS.sig": sig,
   };
 
-  return base64UrlEncode(JSON.stringify(payload));
+  return encodeTencentUserSigPayload(payload);
 }
 
 export async function loadTencentChatSession(): Promise<TencentChatSession | null> {
