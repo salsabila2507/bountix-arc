@@ -65,7 +65,7 @@ function TencentChatWorkspace({
   peers,
   initialPeerUserId,
 }: TencentChatShellProps) {
-  const { status } = useLoginState({
+  const { client, status } = useLoginState({
     SDKAppID: session.sdkAppId,
     userID: session.userId,
     userSig: session.userSig,
@@ -171,13 +171,62 @@ function TencentChatWorkspace({
 
     setIsCreating(true);
     try {
+      if (!client?.isReady()) {
+        setStatusMessage("Tencent Chat is still connecting.");
+        return;
+      }
+
+      const activeUserId = client.getMyUserID();
+      if (activeUserId !== session.userId) {
+        setStatusMessage("Tencent Chat is not ready for this user.");
+        return;
+      }
+
+      await client.TUIUser.updateMyProfile({
+        nick:
+          session.profile.display_name?.trim() ||
+          `@${session.profile.username}`,
+        avatar: session.profile.avatar_url ?? "",
+      });
+
+      const selectedPeerUserIds = selectedPeers.map(
+        (peer) => peer.tencent_user_id,
+      );
+      const peerProfilesResult = await client.TUIUser.getUserProfile({
+        userIDList: selectedPeerUserIds,
+      });
+      const registeredPeerIds = new Set(
+        (
+          (Array.isArray(peerProfilesResult.data)
+            ? peerProfilesResult.data
+            : []) as Array<{ userID?: string }>
+        )
+          .map((profile) => profile.userID)
+          .filter((userID): userID is string => Boolean(userID)),
+      );
+      if (registeredPeerIds.size !== selectedPeerUserIds.length) {
+        setStatusMessage(
+          "Selected profiles need to connect to realtime chat before a group can be created.",
+        );
+        return;
+      }
+
+      const memberList = selectedPeerUserIds.filter((userID) =>
+        registeredPeerIds.has(userID),
+      );
+
+      if (memberList.length < 2) {
+        setStatusMessage(
+          "Selected profiles need to connect to realtime chat before a group can be created.",
+        );
+        return;
+      }
+
       const conversation = await createGroupConversation({
         name: groupName.trim() || "Bountix group",
         type: TUIChatEngine.TYPES.GRP_WORK,
         joinOption: TUIChatEngine.TYPES.JOIN_OPTIONS_FREE_ACCESS,
-        memberList: selectedPeers.map((peer) => ({
-          userID: peer.tencent_user_id,
-        })),
+        memberList: memberList.map((userID) => ({ userID })),
       });
       setActiveConversation(conversation.conversationID);
       setSelectedPeerIds([]);
