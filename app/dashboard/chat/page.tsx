@@ -40,13 +40,17 @@ export default async function DashboardChatPage({ searchParams }: RouteParams) {
 
     if (user) {
       try {
-        [sessionResult, peers] = await Promise.all([
-          loadTencentChatSession(),
-          loadTencentChatPeers(),
-        ]);
+        sessionResult = await loadTencentChatSession();
       } catch {
         sessionResult = null;
-        peers = [];
+      }
+
+      if (sessionResult) {
+        try {
+          peers = await loadTencentChatPeers();
+        } catch {
+          peers = [];
+        }
       }
     }
   } catch {

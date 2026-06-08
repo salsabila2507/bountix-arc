@@ -117,9 +117,7 @@ export async function loadTencentChatSession(): Promise<TencentChatSession | nul
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select(
-      "id, username, display_name, avatar_url, role, tencent_user_id",
-    )
+    .select("id, username, display_name, avatar_url, role")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -127,7 +125,7 @@ export async function loadTencentChatSession(): Promise<TencentChatSession | nul
 
   const sdkAppId = getTencentChatAppId();
   const secretKey = getTencentChatSecretKey();
-  const userId = profile.tencent_user_id || deriveTencentChatUserId(profile.id);
+  const userId = deriveTencentChatUserId(profile.id);
   const userSig = createTencentChatUserSig({
     sdkAppId,
     userId,
@@ -160,15 +158,14 @@ export async function loadTencentChatPeers(limit = 12) {
   const { data } = await supabase
     .from("profiles")
     .select(
-      "id, username, display_name, avatar_url, role, tencent_user_id, skills",
+      "id, username, display_name, avatar_url, role, skills",
     )
     .neq("id", user.id)
     .order("created_at", { ascending: false })
     .limit(safeLimit);
 
-  return ((data ?? []) as Array<TencentChatPeer>).map((peer) => ({
+  return ((data ?? []) as Array<Omit<TencentChatPeer, "tencent_user_id">>).map((peer) => ({
     ...peer,
-    tencent_user_id:
-      peer.tencent_user_id || deriveTencentChatUserId(peer.id),
+    tencent_user_id: deriveTencentChatUserId(peer.id),
   }));
 }
