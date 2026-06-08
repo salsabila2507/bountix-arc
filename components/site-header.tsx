@@ -25,6 +25,7 @@ const authedNavLinks = [
 ] satisfies NavLink[];
 
 const authedMenuLinks: NavLink[] = [
+  { href: "/dashboard/chat", labelKey: "dashboard.nav.chat" },
   { href: "/post-task", labelKey: "common.postTask" },
   { href: "/post-service", labelKey: "common.postService" },
   { href: "/tasks", labelKey: "common.tasks" },

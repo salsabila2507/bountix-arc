@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { MessageSquareText, Send } from "lucide-react";
 import { sendTaskMessageAction } from "@/app/task-messages/actions";
 import {
@@ -18,6 +19,7 @@ type TaskChatBoxProps = {
   applicationId: string;
   submissionId?: string | null;
   currentUserId: string;
+  peerUserId?: string | null;
   messages: DbTaskMessage[];
   senderProfilesById: Map<string, SenderProfile>;
   locale: Locale;
@@ -51,6 +53,7 @@ export function TaskChatBox({
   applicationId,
   submissionId = null,
   currentUserId,
+  peerUserId = null,
   messages,
   senderProfilesById,
   locale,
@@ -72,9 +75,19 @@ export function TaskChatBox({
           />
           {t("chat.messages")}
         </h3>
-        <p className="text-xs font-bold text-[#5a3b66]">
-          {t("chat.participantsOnly")}
-        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="text-xs font-bold text-[#5a3b66]">
+            {t("chat.participantsOnly")}
+          </p>
+          {peerUserId ? (
+            <Link
+              href={`/dashboard/chat?peer=${encodeURIComponent(peerUserId)}`}
+              className="inline-flex min-h-9 items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-3 py-1.5 text-[0.65rem] font-black uppercase text-[#140625] shadow-[2px_2px_0_#140625] transition hover:bg-[#38e7ff]"
+            >
+              {t("chat.openRealtime")}
+            </Link>
+          ) : null}
+        </div>
       </div>
 
       <div className="mt-3 grid max-h-80 gap-3 overflow-y-auto pr-1">

@@ -14,6 +14,7 @@ Public soft-open task marketplace for [bountix.xyz](https://bountix.xyz).
 - Framer Motion
 - Supabase auth, profiles, tasks, applications, submissions, messages, and
   legacy waitlist storage
+- Tencent Chat UIKit React for realtime chat
 - Vercel-ready deployment
 
 ## Local Setup
@@ -39,10 +40,16 @@ Create `.env.local` for local development:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+TENCENT_CHAT_SDK_APP_ID=
+TENCENT_CHAT_SECRET_KEY=
 ```
 
 `NEXT_PUBLIC_SUPABASE_ANON_KEY` is also supported if your Supabase dashboard
 uses the older key naming.
+
+`TENCENT_CHAT_SDK_APP_ID` and `TENCENT_CHAT_SECRET_KEY` are required for the
+dashboard chat route. `SDKSecretKey` stays server-only and is never exposed to
+the browser.
 
 ## Supabase Setup
 
@@ -59,6 +66,8 @@ public access path.
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+TENCENT_CHAT_SDK_APP_ID=
+TENCENT_CHAT_SECRET_KEY=
 ```
 
 4. Deploy.

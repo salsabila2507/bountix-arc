@@ -34,6 +34,7 @@ export type Profile = {
   role: ProfileRole;
   skills: string[];
   wallet_address: string | null;
+  tencent_user_id: string;
   social_links: SocialLinks;
   preferred_language: ProfileLanguage;
   can_use_platform: boolean;

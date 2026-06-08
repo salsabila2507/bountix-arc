@@ -5,6 +5,7 @@ import {
   Coins,
   ListTodo,
   Megaphone,
+  MessageCircleMore,
   Send,
   User,
 } from "lucide-react";
@@ -76,6 +77,14 @@ export default async function DashboardPage() {
             icon={<User aria-hidden="true" className="h-5 w-5" />}
             title={t("dashboard.card.profile")}
             description={t("dashboard.card.profileBody")}
+            openLabel={t("dashboard.card.open")}
+          />
+          <DashboardCard
+            href="/dashboard/chat"
+            color="bg-[#ff4fb8] text-white"
+            icon={<MessageCircleMore aria-hidden="true" className="h-5 w-5" />}
+            title={t("dashboard.card.chat")}
+            description={t("dashboard.card.chatBody")}
             openLabel={t("dashboard.card.open")}
           />
           <DashboardCard

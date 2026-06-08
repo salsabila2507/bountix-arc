@@ -10,6 +10,7 @@ import {
 
 const dashboardLinks = [
   { href: "/dashboard", labelKey: "dashboard.nav.overview" },
+  { href: "/dashboard/chat", labelKey: "dashboard.nav.chat" },
   { href: "/dashboard/tasks", labelKey: "dashboard.nav.tasks" },
   { href: "/dashboard/services", labelKey: "dashboard.nav.services" },
   { href: "/dashboard/submissions", labelKey: "dashboard.nav.submissions" },
