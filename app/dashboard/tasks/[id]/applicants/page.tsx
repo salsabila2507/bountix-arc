@@ -50,7 +50,6 @@ type ProfileLite = {
   username: string;
   display_name: string | null;
   wallet_address: string | null;
-  tencent_user_id: string;
   social_links: {
     x?: string;
     telegram?: string;
@@ -136,11 +135,9 @@ async function loadPage(taskId: string) {
   const profilesByUser = new Map<string, ProfileLite>();
   if (profileIds.size > 0) {
     const { data: profiles } = await supabase
-    .from("profiles")
-    .select(
-      "id, username, display_name, wallet_address, tencent_user_id, social_links",
-    )
-    .in("id", Array.from(profileIds));
+      .from("profiles")
+      .select("id, username, display_name, wallet_address, social_links")
+      .in("id", Array.from(profileIds));
     for (const p of profiles ?? []) {
       profilesByUser.set(p.id, p as ProfileLite);
     }
@@ -448,7 +445,6 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                     applicationId={app.id}
                     submissionId={latestSubmissionId}
                     currentUserId={currentUserId}
-                    peerUserId={applicant?.tencent_user_id ?? null}
                     messages={chatMessages}
                     senderProfilesById={profilesByUser}
                     locale={locale}
