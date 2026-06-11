@@ -61,6 +61,12 @@ export function TaskForm({
     FormData
   >(boundAction, initialTaskFormState);
 
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    formAction(formData);
+  }
+
   const def = initialTask;
   const allowedTypes = isAdmin ? TASK_TYPES : (["user_task"] as const);
   const [rewardMode, setRewardMode] = useState<RewardMode>(
@@ -73,7 +79,7 @@ export function TaskForm({
   const isFcfs = rewardMode === "fcfs";
 
   return (
-    <form action={formAction} className="comic-card bg-white p-5 sm:p-6">
+    <form onSubmit={handleSubmit} className="comic-card bg-white p-5 sm:p-6">
       <p className="comic-chip bg-[#38e7ff]">
         {mode === "create"
           ? t("form.postTask.chipCreate")

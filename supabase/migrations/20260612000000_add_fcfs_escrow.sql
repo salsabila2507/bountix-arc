@@ -32,6 +32,15 @@ comment on column public.tasks.fcfs_winner_count is
 comment on column public.tasks.fcfs_refund_tx_hash is
   'Transaction hash of FCFS escrow refund (set when remaining budget is returned).';
 
+-- Update reward_mode CHECK constraint to include 'fcfs'.
+-- The original constraint only allowed 'fixed' and 'raffle'.
+alter table public.tasks
+  drop constraint if exists tasks_reward_mode_ck;
+
+alter table public.tasks
+  add constraint tasks_reward_mode_ck
+  check (reward_mode = any (array['fixed'::text, 'raffle'::text, 'fcfs'::text]));
+
 comment on column public.tasks.reward_mode is
   'Reward mode: fixed (standard), raffle (random winners), or fcfs (first-come first-served).';
 
