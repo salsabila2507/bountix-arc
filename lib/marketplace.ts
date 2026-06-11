@@ -52,62 +52,7 @@ export type Service = {
   paymentType: PaymentType;
 };
 
-export const tasks: Task[] = [
-  {
-    id: "task-market-map",
-    title: "Map 40 active creator communities for launch outreach",
-    summary:
-      "Build a qualified list of Discord, Telegram, and X communities with contact notes and relevance score.",
-    budget: "420 USDC",
-    paymentType: "escrow",
-    status: "completed",
-    category: "Research",
-    postedBy: "Bountix Launch",
-    location: "Remote",
-    applicants: 12,
-    submissions: 2,
-    skills: ["Research", "Community", "Spreadsheet ops"],
-    timeline: "3 days",
-    negotiable: true,
-    accessLevel: "early_contributor",
-  },
-  {
-    id: "task-landing-qa",
-    title: "Run mobile QA pass across Bountix landing and signup",
-    summary:
-      "Audit visual layout, form states, copy issues, and edge-case responsiveness across common mobile widths.",
-    budget: "180 USDC",
-    paymentType: "regular",
-    status: "completed",
-    category: "QA",
-    postedBy: "Frontend Ops",
-    location: "Remote",
-    applicants: 7,
-    submissions: 1,
-    skills: ["QA", "Mobile", "Frontend"],
-    timeline: "24 hours",
-    negotiable: false,
-    accessLevel: "early_contributor",
-  },
-  {
-    id: "task-operator-playbook",
-    title: "Draft the first operator quality playbook",
-    summary:
-      "Turn our task execution standards into a concise playbook for incoming operators and reviewers.",
-    budget: "650 USDC",
-    paymentType: "escrow",
-    status: "completed",
-    category: "Operations",
-    postedBy: "Protocol Ops",
-    location: "Remote",
-    applicants: 18,
-    submissions: 4,
-    skills: ["Docs", "Ops", "Workflow design"],
-    timeline: "5 days",
-    negotiable: true,
-    accessLevel: "early_contributor",
-  },
-];
+export const tasks: Task[] = [];
 
 export const creators: Creator[] = [];
 

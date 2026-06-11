@@ -106,4 +106,49 @@ export const completedWork: CompletedWork[] = [
     result:
       "Delivered banner in two sizes (X header and Telegram) plus a PNG export. Team confirmed it matched brand guidelines.",
   },
+  {
+    id: "cw-task-market-map",
+    title: "Map 40 active creator communities for launch outreach",
+    description:
+      "Build a qualified list of Discord, Telegram, and X communities with contact notes and relevance score.",
+    rewardAmount: 420,
+    rewardCurrency: "USDC",
+    paymentMethod: "manual",
+    status: "completed",
+    taskType: "Research",
+    project: "Bountix Launch",
+    worker: "@launchmap",
+    result:
+      "Delivered a spreadsheet of 42 qualified communities with contact methods, member counts, and relevance scores. All entries verified for active participation.",
+  },
+  {
+    id: "cw-task-landing-qa",
+    title: "Run mobile QA pass across Bountix landing and signup",
+    description:
+      "Audit visual layout, form states, copy issues, and edge-case responsiveness across common mobile widths.",
+    rewardAmount: 180,
+    rewardCurrency: "USDC",
+    paymentMethod: "manual",
+    status: "completed",
+    taskType: "QA",
+    project: "Frontend Ops",
+    worker: "@mobileaudit",
+    result:
+      "Identified 12 issues across mobile widths including layout shifts, missing form validation states, and copy truncation. All items documented with screenshots and fix recommendations.",
+  },
+  {
+    id: "cw-task-operator-playbook",
+    title: "Draft the first operator quality playbook",
+    description:
+      "Turn our task execution standards into a concise playbook for incoming operators and reviewers.",
+    rewardAmount: 650,
+    rewardCurrency: "USDC",
+    paymentMethod: "manual",
+    status: "completed",
+    taskType: "Operations",
+    project: "Protocol Ops",
+    worker: "@opsdraft",
+    result:
+      "Delivered a 15-page playbook covering task execution standards, review criteria, escalation paths, and quality benchmarks. Approved by the protocol team for onboarding.",
+  },
 ];
