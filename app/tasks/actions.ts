@@ -197,12 +197,19 @@ function parseTaskInput(formData: FormData): {
     }
   }
 
-  const start_date = start_date_raw
-    ? new Date(start_date_raw).toISOString()
-    : null;
-  const end_date = end_date_raw
-    ? new Date(end_date_raw).toISOString()
-    : null;
+  let start_date: string | null = null;
+  let end_date: string | null = null;
+  try {
+    start_date = start_date_raw
+      ? new Date(start_date_raw).toISOString()
+      : null;
+    end_date = end_date_raw
+      ? new Date(end_date_raw).toISOString()
+      : null;
+  } catch {
+    if (start_date_raw) fieldErrors.start_date = "Invalid start date.";
+    if (end_date_raw) fieldErrors.end_date = "Invalid end date.";
+  }
   if (start_date && end_date && new Date(end_date) < new Date(start_date)) {
     fieldErrors.end_date = "End date must be on or after start date.";
   }
@@ -381,19 +388,31 @@ export async function updateTaskAction(
   }
   if (!isAdmin) task_type = "user_task";
 
-  // If the task is already escrow-funded, its payment method is locked —
-  // funds are committed on-chain, so it cannot revert to manual.
+  // Load full task state for ownership + funding checks.
   const { data: existing } = await supabase
     .from("tasks")
-    .select("payment_method, escrow_tx_hash")
+    .select("creator_id, payment_method, escrow_tx_hash, status")
     .eq("id", taskId)
     .maybeSingle();
-  const isFunded = Boolean(
-    (existing as { escrow_tx_hash: string | null } | null)?.escrow_tx_hash,
-  );
+
+  if (!existing) {
+    return { status: "error", message: "Task not found." };
+  }
+
+  if (!isAdmin && existing.creator_id !== user.id) {
+    return {
+      status: "error",
+      message: "You can only edit your own tasks.",
+    };
+  }
+
+  const isFunded = Boolean(existing.escrow_tx_hash);
   const payment_method: PaymentMethod = isFunded
     ? "escrow_base"
     : data.payment_method;
+
+  // Lock status for escrow-funded tasks — on-chain state depends on it.
+  const status = isFunded ? existing.status : data.status;
 
   const { error } = await supabase
     .from("tasks")
@@ -404,7 +423,7 @@ export async function updateTaskAction(
       reward_amount: data.reward_amount,
       reward_currency: "USDC",
       chain: "base",
-      status: data.status,
+      status,
       task_type,
       external_link: data.external_link,
       start_date: data.start_date,
@@ -490,19 +509,22 @@ export async function markTaskEscrowFundedAction(
     return { ok: false, message: "This task is already funded." };
   }
 
-  const { error } = await supabase
+  const { data: funded, error } = await supabase
     .from("tasks")
     .update({
       escrow_tx_hash: txHash,
       escrow_contract_address: ESCROW_CONTRACT_ADDRESS,
       status: "open",
     })
-    .eq("id", taskId);
+    .eq("id", taskId)
+    .is("escrow_tx_hash", null)
+    .select("id")
+    .maybeSingle();
 
-  if (error) {
+  if (error || !funded) {
     return {
       ok: false,
-      message: error.message || "Could not record funding right now.",
+      message: error?.message || "This task is already funded.",
     };
   }
 
@@ -516,10 +538,23 @@ export async function markTaskEscrowFundedAction(
 export async function deleteTaskAction(taskId: string): Promise<void> {
   if (!isUuid(taskId)) return;
 
-  const { supabase, user } = await loadActor();
+  const { supabase, user, profile } = await loadActor();
   if (!user) redirect("/login");
 
-  await supabase.from("tasks").delete().eq("id", taskId);
+  const { data: task } = await supabase
+    .from("tasks")
+    .select("creator_id")
+    .eq("id", taskId)
+    .maybeSingle();
+
+  if (!task) return;
+
+  const isAdmin = profile?.role === "admin";
+  if (!isAdmin && task.creator_id !== user.id) return;
+
+  const { error } = await supabase.from("tasks").delete().eq("id", taskId);
+
+  if (error) return;
 
   revalidatePath("/tasks");
   revalidatePath("/dashboard/tasks");
@@ -565,13 +600,19 @@ export async function refundFCFSEscrowAction(
     return { ok: false, message: "FCFS escrow already refunded." };
   }
 
-  const { error } = await supabase
+  const { data: refunded, error } = await supabase
     .from("tasks")
     .update({ fcfs_refund_tx_hash: txHash })
-    .eq("id", taskId);
+    .eq("id", taskId)
+    .is("fcfs_refund_tx_hash", null)
+    .select("id")
+    .maybeSingle();
 
-  if (error) {
-    return { ok: false, message: error.message || "Could not record refund." };
+  if (error || !refunded) {
+    return {
+      ok: false,
+      message: error?.message || "FCFS escrow is already refunded.",
+    };
   }
 
   revalidatePath(`/tasks/${taskId}`);

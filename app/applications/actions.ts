@@ -126,9 +126,12 @@ export async function withdrawApplicationAction(applicationId: string) {
 
   const { data: app } = await supabase
     .from("task_applications")
-    .select("task_id")
+    .select("task_id, applicant_id")
     .eq("id", applicationId)
     .maybeSingle();
+
+  if (!app) return;
+  if (app.applicant_id !== user.id) return;
 
   await supabase
     .from("task_applications")
@@ -145,7 +148,7 @@ export async function decideApplicationAction(
 ) {
   if (!isUuid(applicationId)) return;
   if (decision !== "accepted" && decision !== "rejected") return;
-  const { supabase, user } = await loadActor();
+  const { supabase, user, profile } = await loadActor();
   if (!user) redirect("/login");
 
   const { data: app } = await supabase
@@ -153,6 +156,17 @@ export async function decideApplicationAction(
     .select("task_id")
     .eq("id", applicationId)
     .maybeSingle();
+
+  if (!app) return;
+
+  const { data: task } = await supabase
+    .from("tasks")
+    .select("creator_id")
+    .eq("id", app.task_id)
+    .maybeSingle();
+
+  const isAdmin = profile?.role === "admin";
+  if (!task || (task.creator_id !== user.id && !isAdmin)) return;
 
   await supabase
     .from("task_applications")
@@ -249,11 +263,17 @@ export async function createSubmissionAction(
 
   const { data: app } = await supabase
     .from("task_applications")
-    .select("task_id")
+    .select("task_id, applicant_id")
     .eq("id", applicationId)
     .maybeSingle();
   if (!app?.task_id) {
     return { status: "error", message: "Application not found." };
+  }
+  if (app.applicant_id !== user.id) {
+    return {
+      status: "error",
+      message: "You can only submit work for your own applications.",
+    };
   }
 
   const { data: task } = await supabase
@@ -323,9 +343,19 @@ export async function updateSubmissionAction(
 
   const { data: row } = await supabase
     .from("task_submissions")
-    .select("task_id")
+    .select("task_id, submitter_id")
     .eq("id", submissionId)
     .maybeSingle();
+
+  if (!row) {
+    return { status: "error", message: "Submission not found." };
+  }
+  if (row.submitter_id !== user.id) {
+    return {
+      status: "error",
+      message: "You can only edit your own submissions.",
+    };
+  }
 
   if (row?.task_id) {
     const { data: task } = await supabase
@@ -374,7 +404,7 @@ export async function reviewSubmissionAction(
   }
   const review_notes = String(formData.get("review_notes") ?? "").trim();
 
-  const { supabase, user } = await loadActor();
+  const { supabase, user, profile } = await loadActor();
   if (!user) redirect("/login");
 
   const { data: row } = await supabase
@@ -382,6 +412,17 @@ export async function reviewSubmissionAction(
     .select("task_id")
     .eq("id", submissionId)
     .maybeSingle();
+
+  if (!row?.task_id) return;
+
+  const { data: task } = await supabase
+    .from("tasks")
+    .select("creator_id")
+    .eq("id", row.task_id)
+    .maybeSingle();
+
+  const isAdmin = profile?.role === "admin";
+  if (!task || (task.creator_id !== user.id && !isAdmin)) return;
 
   await supabase
     .from("task_submissions")
