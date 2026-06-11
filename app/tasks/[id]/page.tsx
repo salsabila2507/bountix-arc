@@ -22,6 +22,10 @@ import { SubmissionForm } from "@/components/marketplace/submission-form";
 import { ApplyForm } from "@/components/marketplace/apply-form";
 import { SubmitWorkForm } from "@/components/marketplace/submit-work-form";
 import { EscrowFundPanel } from "@/components/marketplace/escrow-fund-panel";
+import {
+  EscrowFcfsPayPanel,
+  EscrowFcfsRefundPanel,
+} from "@/components/marketplace/escrow-fcfs-panel";
 import { SiteHeader } from "@/components/site-header";
 import { withdrawApplicationAction } from "@/app/applications/actions";
 import {
@@ -159,6 +163,7 @@ export default async function TaskDetailPage({ params }: RouteParams) {
     const isOwner = ctx.userId === dbTask.creator_id;
     const isOfficial = dbTask.task_type !== "user_task";
     const isRaffle = dbTask.reward_mode === "raffle";
+    const isFcfs = dbTask.reward_mode === "fcfs";
     const isClosed = ["completed", "cancelled"].includes(dbTask.status);
     const requiresEarlyContributor =
       dbTask.access_level === "early_contributor";
@@ -201,6 +206,11 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                     <span className="inline-flex items-center gap-1 rounded-md border-2 border-[#140625] bg-[#ffdd3d] px-2 py-1 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#140625]">
                       <Trophy aria-hidden="true" className="h-3 w-3" />
                       {t("raffle.label")}
+                    </span>
+                  ) : null}
+                  {dbTask.reward_mode === "fcfs" ? (
+                    <span className="inline-flex items-center gap-1 rounded-md border-2 border-[#140625] bg-[#38e7ff] px-2 py-1 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#140625]">
+                      {t("task.rewardMode.fcfs")}
                     </span>
                   ) : null}
                   {requiresEarlyContributor ? (
@@ -334,32 +344,87 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                   </div>
 
                   {dbTask.payment_method === "escrow_base" ? (
-                    dbTask.escrow_tx_hash ? (
-                      <div className="comic-card-soft bg-[#dff7e6] p-5">
-                        <h2 className="text-lg font-black text-[#140625]">
-                          {t("taskDetail.escrowFunded")}
-                        </h2>
-                        <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-                          {t("taskDetail.usdcLocked")}
-                        </p>
-                        <a
-                          href={`https://basescan.org/tx/${dbTask.escrow_tx_hash}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-4 inline-flex items-center gap-2 break-all rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-black text-[#7c3cff] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
-                        >
-                          <ExternalLink aria-hidden="true" className="h-4 w-4" />
-                          {t("taskDetail.viewFundingTx")}
-                        </a>
-                      </div>
+                    isFcfs ? (
+                      dbTask.escrow_tx_hash ? (
+                        <div className="comic-card-soft bg-[#dff7e6] p-5">
+                          <h2 className="text-lg font-black text-[#140625]">
+                            {t("escrow.fcfs.title")}
+                          </h2>
+                          <div className="mt-4 grid gap-2 text-sm font-semibold text-[#5a3b66]">
+                            <p>
+                              {t("escrow.fcfs.budget")}:{" "}
+                              <span className="font-black text-[#140625]">
+                                {formatUsdc(dbTask.fcfs_budget ?? 0)}
+                              </span>
+                            </p>
+                            <p>
+                              {t("escrow.fcfs.rewardPerWinner")}:{" "}
+                              <span className="font-black text-[#140625]">
+                                {formatUsdc(dbTask.fcfs_reward_per_winner ?? 0)}
+                              </span>
+                            </p>
+                            <p>
+                              {t("escrow.fcfs.maxWinners")}:{" "}
+                              <span className="font-black text-[#140625]">
+                                {dbTask.fcfs_max_winners}
+                              </span>
+                            </p>
+                            <p>
+                              {t("escrow.fcfs.winnersPaid")}:{" "}
+                              <span className="font-black text-[#140625]">
+                                {dbTask.fcfs_winner_count}
+                              </span>
+                            </p>
+                          </div>
+                          <a
+                            href={`https://basescan.org/tx/${dbTask.escrow_tx_hash}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-4 inline-flex items-center gap-2 break-all rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-black text-[#7c3cff] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
+                          >
+                            <ExternalLink aria-hidden="true" className="h-4 w-4" />
+                            {t("escrow.viewFundingTx")}
+                          </a>
+                        </div>
+                      ) : (
+                        <EscrowFundPanel
+                          taskId={dbTask.id}
+                          rewardAmount={dbTask.reward_amount ?? 0}
+                          rewardMode={dbTask.reward_mode}
+                          fcfsBudget={dbTask.fcfs_budget ?? undefined}
+                          fcfsRewardPerWinner={dbTask.fcfs_reward_per_winner ?? undefined}
+                          fcfsMaxWinners={dbTask.fcfs_max_winners ?? undefined}
+                          locale={locale}
+                        />
+                      )
                     ) : (
-                      <EscrowFundPanel
-                        taskId={dbTask.id}
-                        rewardAmount={dbTask.reward_amount ?? 0}
-                        rewardMode={dbTask.reward_mode}
-                        winnerCount={dbTask.raffle_winner_count}
-                        locale={locale}
-                      />
+                      dbTask.escrow_tx_hash ? (
+                        <div className="comic-card-soft bg-[#dff7e6] p-5">
+                          <h2 className="text-lg font-black text-[#140625]">
+                            {t("taskDetail.escrowFunded")}
+                          </h2>
+                          <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
+                            {t("taskDetail.usdcLocked")}
+                          </p>
+                          <a
+                            href={`https://basescan.org/tx/${dbTask.escrow_tx_hash}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-4 inline-flex items-center gap-2 break-all rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-black text-[#7c3cff] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
+                          >
+                            <ExternalLink aria-hidden="true" className="h-4 w-4" />
+                            {t("taskDetail.viewFundingTx")}
+                          </a>
+                        </div>
+                      ) : (
+                        <EscrowFundPanel
+                          taskId={dbTask.id}
+                          rewardAmount={dbTask.reward_amount ?? 0}
+                          rewardMode={dbTask.reward_mode}
+                          winnerCount={dbTask.raffle_winner_count}
+                          locale={locale}
+                        />
+                      )
                     )
                   ) : null}
                 </>

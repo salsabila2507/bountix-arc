@@ -36,6 +36,9 @@ type ParsedTaskInput = {
   eligibility_rules: string | null;
   access_level: TaskAccessLevel;
   payment_method: PaymentMethod;
+  fcfs_budget: number | null;
+  fcfs_reward_per_winner: number | null;
+  fcfs_max_winners: number | null;
 };
 
 function isHttpsUrl(value: string): boolean {
@@ -65,6 +68,9 @@ function parseTaskInput(formData: FormData): {
   const eligibility_rules = String(formData.get("eligibility_rules") ?? "").trim();
   let access_level = String(formData.get("access_level") ?? "open");
   const payment_method = String(formData.get("payment_method") ?? "manual");
+  const fcfsBudgetRaw = String(formData.get("fcfs_budget") ?? "").trim();
+  const fcfsRewardPerWinnerRaw = String(formData.get("fcfs_reward_per_winner") ?? "").trim();
+  const fcfsMaxWinnersRaw = String(formData.get("fcfs_max_winners") ?? "").trim();
 
   const fieldErrors: TaskFormState["fieldErrors"] = {};
 
@@ -143,6 +149,45 @@ function parseTaskInput(formData: FormData): {
     fieldErrors.eligibility_rules =
       "Eligibility rules must be 2000 characters or fewer.";
   }
+  let fcfs_budget: number | null = null;
+  let fcfs_reward_per_winner: number | null = null;
+  let fcfs_max_winners: number | null = null;
+  if (reward_mode === "fcfs") {
+    const budget = Number(fcfsBudgetRaw);
+    const perWinner = Number(fcfsRewardPerWinnerRaw);
+    const maxWinners = Number(fcfsMaxWinnersRaw);
+    if (!Number.isFinite(budget) || budget <= 0) {
+      fieldErrors.fcfs_budget = "Budget must be a positive USDC amount.";
+    } else if (budget > 9999999.99) {
+      fieldErrors.fcfs_budget = "Budget is too large.";
+    } else {
+      fcfs_budget = Math.round(budget * 100) / 100;
+    }
+    if (!Number.isFinite(perWinner) || perWinner <= 0) {
+      fieldErrors.fcfs_reward_per_winner = "Reward per winner must be positive.";
+    } else if (perWinner > 9999999.99) {
+      fieldErrors.fcfs_reward_per_winner = "Reward per winner is too large.";
+    } else {
+      fcfs_reward_per_winner = Math.round(perWinner * 100) / 100;
+    }
+    if (!Number.isInteger(maxWinners) || maxWinners < 1 || maxWinners > 100) {
+      fieldErrors.fcfs_max_winners = "Max winners must be 1–100.";
+    } else {
+      fcfs_max_winners = maxWinners;
+    }
+    // Validate budget >= rewardPerWinner * maxWinners
+    if (fcfs_budget !== null && fcfs_reward_per_winner !== null && fcfs_max_winners !== null) {
+      const required = fcfs_reward_per_winner * fcfs_max_winners;
+      if (fcfs_budget < required) {
+        fieldErrors.fcfs_budget = `Budget must be at least ${required.toFixed(2)} USDC (${fcfs_reward_per_winner} × ${fcfs_max_winners}).`;
+      }
+    }
+    if (payment_method === "escrow_base") {
+      if (fcfs_budget === null || fcfs_budget < MIN_ESCROW_USDC) {
+        fieldErrors.fcfs_budget = `Budget must be at least ${MIN_ESCROW_USDC} USDC for escrow.`;
+      }
+    }
+  }
   if (external_link) {
     if (external_link.length > 500) {
       fieldErrors.external_link =
@@ -182,6 +227,9 @@ function parseTaskInput(formData: FormData): {
         reward_mode === "raffle" ? eligibility_rules : null,
       access_level: access_level as TaskAccessLevel,
       payment_method: payment_method as PaymentMethod,
+      fcfs_budget,
+      fcfs_reward_per_winner,
+      fcfs_max_winners,
     },
     fieldErrors,
   };
@@ -269,6 +317,10 @@ export async function createTaskAction(
       eligibility_rules: data.eligibility_rules,
       access_level: data.access_level,
       payment_method: data.payment_method,
+      fcfs_budget: data.fcfs_budget,
+      fcfs_reward_per_winner: data.fcfs_reward_per_winner,
+      fcfs_max_winners: data.fcfs_max_winners,
+      fcfs_winner_count: 0,
     })
     .select("id")
     .maybeSingle();
@@ -362,6 +414,9 @@ export async function updateTaskAction(
       eligibility_rules: data.eligibility_rules,
       access_level: data.access_level,
       payment_method,
+      fcfs_budget: data.fcfs_budget,
+      fcfs_reward_per_winner: data.fcfs_reward_per_winner,
+      fcfs_max_winners: data.fcfs_max_winners,
     })
     .eq("id", taskId);
 
@@ -469,6 +524,60 @@ export async function deleteTaskAction(taskId: string): Promise<void> {
   revalidatePath("/tasks");
   revalidatePath("/dashboard/tasks");
   redirect("/dashboard/tasks");
+}
+
+export async function refundFCFSEscrowAction(
+  taskId: string,
+  txHash: string,
+): Promise<EscrowFundResult> {
+  if (!isUuid(taskId)) {
+    return { ok: false, message: "Invalid task id." };
+  }
+  if (!TX_HASH_RE.test(txHash)) {
+    return { ok: false, message: "Invalid transaction hash." };
+  }
+
+  const { supabase, user } = await loadActor();
+  if (!user) {
+    return { ok: false, message: "You must be signed in." };
+  }
+
+  const { data: task } = await supabase
+    .from("tasks")
+    .select("creator_id, reward_mode, fcfs_refund_tx_hash")
+    .eq("id", taskId)
+    .maybeSingle();
+
+  const row = task as {
+    creator_id: string;
+    reward_mode: string;
+    fcfs_refund_tx_hash: string | null;
+  } | null;
+
+  if (!row) return { ok: false, message: "Task not found." };
+  if (row.creator_id !== user.id) {
+    return { ok: false, message: "Permission denied." };
+  }
+  if (row.reward_mode !== "fcfs") {
+    return { ok: false, message: "This is not an FCFS task." };
+  }
+  if (row.fcfs_refund_tx_hash) {
+    return { ok: false, message: "FCFS escrow already refunded." };
+  }
+
+  const { error } = await supabase
+    .from("tasks")
+    .update({ fcfs_refund_tx_hash: txHash })
+    .eq("id", taskId);
+
+  if (error) {
+    return { ok: false, message: error.message || "Could not record refund." };
+  }
+
+  revalidatePath(`/tasks/${taskId}`);
+  revalidatePath(`/dashboard/tasks/${taskId}/applicants`);
+
+  return { ok: true, message: "FCFS escrow refund recorded." };
 }
 
 // Note: this is a "use server" file — only async functions may be exported.
