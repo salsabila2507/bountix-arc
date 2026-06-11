@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useMemo, useState } from "react";
+import { useState, useTransition } from "react";
 import {
   CheckCircle2,
   LoaderCircle,
@@ -56,15 +56,21 @@ export function TaskForm({
       ? updateTaskAction.bind(null, initialTask.id)
       : createTaskAction;
 
-  const [state, formAction, isPending] = useActionState<
-    TaskFormState,
-    FormData
-  >(boundAction, initialTaskFormState);
+  const [state, setState] =
+    useState<TaskFormState>(initialTaskFormState);
+  const [isPending, startTransition] = useTransition();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    formAction(formData);
+    startTransition(async () => {
+      try {
+        const result = await boundAction(state, formData);
+        if (result) setState(result);
+      } catch {
+        // redirect or navigation — component may unmount
+      }
+    });
   }
 
   const def = initialTask;
