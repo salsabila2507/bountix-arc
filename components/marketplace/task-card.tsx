@@ -83,7 +83,7 @@ export function TaskCard({ task, locale = DEFAULT_LOCALE }: TaskCardProps) {
             {task.budget}
             <Image
               src="/bountix-comic/base-icon.png"
-              alt="Base"
+              alt=""
               width={16}
               height={16}
               className="h-4 w-4 object-contain"

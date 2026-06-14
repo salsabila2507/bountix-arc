@@ -6,6 +6,8 @@ import {
   type TranslationKey,
 } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
+import { getServerNetworkSlug } from "@/lib/network-store";
+import { getNetworkConfig } from "@/lib/networks";
 
 export const metadata = {
   title: "Dashboard Deals",
@@ -36,6 +38,8 @@ const dealSteps = [
 export default async function DashboardDealsPage() {
   const locale = await getRequestLocale();
   const t = createTranslator(locale);
+  const networkSlug = await getServerNetworkSlug();
+  const networkName = getNetworkConfig(networkSlug).name;
 
   return (
     <DashboardShell
@@ -51,7 +55,7 @@ export default async function DashboardDealsPage() {
               {t(step.titleKey)}
             </h2>
             <p className="mt-3 text-sm leading-6 text-white/56">
-              {t(step.descriptionKey)}
+              {t(step.descriptionKey, { network: networkName })}
             </p>
             <div className="mt-5">
               <FutureBadge>{t("dashboard.deals.future")}</FutureBadge>

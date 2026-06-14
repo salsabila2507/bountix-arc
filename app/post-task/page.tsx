@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { TaskForm } from "@/components/marketplace/task-form";
 import { createTranslator } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
+import { getServerNetworkSlug } from "@/lib/network-store";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +13,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Post a Task",
   description:
-    "Create a new Bountix task. Rewards paid in USDC on Base. Manual payment or Base escrow available.",
+    "Create a new Bountix task. Rewards paid in USDC on the selected network. Manual payment or escrow is available.",
 };
 
 async function loadActor() {
@@ -47,6 +48,7 @@ async function loadActor() {
 export default async function PostTaskPage() {
   const locale = await getRequestLocale();
   const t = createTranslator(locale);
+  const networkSlug = await getServerNetworkSlug();
   const { user, profile } = await loadActor();
 
   if (!user) {
@@ -82,7 +84,7 @@ export default async function PostTaskPage() {
         </Link>
 
         <section className="mx-auto mt-8 max-w-2xl">
-          <TaskForm mode="create" isAdmin={isAdmin} locale={locale} />
+          <TaskForm mode="create" isAdmin={isAdmin} networkSlug={networkSlug} locale={locale} />
         </section>
       </section>
     </main>

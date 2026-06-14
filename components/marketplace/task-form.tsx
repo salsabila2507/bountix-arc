@@ -30,6 +30,7 @@ import {
   type Locale,
   type TranslationKey,
 } from "@/lib/i18n";
+import { getNetworkConfig } from "@/lib/networks";
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -43,14 +44,17 @@ export function TaskForm({
   mode,
   isAdmin,
   initialTask,
+  networkSlug,
   locale = DEFAULT_LOCALE,
 }: {
   mode: "create" | "edit";
   isAdmin: boolean;
   initialTask?: DbTask;
+  networkSlug: string;
   locale?: Locale;
 }) {
   const t = createTranslator(locale);
+  const networkName = getNetworkConfig(networkSlug).name;
   const boundAction =
     mode === "edit" && initialTask
       ? updateTaskAction.bind(null, initialTask.id)
@@ -96,7 +100,7 @@ export function TaskForm({
           : t("form.postTask.titleEdit")}
       </h1>
       <p className="mt-3 text-sm font-medium leading-6 text-[#5a3b66]">
-        {t("payment.copy")}
+        {t("payment.copy", { network: networkName })}
       </p>
 
       {state.status === "error" && state.message ? (
@@ -277,7 +281,7 @@ export function TaskForm({
             {t("form.postTask.paymentMethod")}
           </legend>
           <p className="mt-1 text-xs font-bold text-[#5a3b66]">
-            {t("form.postTask.paymentHelp")}
+            {t("form.postTask.paymentHelp", { network: networkName })}
           </p>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {PAYMENT_METHODS.map((method, i) => (
@@ -298,7 +302,7 @@ export function TaskForm({
                   className="mt-1 h-4 w-4 accent-[#7c3cff]"
                 />
                 <span className="text-sm font-black text-[#140625]">
-                  {t(`task.payment.${method}` as TranslationKey)}
+                  {t(`task.payment.${method}` as TranslationKey, method === "escrow_base" ? { network: networkName } : undefined)}
                   {method === "escrow_base" ? (
                     <span className="mt-1 block text-xs font-bold text-[#5a3b66]">
                       {t("form.postTask.escrowHelp")}
@@ -476,7 +480,8 @@ export function TaskForm({
             className="mr-2 inline h-4 w-4 text-[#7c3cff]"
           />
           {t("form.postTask.paymentNote", {
-            emphasis: t("common.usdcOnBase"),
+            emphasis: t("common.usdcOnBase", { network: networkName }),
+            network: networkName,
           })}
         </div>
       </div>

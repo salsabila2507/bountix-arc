@@ -12,6 +12,7 @@ import {
   createTranslator,
   type Locale,
 } from "@/lib/i18n";
+import { getNetworkConfig } from "@/lib/networks";
 import type { PublicServiceOffer } from "@/lib/services";
 
 const assetBase = "/bountix-comic/bountix_assets_ready";
@@ -34,14 +35,17 @@ function formatPrice(service: PublicServiceOffer, negotiableLabel: string) {
 
 export function ServiceOfferCard({
   service,
+  networkSlug = "base",
   locale = DEFAULT_LOCALE,
   viewerIsAuthed,
 }: {
   service: PublicServiceOffer;
+  networkSlug?: string;
   locale?: Locale;
   viewerIsAuthed: boolean;
 }) {
   const t = createTranslator(locale);
+  const networkName = getNetworkConfig(networkSlug).name;
   const creatorName =
     service.creator.display_name ?? `@${service.creator.username}`;
   const profileHref = `/profile/${service.creator.username}`;
@@ -63,7 +67,7 @@ export function ServiceOfferCard({
           </span>
           <span className="inline-flex min-h-8 items-center gap-1.5 rounded-lg border-2 border-[#140625] bg-white px-2.5 py-1 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625]">
             {service.payment_method === "escrow_base"
-              ? t("service.payment.escrow_base")
+              ? t("service.payment.escrow_base", { network: networkName })
               : t("service.payment.manual")}
           </span>
           {isNegotiable ? (
@@ -140,7 +144,7 @@ export function ServiceOfferCard({
           </span>
           <p>
             {service.payment_method === "escrow_base"
-              ? t("service.payment.escrowCopy")
+              ? t("service.payment.escrowCopy", { network: networkName })
               : t("service.payment.manualCopy")}
           </p>
         </div>

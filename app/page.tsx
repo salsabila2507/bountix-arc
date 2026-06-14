@@ -19,6 +19,8 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { TaskCarousel } from "@/components/landing/task-carousel";
 import { createTranslator, type TranslationKey } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
+import { getServerNetworkSlug } from "@/lib/network-store";
+import { getNetworkConfig, getChainIcon } from "@/lib/networks";
 
 const assetBase = "/bountix-comic/bountix_assets_ready";
 const telegramGroupUrl = "https://t.me/+V78fuYlQNvcxYTNl";
@@ -192,13 +194,6 @@ const whyItems = [
   { labelKey: "landing.why.escrowProtected", icon: LockKeyhole },
 ] satisfies { labelKey: TranslationKey; icon: typeof Zap }[];
 
-const stats = [
-  ["LIVE", "landing.stats.live"],
-  ["OPEN", "landing.stats.gated"],
-  ["USDC", "landing.stats.usdc"],
-  ["BASE", "landing.stats.base"],
-] satisfies [string, TranslationKey][];
-
 /**
  * Public landing must render even if Supabase env is not configured locally.
  */
@@ -260,6 +255,7 @@ function BountyCard({
   bounty,
   accessLabel,
   paymentLabel,
+  chainIcon,
 }: {
   bounty: {
     title: string;
@@ -272,6 +268,7 @@ function BountyCard({
   };
   accessLabel: string;
   paymentLabel: string;
+  chainIcon: string | null;
 }) {
   return (
     <article className="relative overflow-hidden rounded-lg border-2 border-[#17072b] bg-white p-4 shadow-[6px_6px_0_#17072b]">
@@ -303,13 +300,15 @@ function BountyCard({
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-lg border-2 border-[#17072b] bg-[#ffdd3d] px-3 py-2 text-sm font-black text-[#17072b]">
             {bounty.reward}
-            <Image
-              src="/bountix-comic/base-icon.png"
-              alt="Base"
-              width={16}
-              height={16}
-              className="h-4 w-4 object-contain"
-            />
+            {chainIcon ? (
+              <Image
+                src={chainIcon}
+                alt=""
+                width={16}
+                height={16}
+                className="h-4 w-4 object-contain"
+              />
+            ) : null}
           </span>
           <span className="inline-flex items-center gap-1 rounded-md border-2 border-[#17072b] bg-[#0d3a86] px-2 py-1 text-[0.6rem] font-black uppercase tracking-wide text-white shadow-[2px_2px_0_#17072b]">
             <Coins aria-hidden="true" className="h-3 w-3" />
@@ -332,6 +331,8 @@ function BountyCard({
 export default async function Home() {
   const locale = await getRequestLocale();
   const t = createTranslator(locale);
+  const networkSlug = await getServerNetworkSlug();
+  const networkName = getNetworkConfig(networkSlug).name;
   const user = await getCurrentUser();
   const heroActions = user ? authedHeroActions : guestHeroActions;
   const finalActions = user ? authedFinalActions : guestFinalActions;
@@ -358,6 +359,12 @@ export default async function Home() {
     color: bounty.color,
     applicants: bounty.applicants,
   }));
+  const stats: [string, TranslationKey][] = [
+    ["LIVE", "landing.stats.live"],
+    ["OPEN", "landing.stats.gated"],
+    ["USDC", "landing.stats.usdc"],
+    [networkName, "landing.stats.base"],
+  ];
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#ff4fb8_0,#6f3cff_34%,#17072b_74%)] px-0 py-0 text-[#17072b] sm:px-5 sm:py-6">
@@ -641,6 +648,7 @@ export default async function Home() {
                 bounty={bounty}
                 accessLabel={t("early.access")}
                 paymentLabel={t("payment.usdcReady")}
+                chainIcon={getChainIcon(networkSlug)}
               />
             ))}
           </div>
@@ -656,18 +664,18 @@ export default async function Home() {
               <div>
                 <p className="inline-flex items-center gap-2 rounded-lg border-2 border-[#17072b] bg-[#38e7ff] px-3 py-1.5 text-xs font-black uppercase text-[#17072b] shadow-[3px_3px_0_#17072b]">
                   <Coins aria-hidden="true" className="h-4 w-4" />
-                  {t("landing.base.badge")}
+                  {t("landing.base.badge", { network: networkName })}
                 </p>
                 <h2 className="mt-3 text-3xl font-black uppercase leading-none drop-shadow-[3px_3px_0_#17072b] sm:text-5xl">
-                  {t("landing.base.title")}
+                  {t("landing.base.title", { network: networkName })}
                 </h2>
                 <p className="mt-3 max-w-2xl text-sm font-bold leading-7 text-white/90 sm:text-base">
-                  {t("landing.base.body")}
+                  {t("landing.base.body", { network: networkName })}
                 </p>
               </div>
               <div className="hidden items-center gap-2 rounded-lg border-2 border-[#17072b] bg-white px-3 py-2 text-xs font-black uppercase text-[#17072b] shadow-[3px_3px_0_#17072b] sm:inline-flex">
                 <Globe2 aria-hidden="true" className="h-4 w-4" />
-                {t("landing.base.onchain")}
+                {t("landing.base.onchain", { network: networkName })}
               </div>
             </div>
 
@@ -677,10 +685,10 @@ export default async function Home() {
                   <Coins aria-hidden="true" className="h-6 w-6" />
                 </span>
                 <h3 className="mt-4 text-2xl font-black uppercase leading-tight">
-                  {t("landing.base.usdc.title")}
+                  {t("landing.base.usdc.title", { network: networkName })}
                 </h3>
                 <p className="mt-2 text-sm font-bold leading-6 text-[#5a3b66]">
-                  {t("landing.base.usdc.body")}
+                  {t("landing.base.usdc.body", { network: networkName })}
                 </p>
                 <span className="mt-4 inline-flex rounded-md border-2 border-[#17072b] bg-[#38e7ff] px-2 py-0.5 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#17072b]">
                   {t("common.live")}
@@ -692,10 +700,10 @@ export default async function Home() {
                   <LockKeyhole aria-hidden="true" className="h-6 w-6" />
                 </span>
                 <h3 className="mt-4 text-2xl font-black uppercase leading-tight">
-                  {t("landing.base.escrow.title")}
+                  {t("landing.base.escrow.title", { network: networkName })}
                 </h3>
                 <p className="mt-2 text-sm font-bold leading-6 text-[#5a3b66]">
-                  {t("landing.base.escrow.body")}
+                  {t("landing.base.escrow.body", { network: networkName })}
                 </p>
                 <span className="mt-4 inline-flex rounded-md border-2 border-[#17072b] bg-[#38e7ff] px-2 py-0.5 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#17072b]">
                   {t("common.live")}
@@ -707,10 +715,10 @@ export default async function Home() {
                   <ShieldCheck aria-hidden="true" className="h-6 w-6" />
                 </span>
                 <h3 className="mt-4 text-2xl font-black uppercase leading-tight">
-                  {t("landing.base.reputation.title")}
+                  {t("landing.base.reputation.title", { network: networkName })}
                 </h3>
                 <p className="mt-2 text-sm font-bold leading-6 text-[#5a3b66]">
-                  {t("landing.base.reputation.body")}
+                  {t("landing.base.reputation.body", { network: networkName })}
                 </p>
                 <span className="mt-4 inline-flex rounded-md border-2 border-[#17072b] bg-white px-2 py-0.5 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#17072b]">
                   {t("common.roadmap")}
@@ -719,7 +727,7 @@ export default async function Home() {
             </div>
 
             <p className="mt-6 max-w-3xl text-xs font-bold leading-6 text-white/75">
-              {t("landing.base.previewNote")}
+              {t("landing.base.previewNote", { network: networkName })}
             </p>
           </div>
         </section>
@@ -806,7 +814,7 @@ export default async function Home() {
                       {value}
                     </p>
                     <p className="mt-1 text-xs font-black uppercase text-[#5a3b66]">
-                      {t(labelKey)}
+                      {t(labelKey, { network: networkName })}
                     </p>
                   </div>
                 ))}
@@ -840,7 +848,7 @@ export default async function Home() {
                   {t("landing.cta.title")}
                 </h2>
                 <p className="mt-4 max-w-xl text-base font-bold leading-7 text-[#5a3b66]">
-                  {t("landing.cta.body")}
+                  {t("landing.cta.body", { network: networkName })}
                 </p>
                 <p className="mt-3 max-w-xl text-sm font-bold leading-6 text-[#5a3b66]">
                   {t("payment.copy")}

@@ -13,6 +13,8 @@ import { SiteHeader } from "@/components/site-header";
 import { ServiceOfferCard } from "@/components/marketplace/service-offer-card";
 import { createTranslator, formatDate } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
+import { getServerNetworkSlug } from "@/lib/network-store";
+import { getNetworkConfig } from "@/lib/networks";
 import { createClient } from "@/lib/supabase/server";
 import {
   PROFILE_LANGUAGE_LABEL,
@@ -117,6 +119,8 @@ export async function generateMetadata({ params }: RouteParams) {
 export default async function PublicProfilePage({ params }: RouteParams) {
   const locale = await getRequestLocale();
   const t = createTranslator(locale);
+  const networkSlug = await getServerNetworkSlug();
+  const networkName = getNetworkConfig(networkSlug).name;
   const { username } = await params;
   const profile = await fetchProfile(username);
   if (!profile) {
@@ -267,14 +271,14 @@ export default async function PublicProfilePage({ params }: RouteParams) {
                   className="h-5 w-5 text-[#7c3cff]"
                 />
                 <h2 className="text-lg font-black text-[#140625]">
-                  {t("profile.walletBase")}
+                  {t("profile.walletBase", { network: networkName })}
                 </h2>
               </div>
               <p className="mt-3 break-all text-sm font-semibold leading-6 text-[#3c214b]">
                 {profile.wallet_address ?? t("dashboard.profile.notConnected")}
               </p>
               <p className="mt-3 text-xs font-bold leading-5 text-[#5a3b66]">
-                {t("profile.walletComing")}
+                {t("profile.walletComing", { network: networkName })}
               </p>
             </div>
 

@@ -136,7 +136,7 @@ function CarouselCard({
           {task.reward}
           <Image
             src="/bountix-comic/base-icon.png"
-            alt="Base"
+            alt=""
             width={14}
             height={14}
             className="h-3.5 w-3.5 object-contain"

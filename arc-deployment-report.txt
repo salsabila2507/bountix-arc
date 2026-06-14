@@ -1,0 +1,100 @@
+================================================================================
+                    ARC TESTNET DEPLOYMENT REPORT
+                         FINAL — 2026-06-14
+================================================================================
+
+================================================================================
+1. DEPLOYMENT SUMMARY
+================================================================================
+
+Contract:           BountixEscrowV1
+Network:            ARC Testnet (chain ID 5042002)
+Deployer:           0xc123D813037fA84623bc733Fc910A27aD708E0EA
+Contract address:   0x89FAF386c052B55363fdEe45B04c48fcDcb5A692
+Transaction hash:   0x9cc7f0e69fc9cf17cdc1cdfee83e98e48ff8cce3eead03f691ae4eb50f696d43
+Block number:       47003959
+Gas used:           1,868,314
+Total cost:         0.0411 ARC (~0.04 USDC)
+ArcScan link:       https://testnet.arcscan.app/address/0x89FAF386c052B55363fdEe45B04c48fcDcb5A692
+                    https://testnet.arcscan.app/tx/0x9cc7f0e69fc9cf17cdc1cdfee83e98e48ff8cce3eead03f691ae4eb50f696d43
+
+Constructor args:
+  USDC:       0x3600000000000000000000000000000000000000
+  Resolver:   0xc123D813037fA84623bc733Fc910A27aD708E0EA
+  Treasury:   0xc123D813037fA84623bc733Fc910A27aD708E0EA
+
+Contract config:
+  feeBps:     250 (2.5%)
+  maxFeeBps:  1000 (10%)
+  treasury:   0xc123D813037fA84623bc733Fc910A27aD708E0EA
+  resolver:   0xc123D813037fA84623bc733Fc910A27aD708E0EA
+
+================================================================================
+2. NETWORK CONFIGURATION (lib/networks.ts)
+================================================================================
+
+"arc-testnet": {
+  chainID:        5042002 (0x4CE892)
+  RPC:            https://rpc.testnet.arc.network
+  Explorer:       https://testnet.arcscan.app
+  Explorer API:   https://api.testnet.arcscan.app/api
+  USDC address:   0x3600000000000000000000000000000000000000  (native, 18 decimals)
+  Escrow V1:      0x89FAF386c052B55363fdEe45B04c48fcDcb5A692  [DEPLOYED]
+  Escrow V0:      0x3600000000000000000000000000000000000000  (USDC precompile — no V0 on ARC)
+}
+
+================================================================================
+3. DECIMAL FIX — AUDIT SUMMARY
+================================================================================
+
+ARC USDC uses 18 decimals (vs Base USDC 6 decimals).
+
+Files modified:
+  lib/networks.ts              ARC usdcDecimals: 6 -> 18
+  lib/payments.ts              Removed hardcoded USDC_DECIMALS=6
+  lib/escrow.ts                usdcToUnits() now takes networkSlug parameter
+                               minEscrowUnits() resolves decimals per network
+  escrow-fund-panel.tsx        usdcToUnits(rewardAmount, networkSlug)
+  escrow-release-panel.tsx     usdcToUnits(grossAmount, networkSlug)
+
+================================================================================
+4. VALIDATION RESULTS
+================================================================================
+
+  npx tsc --noEmit:            PASSED (0 errors)
+  npm run build:               PASSED (33 routes, 0 errors)
+
+================================================================================
+5. VERIFICATION STATUS
+================================================================================
+
+  ArcScan:                     FAILED — ARCSCAN_API_KEY not set in .env
+                               To verify: obtain API key from ArcScan,
+                               add ARCSCAN_API_KEY to .env, run:
+  npx hardhat verify --network arcTestnet \
+    0x89FAF386c052B55363fdEe45B04c48fcDcb5A692 \
+    0x3600000000000000000000000000000000000000 \
+    0xc123D813037fA84623bc733Fc910A27aD708E0EA \
+    0xc123D813037fA84623bc733Fc910A27aD708E0EA
+
+================================================================================
+6. ENVIRONMENT VARIABLES (.env)
+================================================================================
+
+Added:
+  ARC_RPC_URL=https://rpc.testnet.arc.network
+  ARC_USDC_ADDRESS=0x3600000000000000000000000000000000000000
+  ARC_V1_TREASURY_ADDRESS=0xc123D813037fA84623bc733Fc910A27aD708E0EA
+
+================================================================================
+7. DEPLOYMENT COMMAND USED
+================================================================================
+
+  npm run deploy:v1:arc
+
+  # Equivalent to:
+  npx hardhat run scripts/deploy-arc-v1.cjs --network arcTestnet
+
+================================================================================
+                      END OF REPORT
+================================================================================

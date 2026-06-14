@@ -17,7 +17,7 @@ import { SiteHeader } from "@/components/site-header";
 export const metadata = {
   title: "About",
   description:
-    "Bountix is a task marketplace built around USDC on Base with manual payment and Base escrow.",
+    "Bountix is a task marketplace built around USDC with manual payment and escrow.",
 };
 
 async function getCurrentUser() {
@@ -49,7 +49,7 @@ export default async function AboutPage() {
             <div>
               <p className="comic-chip bg-[#7c3cff] text-white">
                 <Globe2 aria-hidden="true" className="h-3.5 w-3.5" />
-                Live MVP · Built for Base
+                Live MVP · Built for USDC
               </p>
               <h1 className="mt-5 text-4xl font-black uppercase leading-[0.95] sm:text-6xl">
                 Bountix is a task marketplace for Web3 projects, creators, and communities.
@@ -58,8 +58,8 @@ export default async function AboutPage() {
                 Bountix is open for signed-in users. They can create, apply to,
                 submit, chat, and review tasks. Bountix and partners publish
                 official tasks, campaigns, announcements, and giveaways.
-                Rewards can be paid in USDC on Base through manual payment or
-                Base escrow.
+                Rewards can be paid in USDC through manual payment or
+                escrow.
               </p>
               <p className="mt-4 max-w-2xl text-base font-semibold leading-8 text-[#3c214b] sm:text-lg">
                 Bountix helps projects turn community work into structured
@@ -116,19 +116,18 @@ export default async function AboutPage() {
               Bountix is open for signed-in users. They create tasks,
               applicants pitch, accepted workers ship, and task
               creators review with approve, revision, or reject. Rewards can
-              be paid in USDC on Base through manual payment or Base escrow.
+              be paid in USDC through manual payment or escrow.
             </p>
           </article>
           <article className="comic-card-soft bg-white p-5">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border-2 border-[#140625] bg-[#ffdd3d] shadow-[3px_3px_0_#140625]">
               <Coins aria-hidden="true" className="h-5 w-5" />
             </span>
-            <h3 className="mt-4 text-lg font-black uppercase">Why Base</h3>
+            <h3 className="mt-4 text-lg font-black uppercase">Why USDC payments</h3>
             <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-              Bountix supports USDC rewards on Base. Base gives us low-cost,
-              fast payments for global contributors, and the deployed Base
-              escrow contract can lock funds before work starts and release
-              them after approval.
+              Bountix supports USDC rewards with on-chain escrow. The
+              deployed escrow contract can lock funds before work starts
+              and release them after approval.
             </p>
           </article>
         </div>
@@ -141,12 +140,12 @@ export default async function AboutPage() {
           </h2>
           <p className="mt-3 max-w-3xl text-sm font-bold leading-6 text-[#5a3b66]">
             Bountix is open for signed-in users. They can create, apply,
-            submit, chat, and review tasks. Rewards can be paid in USDC on
-            Base through manual payment or Base escrow.
+            submit, chat, and review tasks. Rewards can be paid in USDC
+            through manual payment or escrow.
           </p>
           <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              ["Email auth via Supabase", "Sign up, log in, log out. Public and owner profile views with username, bio, skills, and Base wallet field."],
+              ["Email auth via Supabase", "Sign up, log in, log out. Public and owner profile views with username, bio, skills, and wallet field."],
               ["Public soft open", "Signed-in profiles can create tasks, apply, submit, chat, and use payment flows."],
               ["Task lifecycle", "Create → open → in-progress → submitted → completed / cancelled. Owner edit + delete, per-user drafts."],
               ["Applications", "Workers apply, withdraw, get accepted or rejected. One application per (task, user)."],
@@ -206,7 +205,7 @@ export default async function AboutPage() {
             <ul className="mt-3 grid gap-2 text-sm font-semibold leading-6 text-[#3c214b]">
               <li>Live MVP. Signup is open for the public platform.</li>
               <li>Demo / fake / test tasks stay Early Contributors only.</li>
-              <li>Rewards can be paid in USDC on Base through manual payment or Base escrow.</li>
+              <li>Rewards can be paid in USDC through manual payment or escrow.</li>
               <li>No file uploads, no analytics tables. Free-tier-friendly by design.</li>
             </ul>
           </article>
@@ -219,15 +218,15 @@ export default async function AboutPage() {
             What&apos;s live
           </p>
           <h2 className="mt-4 text-2xl font-black uppercase leading-none drop-shadow-[3px_3px_0_#17072b] sm:text-4xl">
-            USDC escrow on Base is live. Grow the contributor network.
+            USDC escrow is live. Grow the contributor network.
           </h2>
           <p className="mt-3 max-w-3xl text-sm font-bold leading-6 text-white/85 sm:text-base">
-            Base escrow and manual payment are available now. The next work is
+            Escrow and manual payment are available now. The next work is
             growing users, services, safety, and multilingual
             coverage on top of the existing marketplace.
           </p>
           <ol className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <RoadmapStep n="1" title="USDC escrow on Base" body="Base mainnet escrow is deployed and wired for fund and release flows." />
+            <RoadmapStep n="1" title="USDC escrow" body="On-chain escrow is deployed on Base and ARC Testnet, wired for fund and release flows." />
             <RoadmapStep n="2" title="Public soft open" body="Let signed-in creators and operators create, apply, submit, chat, and build initial task liquidity." />
             <RoadmapStep n="3" title="Services + deals" body="Long-running creator services and negotiated deals on top of the marketplace." />
             <RoadmapStep n="4" title="Reporting + safety" body="Report task / profile / submission. Admin review queue and audit trail." />
@@ -239,15 +238,15 @@ export default async function AboutPage() {
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
           <Stat
             title="Status"
-            body="Phase 3 MVP: tasks, applications, submissions, chat, manual payment copy, and Base escrow flows are live."
+            body="Phase 3 MVP: tasks, applications, submissions, chat, manual payment copy, and escrow flows are live."
             chip="Live platform"
             chipColor="bg-[#ff4fb8] text-white"
             icon={<Hourglass className="h-4 w-4" />}
           />
           <Stat
             title="Direction"
-            body="USDC on Base. No custom token. Rewards and escrow flows are designed around a simple, stable payment path."
-            chip="USDC · Base"
+            body="USDC. No custom token. Rewards and escrow flows are designed around a simple, stable payment path."
+            chip="USDC"
             chipColor="bg-[#38e7ff]"
             icon={<ShieldCheck className="h-4 w-4" />}
           />

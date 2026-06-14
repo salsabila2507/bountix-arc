@@ -30,6 +30,7 @@ import {
   type Locale,
   type TranslationKey,
 } from "@/lib/i18n";
+import { getNetworkConfig } from "@/lib/networks";
 
 const input =
   "mt-2 h-12 w-full rounded-lg border-2 border-[#140625] bg-[#fffaf4] px-3 font-medium text-[#140625] placeholder:text-[#5a3b66]/45 outline-none transition focus:bg-white focus:ring-2 focus:ring-[#38e7ff]";
@@ -42,13 +43,16 @@ function FieldError({ message }: { message?: string }) {
 export function PostServiceForm({
   mode,
   initialService,
+  networkSlug = "base",
   locale = DEFAULT_LOCALE,
 }: {
   mode: "create" | "edit";
   initialService?: DbServiceOffer;
+  networkSlug?: string;
   locale?: Locale;
 }) {
   const t = createTranslator(locale);
+  const networkName = getNetworkConfig(networkSlug).name;
   const boundAction =
     mode === "edit" && initialService
       ? updateServiceAction.bind(null, initialService.id)
@@ -265,7 +269,7 @@ export function PostServiceForm({
                   {t(`service.payment.${method}` as TranslationKey)}
                   <span className="mt-1 block text-xs font-bold text-[#5a3b66]">
                     {method === "escrow_base"
-                      ? t("service.payment.escrowCopy")
+                      ? t("service.payment.escrowCopy", { network: networkName })
                       : t("service.payment.manualCopy")}
                   </span>
                 </span>
@@ -302,7 +306,7 @@ export function PostServiceForm({
             aria-hidden="true"
             className="mr-2 inline h-4 w-4 text-[#7c3cff]"
           />
-          {t("service.form.paymentNote")}
+          {t("service.form.paymentNote", { network: networkName })}
         </div>
       </div>
 

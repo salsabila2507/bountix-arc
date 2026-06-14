@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     template: "%s | Bountix",
   },
   description:
-    "Bountix is a task marketplace for posting work, reviewing submissions, and paying USDC rewards on Base through manual payment or escrow.",
+    "Bountix is a task marketplace for posting work, reviewing submissions, and paying USDC rewards through manual payment or escrow.",
   keywords: [
     "Bountix",
     "global task marketplace",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Bountix | Task Marketplace for Community Work",
     description:
-      "Post tasks, review submissions, and pay approved work with manual payment or Base USDC escrow.",
+      "Post tasks, review submissions, and pay approved work with manual payment or USDC escrow.",
     url: "https://www.bountix.xyz",
     siteName: "Bountix",
     type: "website",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Bountix | Task Marketplace for Community Work",
     description:
-      "A task marketplace for posting work, submitting results, chatting, and managing USDC rewards on Base.",
+      "A task marketplace for posting work, submitting results, chatting, and managing USDC rewards.",
     images: ["/bountix-comic/hero-logo-latest.png"],
   },
 };

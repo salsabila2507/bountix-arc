@@ -38,7 +38,12 @@ export function escrowUsdcAddress(slug: string): string {
   return getNetworkConfig(slug).contracts.usdc;
 }
 
-/** Default escrow contract address — resolves via current network slug. Backward-compatible. */
+/**
+ * @deprecated Base-only fallback addresses. New code must use
+ * escrowContractAddress(slug), escrowUsdcAddress(slug), or
+ * getNetworkConfig(slug).contracts.* to be network-agnostic.
+ * These will be removed once all consumers are migrated.
+ */
 export const ESCROW_CONTRACT_ADDRESS = "0x81AcFAbb2D7f99fC68d764f720c731a0fA5C0995";
 export const ESCROW_V1_CONTRACT_ADDRESS = "0x81AcFAbb2D7f99fC68d764f720c731a0fA5C0995";
 export const ESCROW_V0_CONTRACT_ADDRESS = "0x89FAF386c052B55363fdEe45B04c48fcDcb5A692";
@@ -186,14 +191,12 @@ export const ESCROW_RELEASE_RAFFLE_ABI = [
 export function escrowContractForTask(input: {
   escrowContractAddress: string | null;
   escrowTxHash: string | null;
+  networkSlug?: string;
 }): string {
   if (input.escrowContractAddress) return input.escrowContractAddress;
-  return input.escrowTxHash ? ESCROW_V0_CONTRACT_ADDRESS : ESCROW_CONTRACT_ADDRESS;
-}
-
-/** Basescan tx URL helper for surfacing the funding receipt. */
-export function basescanTxUrl(txHash: string): string {
-  return `https://basescan.org/tx/${txHash}`;
+  const net = input.networkSlug ? getNetworkConfig(input.networkSlug) : null;
+  if (input.escrowTxHash) return net?.contracts.escrowV0 ?? ESCROW_V0_CONTRACT_ADDRESS;
+  return net?.contracts.escrowV1 ?? ESCROW_CONTRACT_ADDRESS;
 }
 
 /** Network-aware explorer tx URL helper. */

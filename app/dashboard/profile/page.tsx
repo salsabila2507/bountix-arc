@@ -15,6 +15,8 @@ import {
 import { SiteHeader } from "@/components/site-header";
 import { createTranslator } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
+import { getServerNetworkSlug } from "@/lib/network-store";
+import { getNetworkConfig } from "@/lib/networks";
 import {
   getReferralLink,
   getReferralReviewStatus,
@@ -134,6 +136,8 @@ function getReferralStatusLabel(
 export default async function DashboardProfilePage() {
   const locale = await getRequestLocale();
   const t = createTranslator(locale);
+  const networkSlug = await getServerNetworkSlug();
+  const networkName = getNetworkConfig(networkSlug).name;
   const result = await getSessionAndProfile();
   if (!result.profile) {
     redirect("/login");
@@ -267,7 +271,7 @@ export default async function DashboardProfilePage() {
                 </h2>
               </div>
               <p className="mt-3 text-sm font-bold leading-6 text-[#3c214b]">
-                {t("dashboard.profile.fullAccessBody")}
+                {t("dashboard.profile.fullAccessBody", { network: networkName })}
               </p>
               {isAdmin ? (
                 <p className="mt-3 inline-flex items-center gap-1.5 rounded-md border-2 border-[#140625] bg-white px-2 py-0.5 text-[0.65rem] font-black uppercase text-[#140625] shadow-[2px_2px_0_#140625]">
@@ -369,7 +373,7 @@ export default async function DashboardProfilePage() {
                 </h2>
               </div>
               <p className="mt-2 text-sm font-bold leading-6 text-[#5a3b66]">
-                {t("dashboard.profile.paymentsBody")}
+                {t("dashboard.profile.paymentsBody", { network: networkName })}
               </p>
             </div>
 

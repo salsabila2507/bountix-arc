@@ -34,6 +34,8 @@ import { getRequestLocale } from "@/lib/i18n/server";
 import { getTask, tasks as previewTasks } from "@/lib/marketplace";
 import { createClient } from "@/lib/supabase/server";
 import { formatUsdc } from "@/lib/payments";
+import { getServerNetworkSlug } from "@/lib/network-store";
+import { getNetworkConfig, getChainIcon } from "@/lib/networks";
 import { explorerTxUrl } from "@/lib/escrow";
 import {
   TASK_LIST_COLUMNS,
@@ -152,6 +154,8 @@ export async function generateMetadata({ params }: RouteParams) {
 export default async function TaskDetailPage({ params }: RouteParams) {
   const locale = await getRequestLocale();
   const t = createTranslator(locale);
+  const networkSlug = await getServerNetworkSlug();
+  const networkName = getNetworkConfig(networkSlug).name;
   const { id } = await params;
   const dbTask = await fetchDbTask(id);
 
@@ -230,7 +234,9 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                     </p>
                     <p className="mt-2 inline-flex items-center gap-1.5 text-lg font-black text-[#140625]">
                       {formatUsdc(dbTask.reward_amount ?? 0)}
-                      <Image src="/bountix-comic/base-icon.png" alt="Base" width={18} height={18} className="h-[18px] w-[18px] object-contain" />
+                      {getChainIcon(dbTask.chain) ? (
+                        <Image src={getChainIcon(dbTask.chain)!} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" />
+                      ) : null}
                     </p>
                   </div>
                   <div className="rounded-lg border-2 border-[#140625] bg-[#38e7ff] p-4 shadow-[4px_4px_0_#140625]">
@@ -341,7 +347,7 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                           {t("taskDetail.escrowFunded")}
                         </h2>
                         <p className="mt-2 text-sm font-semibold leading-6 text-[#5a3b66]">
-                          {t("taskDetail.usdcLocked")}
+                          {t("taskDetail.usdcLocked", { network: networkName })}
                         </p>
                         <a
                           href={explorerTxUrl(dbTask.chain, dbTask.escrow_tx_hash)}
@@ -480,8 +486,8 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                     <p className="text-xs font-black uppercase text-[#5a3b66]">{label}</p>
                     <p className="mt-2 inline-flex items-center gap-1.5 text-lg font-black text-[#140625]">
                       {value}
-                      {index === 0 && (
-                        <Image src="/bountix-comic/base-icon.png" alt="Base" width={18} height={18} className="h-[18px] w-[18px] object-contain" />
+                        {index === 0 && (
+                        <Image src="/bountix-comic/base-icon.png" alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" />
                       )}
                     </p>
                   </div>

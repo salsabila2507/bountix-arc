@@ -10,13 +10,7 @@ import {
   TriangleAlert,
   Wallet,
 } from "lucide-react";
-import {
-  createPublicClient,
-  createWalletClient,
-  custom,
-  http,
-  type EIP1193Provider,
-} from "viem";
+import { http } from "viem";
 import {
   ESCROW_FUND_ABI,
   USDC_APPROVE_ABI,
@@ -26,6 +20,7 @@ import {
 } from "@/lib/escrow";
 import { formatUsdc } from "@/lib/payments";
 import { getNetworkConfig } from "@/lib/networks";
+import { connectWallet } from "@/lib/wallet";
 import { markTaskEscrowFundedAction } from "@/app/tasks/actions";
 import {
   DEFAULT_LOCALE,
@@ -43,12 +38,6 @@ type Phase =
   | "done"
   | "error";
 
-function getProvider(): EIP1193Provider | null {
-  if (typeof window === "undefined") return null;
-  const eth = (window as unknown as { ethereum?: EIP1193Provider }).ethereum;
-  return eth ?? null;
-}
-
 export function EscrowFundPanel({
   taskId,
   rewardAmount,
@@ -65,6 +54,7 @@ export function EscrowFundPanel({
   locale?: Locale;
 }) {
   const t = createTranslator(locale);
+  const networkName = getNetworkConfig(networkSlug).name;
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string>("");
@@ -78,13 +68,6 @@ export function EscrowFundPanel({
 
   async function handleFund() {
     setError("");
-    const provider = getProvider();
-    if (!provider) {
-      setPhase("error");
-      setError(t("payment.walletNoWallet"));
-      return;
-    }
-
     const safeWinnerCount =
       rewardMode === "raffle" && Number.isInteger(winnerCount)
         ? Math.max(1, winnerCount)
@@ -98,28 +81,8 @@ export function EscrowFundPanel({
 
     try {
       setPhase("connecting");
-      const [account] = (await provider.request({
-        method: "eth_requestAccounts",
-      })) as `0x${string}`[];
-      if (!account) throw new Error(t("payment.walletNoAccount"));
-
-      const netCfg = getNetworkConfig(networkSlug);
-
-      const walletClient = createWalletClient({
-        account,
-        chain: netCfg.chain,
-        transport: custom(provider),
-      });
-      const publicClient = createPublicClient({
-        chain: netCfg.chain,
-        transport: http(),
-      });
-
-      // Make sure the wallet is on the correct chain.
-      const currentChain = await walletClient.getChainId();
-      if (currentChain !== netCfg.id) {
-        await walletClient.switchChain({ id: netCfg.id });
-      }
+      const { account, netCfg, walletClient, publicClient } =
+        await connectWallet(networkSlug);
 
       const taskKey = uuidToBytes32(taskId);
       const escrowAddr = netCfg.contracts.escrowV1;
@@ -140,6 +103,8 @@ export function EscrowFundPanel({
           abi: USDC_APPROVE_ABI,
           functionName: "approve",
           args: [escrowAddr, amount],
+          account,
+          chain: null,
         });
         await publicClient.waitForTransactionReceipt({ hash: approveHash });
       }
@@ -151,6 +116,8 @@ export function EscrowFundPanel({
         abi: ESCROW_FUND_ABI,
         functionName: rewardMode === "raffle" ? "fundRaffleEscrow" : "fundEscrow",
         args: [taskKey, amount],
+        account,
+        chain: null,
       });
       const receipt = await publicClient.waitForTransactionReceipt({
         hash: fundHash,
@@ -189,7 +156,7 @@ export function EscrowFundPanel({
           {t("escrow.fund.doneChip")}
         </p>
         <h2 className="mt-4 text-lg font-black text-[#140625]">
-          {t("escrow.fund.doneTitle")}
+          {t("escrow.fund.doneTitle", { network: networkName })}
         </h2>
         <p className="mt-2 text-sm font-semibold leading-6 text-[#3c214b]">
           {t("escrow.fund.doneBody")}
@@ -213,7 +180,7 @@ export function EscrowFundPanel({
     <div className="comic-card-soft bg-[#f2e6ff] p-5">
       <p className="comic-chip bg-[#7c3cff] text-white">
         <LockKeyhole aria-hidden="true" className="h-3.5 w-3.5" />
-        {t("escrow.fund.chip")}
+        {t("escrow.fund.chip", { network: networkName })}
       </p>
       <h2 className="mt-4 text-lg font-black text-[#140625]">
         {t("escrow.fund.title")}
@@ -249,7 +216,7 @@ export function EscrowFundPanel({
         ) : (
           <>
             <Wallet aria-hidden="true" className="h-4 w-4" />
-            {t("escrow.fund.button")}
+            {t("escrow.fund.button", { network: networkName })}
           </>
         )}
       </button>

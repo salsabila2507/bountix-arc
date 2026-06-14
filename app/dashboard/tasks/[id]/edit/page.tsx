@@ -86,6 +86,7 @@ export default async function EditTaskPage({ params }: RouteParams) {
             mode="edit"
             isAdmin={result.isAdmin}
             initialTask={result.task}
+            networkSlug={result.task.chain ?? "base"}
             locale={locale}
           />
 

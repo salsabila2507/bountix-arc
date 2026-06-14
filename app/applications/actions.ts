@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { ESCROW_V1_CONTRACT_ADDRESS } from "@/lib/escrow";
+import { getNetworkConfig } from "@/lib/networks";
 import { isUuid } from "@/lib/tasks";
 import type {
   ApplyState,
@@ -664,7 +664,7 @@ export async function releaseRaffleEscrowAction(
   const { data: task } = await supabase
     .from("tasks")
     .select(
-      "id, creator_id, payment_method, reward_mode, raffle_winner_count, escrow_contract_address",
+      "id, creator_id, payment_method, reward_mode, raffle_winner_count, escrow_contract_address, chain",
     )
     .eq("id", taskId)
     .maybeSingle();
@@ -688,9 +688,10 @@ export async function releaseRaffleEscrowAction(
   if (task.raffle_winner_count <= 1) {
     return { ok: false, message: "Use the single-worker release flow." };
   }
+  const expectedV1 = getNetworkConfig(task.chain ?? "base").contracts.escrowV1;
   if (
     (task.escrow_contract_address ?? "").toLowerCase() !==
-    ESCROW_V1_CONTRACT_ADDRESS.toLowerCase()
+    expectedV1.toLowerCase()
   ) {
     return {
       ok: false,

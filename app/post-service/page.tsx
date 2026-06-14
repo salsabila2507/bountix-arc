@@ -5,6 +5,8 @@ import { PostServiceForm } from "@/components/marketplace/post-service-form";
 import { SiteHeader } from "@/components/site-header";
 import { createTranslator } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
+import { getServerNetworkSlug } from "@/lib/network-store";
+import { getNetworkConfig } from "@/lib/networks";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +14,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Post Service",
   description:
-    "Create a Bountix creator service offer with manual payment or Base escrow.",
+    "Create a Bountix creator service offer with manual payment or escrow.",
 };
 
 async function loadActor() {
@@ -38,6 +40,8 @@ async function loadActor() {
 export default async function PostServicePage() {
   const locale = await getRequestLocale();
   const t = createTranslator(locale);
+  const networkSlug = await getServerNetworkSlug();
+  const networkName = getNetworkConfig(networkSlug).name;
   const { user, profile } = await loadActor();
 
   if (!user) {
@@ -70,7 +74,7 @@ export default async function PostServicePage() {
         </Link>
 
         <section className="mx-auto mt-8 max-w-2xl">
-          <PostServiceForm mode="create" locale={locale} />
+          <PostServiceForm mode="create" locale={locale} networkSlug={networkSlug} />
         </section>
       </section>
     </main>

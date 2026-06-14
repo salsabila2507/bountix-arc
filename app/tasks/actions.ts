@@ -342,7 +342,7 @@ export async function updateTaskAction(
   // Load full task state for ownership + funding checks.
   const { data: existing } = await supabase
     .from("tasks")
-    .select("creator_id, payment_method, escrow_tx_hash, status")
+    .select("creator_id, payment_method, escrow_tx_hash, status, chain")
     .eq("id", taskId)
     .maybeSingle();
 
@@ -367,6 +367,10 @@ export async function updateTaskAction(
 
   const networkSlug = await getServerNetworkSlug();
 
+  // Don't overwrite chain for funded tasks — the on-chain escrow lives on
+  // whichever network it was originally funded on.
+  const chain = isFunded ? existing.chain : networkSlug;
+
   const { error } = await supabase
     .from("tasks")
     .update({
@@ -375,7 +379,7 @@ export async function updateTaskAction(
       category: data.category,
       reward_amount: data.reward_amount,
       reward_currency: "USDC",
-      chain: networkSlug,
+      chain,
       status,
       task_type,
       external_link: data.external_link,

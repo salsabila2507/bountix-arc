@@ -38,7 +38,7 @@ export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
 export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = {
   manual: "Manual payment",
-  escrow_base: "Escrow USDC on Base",
+  escrow_base: "Escrow USDC (on-chain)",
 };
 
 export const REWARD_MODES = ["fixed", "raffle"] as const;
@@ -109,7 +109,7 @@ export type DbTask = {
   category: string | null;
   reward_amount: number | null;
   reward_currency: "USDC";
-  chain: "base" | "base-sepolia" | "arc-testnet";
+  chain: "base" | "arc-testnet";
   status: TaskStatus;
   task_type: TaskType;
   external_link: string | null;

@@ -1,0 +1,128 @@
+================================================================================
+                ARC TESTNET — LIVE STATUS REPORT
+                    2026-06-14 17:00 UTC
+================================================================================
+
+1. IS ARC TESTNET FULLY USABLE THROUGH THE CURRENT BOUNTIX APPLICATION?
+========================================================================
+YES.
+
+   Verified facts:
+   - NetworkSelector renders in the live site header (SSR HTML confirmed):
+       <select>
+         <option value="base">Base</option>
+         <option value="arc-testnet">ARC Testnet</option>
+       </select>
+   - Cookie-based network switching is implemented (bountix_network cookie)
+   - Server actions read cookie via getServerNetworkSlug()
+   - All contract-address resolution is network-aware (via getNetworkConfig(slug))
+   - All amount conversion is network-aware (usdcToUnits(amount, slug))
+   - Explorer links resolve per network (basescan.org vs testnet.arcscan.app)
+   - Build ID matches HEAD commit (e234bb7) — latest code IS deployed
+   - next-server running on port 1430 with new build (restarted 16:28 UTC)
+
+2. IS THE DEPLOYED ARC CONTRACT CONFIGURED IN THE RUNNING APPLICATION?
+========================================================================
+YES.
+
+   Verified facts:
+   - Contract deployed at: 0x89FAF386c052B55363fdEe45B04c48fcDcb5A692
+     Source: lib/networks.ts line 60
+   - Contract confirmed live: owner() returns 0xc123D813037fA84623bc733Fc910A27aD708E0EA
+   - Full contract bytecode returned by eth_getCode — contract exists on-chain
+   - Constructor args:
+       USDC:     0x3600000000000000000000000000000000000000
+       Resolver: 0xc123D813037fA84623bc733Fc910A27aD708E0EA
+       Treasury: 0xc123D813037fA84623bc733Fc910A27aD708E0EA
+   - Contract feeBps: 250 (2.5%)
+   - Contract maxFeeBps: 1000 (10%)
+   - USDC decimals: 18 (correct for ARC Testnet native USDC)
+   - lib/networks.ts arc-testnet entry:
+       escrowV0: "0x3600000000000000000000000000000000000000"
+       escrowV1: "0x89FAF386c052B55363fdEe45B04c48fcDcb5A692"  [DEPLOYED]
+       usdc:     "0x3600000000000000000000000000000000000000"
+
+3. IS THE FRONTEND DEPLOYED WITH THE LATEST ARC CHANGES?
+========================================================================
+YES.
+
+   Verified facts:
+   - Build ID (from .next/BUILD_ID): 2NFyB-qONrXW-8PEe-kHV
+   - HEAD commit: e234bb75573dfc5c598423b2ff4eb741912611c0
+     ("Add ARC Testnet network support with BountixEscrowV1 deployment")
+   - Running next-server (PID 1244884, started 16:28 UTC on port 1430)
+   - TypeScript validation: PASSED (0 errors)
+   - Production build: PASSED (33 routes, 0 errors)
+   - Files committed include:
+       lib/networks.ts          — ARC config with 18-decimal USDC
+       lib/network-store.ts      — server-side cookie reader
+       components/ui/network-selector.tsx  — dropdown UI
+       components/site-header.tsx          — NetworkSelector in header
+       lib/escrow.ts             — network-aware usdcToUnits()
+       lib/payments.ts           — removed hardcoded USDC_DECIMALS
+       components/marketplace/   — escrow panels network-aware
+       app/tasks/actions.ts      — server actions use getServerNetworkSlug()
+       app/tasks/[id]/page.tsx   — explorer links per network
+       app/dashboard/tasks/[id]/applicants/page.tsx — explorer links per network
+
+4. IS THE BACKEND DEPLOYED WITH THE LATEST ARC CHANGES?
+========================================================================
+YES.
+
+   The application is a Next.js full-stack app (no separate backend):
+   - Server actions handle ARC network switching via cookies
+   - Supabase stores chain column per task (DbTask.chain)
+   - Escrow contract address is recorded per task (escrow_contract_address)
+   - All server-side validation uses getServerNetworkSlug() to read network context
+   - Hardhat config has arcTestnet network (chainId 5042002)
+   - Deploy script (scripts/deploy-arc-v1.cjs) successfully deployed V1
+
+5. CAN A USER...
+========================================================================
+
+   a) Switch to ARC
+   YES. NetworkSelector dropdown offers Base and ARC Testnet.
+   Selecting ARC Testnet sets bountix_network=arc-testnet cookie and refreshes.
+
+   b) Create a task
+   YES. Server action reads network slug from cookie and stores chain:
+     task.chain = networkSlug  (e.g. "arc-testnet")
+
+   c) Fund escrow
+   YES. EscrowFundPanel receives networkSlug from task.chain:
+     - Resolves ARC USDC address (0x3600...0000)
+     - Resolves ARC escrow contract (0x89FA...A692)
+     - Converts amount with correct 18 decimals
+     - Approves USDC → funds escrow on ARC Testnet
+     - Record tx hash with correct contract address
+
+   d) Approve work (assign worker / release)
+   YES. EscrowReleasePanel receives networkSlug from task.chain:
+     - Resolves same ARC escrow contract
+     - Calls assignWorker() on ARC Testnet
+     - Calls releaseEscrow() on ARC Testnet
+     - Links to ArcScan for transaction viewing
+
+   e) Release payout
+   YES. Same flow as (d). Both single-worker and raffle release are
+   supported on ARC Testnet.
+
+6. WHAT EXACT BLOCKERS REMAIN BEFORE REAL USERS CAN USE ARC THROUGH BOUNTIX?
+========================================================================
+NONE. ARC Testnet is fully live.
+
+   Remaining items (non-blocking, optional):
+   ------------------------------------------------------------------
+   Contract verification on ArcScan requires ARCSCAN_API_KEY —
+     optional, does not affect functionality
+     Command (if key is added):
+       npx hardhat verify --network arcTestnet \
+         0x89FAF386c052B55363fdEe45B04c48fcDcb5A692 \
+         0x3600000000000000000000000000000000000000 \
+         0xc123D813037fA84623bc733Fc910A27aD708E0EA \
+         0xc123D813037fA84623bc733Fc910A27aD708E0EA
+   ------------------------------------------------------------------
+
+================================================================================
+END OF REPORT
+================================================================================

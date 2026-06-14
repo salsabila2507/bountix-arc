@@ -73,7 +73,7 @@ export function PostTaskForm() {
               className="mt-0.5 h-4 w-4 shrink-0 text-[#7c3cff]"
             />
             <p className="text-sm font-semibold leading-6 text-[#3c214b]">
-              Rewards can be paid in USDC on Base through manual payment or Base escrow.
+              Rewards can be paid in USDC through manual payment or escrow.
             </p>
           </div>
         </div>

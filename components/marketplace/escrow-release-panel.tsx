@@ -9,13 +9,7 @@ import {
   TriangleAlert,
   Wallet,
 } from "lucide-react";
-import {
-  createPublicClient,
-  createWalletClient,
-  custom,
-  http,
-  type EIP1193Provider,
-} from "viem";
+import { http } from "viem";
 import {
   ESCROW_ASSIGN_RAFFLE_ABI,
   ESCROW_ASSIGN_ABI,
@@ -27,6 +21,7 @@ import {
 } from "@/lib/escrow";
 import { formatUsdc } from "@/lib/payments";
 import { getNetworkConfig } from "@/lib/networks";
+import { connectWallet } from "@/lib/wallet";
 import {
   releaseEscrowAction,
   releaseRaffleEscrowAction,
@@ -46,12 +41,6 @@ type Phase =
   | "done"
   | "error";
 
-function getProvider(): EIP1193Provider | null {
-  if (typeof window === "undefined") return null;
-  const eth = (window as unknown as { ethereum?: EIP1193Provider }).ethereum;
-  return eth ?? null;
-}
-
 export function EscrowReleasePanel({
   submissionId,
   taskId,
@@ -70,6 +59,7 @@ export function EscrowReleasePanel({
   locale?: Locale;
 }) {
   const t = createTranslator(locale);
+  const networkName = getNetworkConfig(networkSlug).name;
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string>("");
@@ -91,38 +81,11 @@ export function EscrowReleasePanel({
       return;
     }
 
-    const provider = getProvider();
-    if (!provider) {
-      setPhase("error");
-      setError(t("payment.walletNoWallet"));
-      return;
-    }
-
     try {
       setPhase("connecting");
-      const [account] = (await provider.request({
-        method: "eth_requestAccounts",
-      })) as `0x${string}`[];
-      if (!account) throw new Error(t("payment.walletNoAccount"));
-
-      const netCfg = getNetworkConfig(networkSlug);
+      const { account, netCfg, walletClient, publicClient } =
+        await connectWallet(networkSlug);
       const escrowAddr = (contractAddress ?? netCfg.contracts.escrowV1) as `0x${string}`;
-
-      const walletClient = createWalletClient({
-        account,
-        chain: netCfg.chain,
-        transport: custom(provider),
-      });
-      const publicClient = createPublicClient({
-        chain: netCfg.chain,
-        transport: http(),
-      });
-
-      // Ensure wallet is on the correct chain
-      const currentChain = await walletClient.getChainId();
-      if (currentChain !== netCfg.id) {
-        await walletClient.switchChain({ id: netCfg.id });
-      }
 
       const taskKey = uuidToBytes32(taskId);
 
@@ -133,6 +96,8 @@ export function EscrowReleasePanel({
         abi: ESCROW_ASSIGN_ABI,
         functionName: "assignWorker",
         args: [taskKey, workerWalletAddress as `0x${string}`],
+        account,
+        chain: null,
       });
 
       const assignReceipt = await publicClient.waitForTransactionReceipt({
@@ -150,6 +115,8 @@ export function EscrowReleasePanel({
         abi: ESCROW_RELEASE_ABI,
         functionName: "releaseEscrow",
         args: [taskKey],
+        account,
+        chain: null,
       });
 
       const releaseReceipt = await publicClient.waitForTransactionReceipt({
@@ -189,11 +156,12 @@ export function EscrowReleasePanel({
           />
           <div>
             <h3 className="font-black text-[#140625]">
-              {t("escrow.release.doneTitle")}
+              {t("escrow.release.doneTitle", { network: networkName })}
             </h3>
             <p className="mt-1 text-sm font-semibold leading-6 text-[#3c214b]">
               {t("escrow.release.doneBody", {
                 amount: formatUsdc(rewardAmount ?? 0),
+                network: networkName,
               })}
             </p>
             <div className="mt-3 space-y-2">
@@ -270,12 +238,12 @@ export function EscrowReleasePanel({
             ) : (
               <>
                 <Wallet aria-hidden="true" className="h-4 w-4" />
-                {t("escrow.release.button")}
+                {t("escrow.release.button", { network: networkName })}
               </>
             )}
           </button>
           <p className="mt-2 text-xs font-bold text-[#5a3b66]">
-            {t("escrow.release.prompts")}
+            {t("escrow.release.prompts", { network: networkName })}
           </p>
         </div>
       </div>
@@ -304,6 +272,7 @@ export function EscrowRaffleReleasePanel({
   locale?: Locale;
 }) {
   const t = createTranslator(locale);
+  const networkName = getNetworkConfig(networkSlug).name;
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string>("");
@@ -336,37 +305,11 @@ export function EscrowRaffleReleasePanel({
       return;
     }
 
-    const provider = getProvider();
-    if (!provider) {
-      setPhase("error");
-      setError(t("payment.walletNoWallet"));
-      return;
-    }
-
     try {
       setPhase("connecting");
-      const [account] = (await provider.request({
-        method: "eth_requestAccounts",
-      })) as `0x${string}`[];
-      if (!account) throw new Error(t("payment.walletNoAccount"));
-
-      const netCfg = getNetworkConfig(networkSlug);
+      const { account, netCfg, walletClient, publicClient } =
+        await connectWallet(networkSlug);
       const escrowAddr = (contractAddress ?? netCfg.contracts.escrowV1) as `0x${string}`;
-
-      const walletClient = createWalletClient({
-        account,
-        chain: netCfg.chain,
-        transport: custom(provider),
-      });
-      const publicClient = createPublicClient({
-        chain: netCfg.chain,
-        transport: http(),
-      });
-
-      const currentChain = await walletClient.getChainId();
-      if (currentChain !== netCfg.id) {
-        await walletClient.switchChain({ id: netCfg.id });
-      }
 
       const taskKey = uuidToBytes32(taskId);
       const winnerAddresses = winners.map(
@@ -382,6 +325,8 @@ export function EscrowRaffleReleasePanel({
         abi: ESCROW_ASSIGN_RAFFLE_ABI,
         functionName: "assignRaffleWinners",
         args: [taskKey, winnerAddresses, grossAmounts],
+        account,
+        chain: null,
       });
 
       const assignReceipt = await publicClient.waitForTransactionReceipt({
@@ -398,6 +343,8 @@ export function EscrowRaffleReleasePanel({
         abi: ESCROW_RELEASE_RAFFLE_ABI,
         functionName: "releaseRaffleEscrow",
         args: [taskKey],
+        account,
+        chain: null,
       });
 
       const releaseReceipt = await publicClient.waitForTransactionReceipt({
@@ -436,11 +383,12 @@ export function EscrowRaffleReleasePanel({
           />
           <div>
             <h3 className="font-black text-[#140625]">
-              {t("escrow.release.raffleDoneTitle")}
+              {t("escrow.release.raffleDoneTitle", { network: networkName })}
             </h3>
             <p className="mt-1 text-sm font-semibold leading-6 text-[#3c214b]">
               {t("escrow.release.raffleDoneBody", {
                 amount: formatUsdc(totalGross),
+                network: networkName,
               })}
             </p>
             <div className="mt-3 space-y-2">
@@ -528,12 +476,12 @@ export function EscrowRaffleReleasePanel({
             ) : (
               <>
                 <Wallet aria-hidden="true" className="h-4 w-4" />
-                {t("escrow.release.raffleButton")}
+                {t("escrow.release.raffleButton", { network: networkName })}
               </>
             )}
           </button>
           <p className="mt-2 text-xs font-bold text-[#5a3b66]">
-            {t("escrow.release.rafflePrompts")}
+            {t("escrow.release.rafflePrompts", { network: networkName })}
           </p>
         </div>
       </div>

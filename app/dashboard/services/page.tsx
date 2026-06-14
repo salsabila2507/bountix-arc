@@ -14,6 +14,8 @@ import { setServiceStatusAction } from "@/app/services/actions";
 import { SiteHeader } from "@/components/site-header";
 import { createTranslator, formatDate } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
+import { getServerNetworkSlug } from "@/lib/network-store";
+import { getNetworkConfig } from "@/lib/networks";
 import { createClient } from "@/lib/supabase/server";
 import {
   SERVICE_LIST_COLUMNS,
@@ -82,6 +84,8 @@ function formatServicePrice(service: DbServiceOffer, negotiableLabel: string) {
 export default async function DashboardServicesPage() {
   const locale = await getRequestLocale();
   const t = createTranslator(locale);
+  const networkSlug = await getServerNetworkSlug();
+  const networkName = getNetworkConfig(networkSlug).name;
   const { userId, username, services } = await loadMyServices();
   if (!userId) {
     redirect("/login");
@@ -141,7 +145,7 @@ export default async function DashboardServicesPage() {
                   deliveryTime: t("service.deliveryTime"),
                   noDelivery: t("service.noDeliveryTime"),
                   manual: t("service.payment.manual"),
-                  escrow: t("service.payment.escrow_base"),
+                  escrow: t("service.payment.escrow_base", { network: networkName }),
                   updated: t("service.updatedOn", {
                     date: formatDate(service.updated_at, locale),
                   }),
