@@ -159,80 +159,6 @@ export const ESCROW_RELEASE_RAFFLE_ABI = [
   },
 ] as const;
 
-/** BountixEscrowV2 on Base mainnet. Supports FCFS escrow. */
-export const ESCROW_V2_CONTRACT_ADDRESS =
-  "0xdf680c699B705eB0e301fD83cA4A066F97a70f31";
-
-export const ESCROW_V2_DEFAULT_FEE_BPS = 250;
-
-export const ESCROW_V2_FUND_FCFS_ABI = [
-  {
-    type: "function",
-    name: "fundFCFSEscrow",
-    stateMutability: "nonpayable",
-    inputs: [
-      { name: "taskId", type: "bytes32" },
-      { name: "budget", type: "uint256" },
-      { name: "rewardPerWinner", type: "uint256" },
-      { name: "maxWinners", type: "uint256" },
-    ],
-    outputs: [],
-  },
-] as const;
-
-export const ESCROW_V2_PAY_WINNERS_ABI = [
-  {
-    type: "function",
-    name: "payWinners",
-    stateMutability: "nonpayable",
-    inputs: [
-      { name: "taskId", type: "bytes32" },
-      { name: "winners", type: "address[]" },
-    ],
-    outputs: [],
-  },
-] as const;
-
-export const ESCROW_V2_REFUND_FCFS_ABI = [
-  {
-    type: "function",
-    name: "refundFCFSEscrow",
-    stateMutability: "nonpayable",
-    inputs: [{ name: "taskId", type: "bytes32" }],
-    outputs: [],
-  },
-] as const;
-
-export const ESCROW_V2_GET_FCFS_ABI = [
-  {
-    type: "function",
-    name: "getFCFSEscrow",
-    stateMutability: "view",
-    inputs: [{ name: "taskId", type: "bytes32" }],
-    outputs: [
-      { name: "budget", type: "uint256" },
-      { name: "rewardPerWinner", type: "uint256" },
-      { name: "maxWinners", type: "uint256" },
-      { name: "winnerCount", type: "uint256" },
-      { name: "remainingBudget", type: "uint256" },
-      { name: "resolver", type: "address" },
-    ],
-  },
-] as const;
-
-export const ESCROW_V2_HAS_CLAIMED_ABI = [
-  {
-    type: "function",
-    name: "hasClaimed",
-    stateMutability: "view",
-    inputs: [
-      { name: "taskId", type: "bytes32" },
-      { name: "claimer", type: "address" },
-    ],
-    outputs: [{ name: "", type: "bool" }],
-  },
-] as const;
-
 /**
  * Use a task's recorded contract for release. Legacy funded tasks without a
  * recorded address predate V1 and should fall back to V0.
@@ -248,14 +174,4 @@ export function escrowContractForTask(input: {
 /** Basescan tx URL helper for surfacing the funding receipt. */
 export function basescanTxUrl(txHash: string): string {
   return `https://basescan.org/tx/${txHash}`;
-}
-
-export function escrowV2ContractForTask(task: {
-  escrow_contract_address: string | null;
-  escrow_tx_hash: string | null;
-  reward_mode: string;
-}): string {
-  if (task.reward_mode === "fcfs") return ESCROW_V2_CONTRACT_ADDRESS;
-  if (task.escrow_contract_address) return task.escrow_contract_address;
-  return task.escrow_tx_hash ? ESCROW_V0_CONTRACT_ADDRESS : ESCROW_CONTRACT_ADDRESS;
 }

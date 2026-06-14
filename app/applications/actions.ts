@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { ESCROW_V1_CONTRACT_ADDRESS, ESCROW_V2_CONTRACT_ADDRESS } from "@/lib/escrow";
+import { ESCROW_V1_CONTRACT_ADDRESS } from "@/lib/escrow";
 import { isUuid } from "@/lib/tasks";
 import type {
   ApplyState,
@@ -746,89 +746,4 @@ export async function releaseRaffleEscrowAction(
   revalidatePath(`/tasks/${task.id}`);
 
   return { ok: true, message: "Raffle escrow released." };
-}
-
-export async function payFCFSWinnerAction(
-  submissionId: string,
-  payTxHash: string,
-) {
-  if (!isUuid(submissionId)) {
-    return { ok: false, message: "Invalid submission." };
-  }
-  if (!TX_HASH_RE.test(payTxHash)) {
-    return { ok: false, message: "Invalid transaction hash." };
-  }
-
-  const { supabase, user, profile } = await loadActor();
-  if (!user) redirect("/login");
-
-  const { data: submission } = await supabase
-    .from("task_submissions")
-    .select("task_id, status, release_tx_hash")
-    .eq("id", submissionId)
-    .maybeSingle();
-
-  if (!submission) {
-    return { ok: false, message: "Submission not found." };
-  }
-
-  const { data: task } = await supabase
-    .from("tasks")
-    .select("id, creator_id, payment_method, reward_mode")
-    .eq("id", submission.task_id)
-    .maybeSingle();
-
-  if (!task) {
-    return { ok: false, message: "Task not found." };
-  }
-
-  const isAdmin = profile?.role === "admin";
-  const isOwner = task.creator_id === user.id;
-  if (!isAdmin && !isOwner) {
-    return { ok: false, message: "Permission denied." };
-  }
-
-  if (task.payment_method !== "escrow_base") {
-    return { ok: false, message: "This task uses manual payment." };
-  }
-
-  if (task.reward_mode !== "fcfs") {
-    return { ok: false, message: "This is not an FCFS task." };
-  }
-
-  if (submission.status !== "approved") {
-    return {
-      ok: false,
-      message: "Approve the submission before paying FCFS reward.",
-    };
-  }
-
-  if (submission.release_tx_hash) {
-    return { ok: false, message: "This winner has already been paid." };
-  }
-
-  const { error } = await supabase
-    .from("task_submissions")
-    .update({
-      release_tx_hash: payTxHash,
-      released_at: new Date().toISOString(),
-    })
-    .eq("id", submissionId);
-
-  if (error) {
-    return {
-      ok: false,
-      message: error.message || "Could not record FCFS payout.",
-    };
-  }
-
-  // Increment fcfs_winner_count on the task
-  await supabase.rpc("increment_fcfs_winner_count", {
-    p_task_id: task.id,
-  });
-
-  revalidatePath(`/tasks/${task.id}`);
-  revalidatePath(`/dashboard/tasks/${task.id}/applicants`);
-
-  return { ok: true, message: "FCFS payout recorded." };
 }

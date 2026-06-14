@@ -6,9 +6,6 @@ import {
   EscrowRaffleReleasePanel,
   EscrowReleasePanel,
 } from "@/components/marketplace/escrow-release-panel";
-import {
-  EscrowFcfsPayPanel,
-} from "@/components/marketplace/escrow-fcfs-panel";
 import { TaskChatBox } from "@/components/marketplace/task-chat-box";
 import {
   createTranslator,
@@ -26,7 +23,6 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { TASK_LIST_COLUMNS, isUuid, type DbTask } from "@/lib/tasks";
 import { escrowContractForTask } from "@/lib/escrow";
-import { formatUsdc } from "@/lib/payments";
 import {
   APPLICATION_COLUMNS,
   APPLICATION_STATUS_COLOR,
@@ -181,7 +177,6 @@ export default async function ApplicantsPage({ params }: RouteParams) {
     currentUserId,
   } = data;
   const isRaffle = task.reward_mode === "raffle";
-  const isFcfs = task.reward_mode === "fcfs";
   const eligibleSubs = submissions.filter((s) => s.raffle_eligible);
   const winnerSubs = submissions
     .filter((s) => s.raffle_winner_position !== null)
@@ -240,40 +235,6 @@ export default async function ApplicantsPage({ params }: RouteParams) {
             {t("applicants.body")}
           </p>
         </div>
-
-        {isFcfs && task.payment_method === "escrow_base" ? (
-          <div className="comic-card-soft mt-6 bg-[#fffaf4] p-5">
-            <p className="comic-chip bg-[#38e7ff]">
-              {t("escrow.fcfs.title")}
-            </p>
-            <div className="mt-4 grid gap-2 text-sm font-semibold text-[#5a3b66]">
-              <p>
-                {t("escrow.fcfs.budget")}:{" "}
-                <span className="font-black text-[#140625]">
-                  {formatUsdc(task.fcfs_budget ?? 0)}
-                </span>
-              </p>
-              <p>
-                {t("escrow.fcfs.rewardPerWinner")}:{" "}
-                <span className="font-black text-[#140625]">
-                  {formatUsdc(task.fcfs_reward_per_winner ?? 0)}
-                </span>
-              </p>
-              <p>
-                {t("escrow.fcfs.maxWinners")}:{" "}
-                <span className="font-black text-[#140625]">
-                  {task.fcfs_max_winners}
-                </span>
-              </p>
-              <p>
-                {t("escrow.fcfs.winnersPaid")}:{" "}
-                <span className="font-black text-[#140625]">
-                  {task.fcfs_winner_count}
-                </span>
-              </p>
-            </div>
-          </div>
-        ) : null}
 
         {isRaffle ? (
           <div className="comic-card-soft mt-6 bg-[#fffaf4] p-5">
@@ -636,25 +597,14 @@ export default async function ApplicantsPage({ params }: RouteParams) {
                             (!isRaffle ||
                               (task.raffle_winner_count === 1 &&
                                 s.raffle_winner_position !== null)) ? (
-                              isFcfs ? (
-                                <EscrowFcfsPayPanel
-                                  taskId={task.id}
-                                  submissionId={s.id}
-                                  rewardPerWinner={task.fcfs_reward_per_winner ?? 0}
-                                  workerWalletAddress={applicant ? applicant.wallet_address : null}
-                                  workerLabel={applicant ? `@${applicant.username}` : ""}
-                                  locale={locale}
-                                />
-                              ) : (
-                                <EscrowReleasePanel
-                                  submissionId={s.id}
-                                  taskId={task.id}
-                                  rewardAmount={task.reward_amount}
-                                  workerWalletAddress={applicant ? applicant.wallet_address : null}
-                                  contractAddress={escrowContractAddress}
-                                  locale={locale}
-                                />
-                              )
+                              <EscrowReleasePanel
+                                submissionId={s.id}
+                                taskId={task.id}
+                                rewardAmount={task.reward_amount}
+                                workerWalletAddress={applicant ? applicant.wallet_address : null}
+                                contractAddress={escrowContractAddress}
+                                locale={locale}
+                              />
                             ) : null}
 
                             {s.released_at ? (

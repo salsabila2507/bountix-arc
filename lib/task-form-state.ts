@@ -16,9 +16,6 @@ export type TaskFormState = {
     eligibility_rules?: string;
     access_level?: string;
     payment_method?: string;
-    fcfs_budget?: string;
-    fcfs_reward_per_winner?: string;
-    fcfs_max_winners?: string;
   };
   taskId?: string;
 };

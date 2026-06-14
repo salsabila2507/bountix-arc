@@ -20,9 +20,7 @@ import {
 import { base } from "viem/chains";
 import {
   ESCROW_CONTRACT_ADDRESS,
-  ESCROW_V2_CONTRACT_ADDRESS,
   ESCROW_FUND_ABI,
-  ESCROW_V2_FUND_FCFS_ABI,
   ESCROW_USDC_ADDRESS,
   USDC_APPROVE_ABI,
   basescanTxUrl,
@@ -58,18 +56,12 @@ export function EscrowFundPanel({
   rewardAmount,
   rewardMode = "fixed",
   winnerCount = 1,
-  fcfsBudget,
-  fcfsRewardPerWinner,
-  fcfsMaxWinners,
   locale = DEFAULT_LOCALE,
 }: {
   taskId: string;
   rewardAmount: number;
   rewardMode?: RewardMode;
   winnerCount?: number;
-  fcfsBudget?: number;
-  fcfsRewardPerWinner?: number;
-  fcfsMaxWinners?: number;
   locale?: Locale;
 }) {
   const t = createTranslator(locale);
@@ -77,8 +69,6 @@ export function EscrowFundPanel({
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string>("");
   const [txHash, setTxHash] = useState<string>("");
-
-  const isFcfs = rewardMode === "fcfs";
 
   const busy =
     phase === "connecting" ||
@@ -99,13 +89,7 @@ export function EscrowFundPanel({
       rewardMode === "raffle" && Number.isInteger(winnerCount)
         ? Math.max(1, winnerCount)
         : 1;
-    const isFcfs = rewardMode === "fcfs";
-
-    // FCFS uses V2 fundFCFSEscrow with budget = rewardPerWinner * maxWinners
-    const fcfsAmount = isFcfs && fcfsBudget ? usdcToUnits(fcfsBudget) : BigInt(0);
-    const amount = isFcfs
-      ? fcfsAmount
-      : usdcToUnits(rewardAmount) * BigInt(safeWinnerCount);
+    const amount = usdcToUnits(rewardAmount) * BigInt(safeWinnerCount);
     if (amount <= BigInt(0)) {
       setPhase("error");
       setError(t("escrow.fund.positiveAmount"));
@@ -138,15 +122,11 @@ export function EscrowFundPanel({
       const taskKey = uuidToBytes32(taskId);
 
       // Approve only if the current allowance is insufficient.
-      const fundContractAddress = isFcfs
-        ? (ESCROW_V2_CONTRACT_ADDRESS as `0x${string}`)
-        : (ESCROW_CONTRACT_ADDRESS as `0x${string}`);
-
       const allowance = (await publicClient.readContract({
         address: ESCROW_USDC_ADDRESS as `0x${string}`,
         abi: USDC_APPROVE_ABI,
         functionName: "allowance",
-        args: [account, fundContractAddress],
+        args: [account, ESCROW_CONTRACT_ADDRESS as `0x${string}`],
       })) as bigint;
 
       if (allowance < amount) {
@@ -155,31 +135,19 @@ export function EscrowFundPanel({
           address: ESCROW_USDC_ADDRESS as `0x${string}`,
           abi: USDC_APPROVE_ABI,
           functionName: "approve",
-          args: [fundContractAddress, amount],
+          args: [ESCROW_CONTRACT_ADDRESS as `0x${string}`, amount],
         });
         await publicClient.waitForTransactionReceipt({ hash: approveHash });
       }
 
       // Fund the escrow.
       setPhase("funding");
-      let fundHash: `0x${string}`;
-      if (isFcfs) {
-        const rewardPerWinnerUnits = usdcToUnits(fcfsRewardPerWinner ?? 0);
-        const maxWinnersBig = BigInt(fcfsMaxWinners ?? 1);
-        fundHash = await walletClient.writeContract({
-          address: ESCROW_V2_CONTRACT_ADDRESS as `0x${string}`,
-          abi: ESCROW_V2_FUND_FCFS_ABI,
-          functionName: "fundFCFSEscrow",
-          args: [taskKey, fcfsAmount, rewardPerWinnerUnits, maxWinnersBig],
-        });
-      } else {
-        fundHash = await walletClient.writeContract({
-          address: ESCROW_CONTRACT_ADDRESS as `0x${string}`,
-          abi: ESCROW_FUND_ABI,
-          functionName: rewardMode === "raffle" ? "fundRaffleEscrow" : "fundEscrow",
-          args: [taskKey, amount],
-        });
-      }
+      const fundHash = await walletClient.writeContract({
+        address: ESCROW_CONTRACT_ADDRESS as `0x${string}`,
+        abi: ESCROW_FUND_ABI,
+        functionName: rewardMode === "raffle" ? "fundRaffleEscrow" : "fundEscrow",
+        args: [taskKey, amount],
+      });
       const receipt = await publicClient.waitForTransactionReceipt({
         hash: fundHash,
       });
@@ -207,9 +175,7 @@ export function EscrowFundPanel({
   const displayAmount =
     rewardMode === "raffle"
       ? rewardAmount * Math.max(1, winnerCount)
-      : rewardMode === "fcfs" && fcfsBudget
-        ? fcfsBudget
-        : rewardAmount;
+      : rewardAmount;
 
   if (phase === "done") {
     return (
@@ -284,7 +250,7 @@ export function EscrowFundPanel({
         )}
       </button>
       <p className="mt-3 text-xs font-bold text-[#5a3b66]">
-        {isFcfs ? t("form.postTask.fcfsFundHelp") : t("escrow.fund.prompts")}
+        {t("escrow.fund.prompts")}
       </p>
     </div>
   );

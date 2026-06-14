@@ -82,7 +82,6 @@ export function TaskForm({
     def?.payment_method ?? "manual",
   );
   const isRaffle = rewardMode === "raffle";
-  const isFcfs = rewardMode === "fcfs";
 
   return (
     <form onSubmit={handleSubmit} className="comic-card bg-white p-5 sm:p-6">
@@ -224,10 +223,6 @@ export function TaskForm({
                     <span className="mt-1 block text-xs font-bold text-[#5a3b66]">
                       {t("form.postTask.raffleHelp")}
                     </span>
-                  ) : modeValue === "fcfs" ? (
-                    <span className="mt-1 block text-xs font-bold text-[#5a3b66]">
-                      {t("form.postTask.fcfsHelp")}
-                    </span>
                   ) : (
                     <span className="mt-1 block text-xs font-bold text-[#5a3b66]">
                       {t("form.postTask.fixedHelp")}
@@ -277,68 +272,6 @@ export function TaskForm({
           </div>
         ) : null}
 
-        {isFcfs ? (
-          <div className="grid gap-5">
-            <label className="block">
-              <span className="text-sm font-black text-[#140625]">
-                {t("form.postTask.fcfsBudget")}
-              </span>
-              <input
-                name="fcfs_budget"
-                type="number"
-                required
-                min="1"
-                step="0.01"
-                defaultValue={def?.fcfs_budget ?? ""}
-                placeholder="200.00"
-                className={input}
-              />
-              <FieldError message={state.fieldErrors?.fcfs_budget} />
-            </label>
-
-            <div className="grid gap-5 sm:grid-cols-2">
-              <label className="block">
-                <span className="text-sm font-black text-[#140625]">
-                  {t("form.postTask.fcfsRewardPerWinner")}
-                </span>
-                <input
-                  name="fcfs_reward_per_winner"
-                  type="number"
-                  required
-                  min="1"
-                  step="0.01"
-                  defaultValue={def?.fcfs_reward_per_winner ?? ""}
-                  placeholder="25.00"
-                  className={input}
-                />
-                <FieldError message={state.fieldErrors?.fcfs_reward_per_winner} />
-              </label>
-
-              <label className="block">
-                <span className="text-sm font-black text-[#140625]">
-                  {t("form.postTask.fcfsMaxWinners")}
-                </span>
-                <input
-                  name="fcfs_max_winners"
-                  type="number"
-                  required
-                  min="1"
-                  max="100"
-                  step="1"
-                  defaultValue={def?.fcfs_max_winners ?? ""}
-                  placeholder="8"
-                  className={input}
-                />
-                <FieldError message={state.fieldErrors?.fcfs_max_winners} />
-              </label>
-            </div>
-
-            <p className="mt-3 rounded-lg border-2 border-[#140625] bg-[#f2e6ff] p-3 text-xs font-black leading-5 text-[#3c214b]">
-              {t("form.postTask.fcfsFundHelp")}
-            </p>
-          </div>
-        ) : null}
-
         <fieldset className="block">
           <legend className="text-sm font-black text-[#140625]">
             {t("form.postTask.paymentMethod")}
@@ -379,11 +312,9 @@ export function TaskForm({
               </label>
             ))}
           </div>
-          {(isRaffle || isFcfs) && paymentMethod === "escrow_base" ? (
+          {isRaffle && paymentMethod === "escrow_base" ? (
             <p className="mt-3 rounded-lg border-2 border-[#140625] bg-[#dff7e6] p-3 text-xs font-black leading-5 text-[#1f6b3a]">
-              {isFcfs
-                ? t("form.postTask.fcfsFundHelp")
-                : t("raffle.escrowV1Compatible")}
+              {t("raffle.escrowV1Compatible")}
             </p>
           ) : null}
           <FieldError message={state.fieldErrors?.payment_method} />
