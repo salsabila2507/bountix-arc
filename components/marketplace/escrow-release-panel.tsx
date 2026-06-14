@@ -16,18 +16,17 @@ import {
   http,
   type EIP1193Provider,
 } from "viem";
-import { base } from "viem/chains";
 import {
-  ESCROW_CONTRACT_ADDRESS,
   ESCROW_ASSIGN_RAFFLE_ABI,
   ESCROW_ASSIGN_ABI,
   ESCROW_RELEASE_RAFFLE_ABI,
   ESCROW_RELEASE_ABI,
-  basescanTxUrl,
+  explorerTxUrl,
   usdcToUnits,
   uuidToBytes32,
 } from "@/lib/escrow";
 import { formatUsdc } from "@/lib/payments";
+import { getNetworkConfig } from "@/lib/networks";
 import {
   releaseEscrowAction,
   releaseRaffleEscrowAction,
@@ -58,7 +57,8 @@ export function EscrowReleasePanel({
   taskId,
   rewardAmount,
   workerWalletAddress,
-  contractAddress = ESCROW_CONTRACT_ADDRESS,
+  contractAddress,
+  networkSlug = "base",
   locale = DEFAULT_LOCALE,
 }: {
   submissionId: string;
@@ -66,6 +66,7 @@ export function EscrowReleasePanel({
   rewardAmount: number | null;
   workerWalletAddress: string | null;
   contractAddress?: string;
+  networkSlug?: string;
   locale?: Locale;
 }) {
   const t = createTranslator(locale);
@@ -104,20 +105,23 @@ export function EscrowReleasePanel({
       })) as `0x${string}`[];
       if (!account) throw new Error(t("payment.walletNoAccount"));
 
+      const netCfg = getNetworkConfig(networkSlug);
+      const escrowAddr = (contractAddress ?? netCfg.contracts.escrowV1) as `0x${string}`;
+
       const walletClient = createWalletClient({
         account,
-        chain: base,
+        chain: netCfg.chain,
         transport: custom(provider),
       });
       const publicClient = createPublicClient({
-        chain: base,
+        chain: netCfg.chain,
         transport: http(),
       });
 
-      // Ensure wallet is on Base mainnet
+      // Ensure wallet is on the correct chain
       const currentChain = await walletClient.getChainId();
-      if (currentChain !== base.id) {
-        await walletClient.switchChain({ id: base.id });
+      if (currentChain !== netCfg.id) {
+        await walletClient.switchChain({ id: netCfg.id });
       }
 
       const taskKey = uuidToBytes32(taskId);
@@ -125,7 +129,7 @@ export function EscrowReleasePanel({
       // Step 1: Assign worker
       setPhase("assigning");
       const assignHash = await walletClient.writeContract({
-        address: contractAddress as `0x${string}`,
+        address: escrowAddr,
         abi: ESCROW_ASSIGN_ABI,
         functionName: "assignWorker",
         args: [taskKey, workerWalletAddress as `0x${string}`],
@@ -142,7 +146,7 @@ export function EscrowReleasePanel({
       // Step 2: Release escrow
       setPhase("releasing");
       const releaseHash = await walletClient.writeContract({
-        address: contractAddress as `0x${string}`,
+        address: escrowAddr,
         abi: ESCROW_RELEASE_ABI,
         functionName: "releaseEscrow",
         args: [taskKey],
@@ -195,7 +199,7 @@ export function EscrowReleasePanel({
             <div className="mt-3 space-y-2">
               {assignTxHash ? (
                 <a
-                  href={basescanTxUrl(assignTxHash)}
+                  href={explorerTxUrl(networkSlug, assignTxHash)}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 break-all rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-xs font-black text-[#7c3cff] shadow-[2px_2px_0_#140625] transition hover:bg-[#38e7ff]"
@@ -206,7 +210,7 @@ export function EscrowReleasePanel({
               ) : null}
               {releaseTxHash ? (
                 <a
-                  href={basescanTxUrl(releaseTxHash)}
+                  href={explorerTxUrl(networkSlug, releaseTxHash)}
                   target="_blank"
                   rel="noreferrer"
                   className="block inline-flex items-center gap-2 break-all rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-xs font-black text-[#7c3cff] shadow-[2px_2px_0_#140625] transition hover:bg-[#38e7ff]"
@@ -289,12 +293,14 @@ type RaffleEscrowWinner = {
 export function EscrowRaffleReleasePanel({
   taskId,
   winners,
-  contractAddress = ESCROW_CONTRACT_ADDRESS,
+  contractAddress,
+  networkSlug = "base",
   locale = DEFAULT_LOCALE,
 }: {
   taskId: string;
   winners: RaffleEscrowWinner[];
   contractAddress?: string;
+  networkSlug?: string;
   locale?: Locale;
 }) {
   const t = createTranslator(locale);
@@ -344,19 +350,22 @@ export function EscrowRaffleReleasePanel({
       })) as `0x${string}`[];
       if (!account) throw new Error(t("payment.walletNoAccount"));
 
+      const netCfg = getNetworkConfig(networkSlug);
+      const escrowAddr = (contractAddress ?? netCfg.contracts.escrowV1) as `0x${string}`;
+
       const walletClient = createWalletClient({
         account,
-        chain: base,
+        chain: netCfg.chain,
         transport: custom(provider),
       });
       const publicClient = createPublicClient({
-        chain: base,
+        chain: netCfg.chain,
         transport: http(),
       });
 
       const currentChain = await walletClient.getChainId();
-      if (currentChain !== base.id) {
-        await walletClient.switchChain({ id: base.id });
+      if (currentChain !== netCfg.id) {
+        await walletClient.switchChain({ id: netCfg.id });
       }
 
       const taskKey = uuidToBytes32(taskId);
@@ -364,12 +373,12 @@ export function EscrowRaffleReleasePanel({
         (winner) => winner.walletAddress as `0x${string}`,
       );
       const grossAmounts = winners.map((winner) =>
-        usdcToUnits(winner.grossAmount),
+        usdcToUnits(winner.grossAmount, networkSlug),
       );
 
       setPhase("assigning");
       const assignHash = await walletClient.writeContract({
-        address: contractAddress as `0x${string}`,
+        address: escrowAddr,
         abi: ESCROW_ASSIGN_RAFFLE_ABI,
         functionName: "assignRaffleWinners",
         args: [taskKey, winnerAddresses, grossAmounts],
@@ -385,7 +394,7 @@ export function EscrowRaffleReleasePanel({
 
       setPhase("releasing");
       const releaseHash = await walletClient.writeContract({
-        address: contractAddress as `0x${string}`,
+        address: escrowAddr,
         abi: ESCROW_RELEASE_RAFFLE_ABI,
         functionName: "releaseRaffleEscrow",
         args: [taskKey],
@@ -437,7 +446,7 @@ export function EscrowRaffleReleasePanel({
             <div className="mt-3 space-y-2">
               {assignTxHash ? (
                 <a
-                  href={basescanTxUrl(assignTxHash)}
+                  href={explorerTxUrl(networkSlug, assignTxHash)}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 break-all rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-xs font-black text-[#7c3cff] shadow-[2px_2px_0_#140625] transition hover:bg-[#38e7ff]"
@@ -448,7 +457,7 @@ export function EscrowRaffleReleasePanel({
               ) : null}
               {releaseTxHash ? (
                 <a
-                  href={basescanTxUrl(releaseTxHash)}
+                  href={explorerTxUrl(networkSlug, releaseTxHash)}
                   target="_blank"
                   rel="noreferrer"
                   className="block inline-flex items-center gap-2 break-all rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-xs font-black text-[#7c3cff] shadow-[2px_2px_0_#140625] transition hover:bg-[#38e7ff]"

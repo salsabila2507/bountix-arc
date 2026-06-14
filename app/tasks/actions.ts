@@ -18,7 +18,8 @@ import {
   type PaymentMethod,
   type RewardMode,
 } from "@/lib/tasks";
-import { ESCROW_CONTRACT_ADDRESS, MIN_ESCROW_USDC } from "@/lib/escrow";
+import { MIN_ESCROW_USDC, escrowContractAddress } from "@/lib/escrow";
+import { getServerNetworkSlug } from "@/lib/network-store";
 import type { TaskFormState } from "@/lib/task-form-state";
 
 type ParsedTaskInput = {
@@ -256,6 +257,8 @@ export async function createTaskAction(
   const status =
     data.payment_method === "escrow_base" ? "draft" : data.status;
 
+  const networkSlug = await getServerNetworkSlug();
+
   const { data: inserted, error } = await supabase
     .from("tasks")
     .insert({
@@ -265,7 +268,7 @@ export async function createTaskAction(
       category: data.category,
       reward_amount: data.reward_amount,
       reward_currency: "USDC",
-      chain: "base",
+      chain: networkSlug,
       status,
       task_type,
       external_link: data.external_link,
@@ -362,6 +365,8 @@ export async function updateTaskAction(
   // Lock status for escrow-funded tasks — on-chain state depends on it.
   const status = isFunded ? existing.status : data.status;
 
+  const networkSlug = await getServerNetworkSlug();
+
   const { error } = await supabase
     .from("tasks")
     .update({
@@ -370,7 +375,7 @@ export async function updateTaskAction(
       category: data.category,
       reward_amount: data.reward_amount,
       reward_currency: "USDC",
-      chain: "base",
+      chain: networkSlug,
       status,
       task_type,
       external_link: data.external_link,
@@ -454,11 +459,13 @@ export async function markTaskEscrowFundedAction(
     return { ok: false, message: "This task is already funded." };
   }
 
+  const networkSlug = await getServerNetworkSlug();
+
   const { data: funded, error } = await supabase
     .from("tasks")
     .update({
       escrow_tx_hash: txHash,
-      escrow_contract_address: ESCROW_CONTRACT_ADDRESS,
+      escrow_contract_address: escrowContractAddress(networkSlug),
       status: "open",
     })
     .eq("id", taskId)

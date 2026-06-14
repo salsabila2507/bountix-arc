@@ -17,17 +17,15 @@ import {
   http,
   type EIP1193Provider,
 } from "viem";
-import { base } from "viem/chains";
 import {
-  ESCROW_CONTRACT_ADDRESS,
   ESCROW_FUND_ABI,
-  ESCROW_USDC_ADDRESS,
   USDC_APPROVE_ABI,
-  basescanTxUrl,
+  explorerTxUrl,
   usdcToUnits,
   uuidToBytes32,
 } from "@/lib/escrow";
 import { formatUsdc } from "@/lib/payments";
+import { getNetworkConfig } from "@/lib/networks";
 import { markTaskEscrowFundedAction } from "@/app/tasks/actions";
 import {
   DEFAULT_LOCALE,
@@ -56,12 +54,14 @@ export function EscrowFundPanel({
   rewardAmount,
   rewardMode = "fixed",
   winnerCount = 1,
+  networkSlug = "base",
   locale = DEFAULT_LOCALE,
 }: {
   taskId: string;
   rewardAmount: number;
   rewardMode?: RewardMode;
   winnerCount?: number;
+  networkSlug?: string;
   locale?: Locale;
 }) {
   const t = createTranslator(locale);
@@ -89,7 +89,7 @@ export function EscrowFundPanel({
       rewardMode === "raffle" && Number.isInteger(winnerCount)
         ? Math.max(1, winnerCount)
         : 1;
-    const amount = usdcToUnits(rewardAmount) * BigInt(safeWinnerCount);
+    const amount = usdcToUnits(rewardAmount, networkSlug) * BigInt(safeWinnerCount);
     if (amount <= BigInt(0)) {
       setPhase("error");
       setError(t("escrow.fund.positiveAmount"));
@@ -103,39 +103,43 @@ export function EscrowFundPanel({
       })) as `0x${string}`[];
       if (!account) throw new Error(t("payment.walletNoAccount"));
 
+      const netCfg = getNetworkConfig(networkSlug);
+
       const walletClient = createWalletClient({
         account,
-        chain: base,
+        chain: netCfg.chain,
         transport: custom(provider),
       });
       const publicClient = createPublicClient({
-        chain: base,
+        chain: netCfg.chain,
         transport: http(),
       });
 
-      // Make sure the wallet is on Base mainnet.
+      // Make sure the wallet is on the correct chain.
       const currentChain = await walletClient.getChainId();
-      if (currentChain !== base.id) {
-        await walletClient.switchChain({ id: base.id });
+      if (currentChain !== netCfg.id) {
+        await walletClient.switchChain({ id: netCfg.id });
       }
 
       const taskKey = uuidToBytes32(taskId);
+      const escrowAddr = netCfg.contracts.escrowV1;
+      const usdcAddr = netCfg.contracts.usdc;
 
       // Approve only if the current allowance is insufficient.
       const allowance = (await publicClient.readContract({
-        address: ESCROW_USDC_ADDRESS as `0x${string}`,
+        address: usdcAddr,
         abi: USDC_APPROVE_ABI,
         functionName: "allowance",
-        args: [account, ESCROW_CONTRACT_ADDRESS as `0x${string}`],
+        args: [account, escrowAddr],
       })) as bigint;
 
       if (allowance < amount) {
         setPhase("approving");
         const approveHash = await walletClient.writeContract({
-          address: ESCROW_USDC_ADDRESS as `0x${string}`,
+          address: usdcAddr,
           abi: USDC_APPROVE_ABI,
           functionName: "approve",
-          args: [ESCROW_CONTRACT_ADDRESS as `0x${string}`, amount],
+          args: [escrowAddr, amount],
         });
         await publicClient.waitForTransactionReceipt({ hash: approveHash });
       }
@@ -143,7 +147,7 @@ export function EscrowFundPanel({
       // Fund the escrow.
       setPhase("funding");
       const fundHash = await walletClient.writeContract({
-        address: ESCROW_CONTRACT_ADDRESS as `0x${string}`,
+        address: escrowAddr,
         abi: ESCROW_FUND_ABI,
         functionName: rewardMode === "raffle" ? "fundRaffleEscrow" : "fundEscrow",
         args: [taskKey, amount],
@@ -192,7 +196,7 @@ export function EscrowFundPanel({
         </p>
         {txHash ? (
           <a
-            href={basescanTxUrl(txHash)}
+            href={explorerTxUrl(networkSlug, txHash)}
             target="_blank"
             rel="noreferrer"
             className="mt-4 inline-flex items-center gap-2 break-all rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-black text-[#7c3cff] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
