@@ -6,7 +6,7 @@ import { TaskForm } from "@/components/marketplace/task-form";
 import { createTranslator } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
 import { getServerNetworkSlug } from "@/lib/network-store";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 
 export const dynamic = "force-dynamic";
 
@@ -18,20 +18,18 @@ export const metadata = {
 
 async function loadActor() {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return { user: null, profile: null as null };
+    const ctx = await getAuthCtx();
+    if (!ctx) return { userId: null, profile: null as null };
+    const { supabase, userId } = ctx;
 
     const { data: profile } = await supabase
       .from("profiles")
       .select("id, role, username")
-      .eq("id", user.id)
+      .eq("id", userId)
       .maybeSingle();
 
     return {
-      user,
+      userId,
       profile: profile as
         | {
             id: string;
@@ -41,7 +39,7 @@ async function loadActor() {
         | null,
     };
   } catch {
-    return { user: null, profile: null as null };
+    return { userId: null, profile: null as null };
   }
 }
 
@@ -49,9 +47,9 @@ export default async function PostTaskPage() {
   const locale = await getRequestLocale();
   const t = createTranslator(locale);
   const networkSlug = await getServerNetworkSlug();
-  const { user, profile } = await loadActor();
+  const { userId, profile } = await loadActor();
 
-  if (!user) {
+  if (!userId) {
     redirect("/login");
   }
 

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 import { getNetworkConfig } from "@/lib/networks";
 import { isUuid } from "@/lib/tasks";
 import type {
@@ -11,19 +11,17 @@ import type {
 } from "@/lib/application-form-state";
 
 async function loadActor() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { supabase, user: null, profile: null as null };
+  const ctx = await getAuthCtx();
+  if (!ctx) return { supabase: null!, userId: null, profile: null as null };
+  const { supabase, userId } = ctx;
   const { data: profile } = await supabase
     .from("profiles")
     .select("id, role, is_early_contributor")
-    .eq("id", user.id)
+    .eq("id", userId)
     .maybeSingle();
   return {
     supabase,
-    user,
+    userId,
     profile: profile as
       | {
           id: string;
@@ -63,8 +61,8 @@ export async function applyToTaskAction(
 ): Promise<ApplyState> {
   if (!isUuid(taskId)) return { status: "error", message: "Invalid task id." };
 
-  const { supabase, user, profile } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, profile } = await loadActor();
+  if (!userId) redirect("/login");
   if (!profile) {
     return { status: "error", message: "Your profile is missing." };
   }
@@ -96,7 +94,7 @@ export async function applyToTaskAction(
 
   const { error } = await supabase.from("task_applications").insert({
     task_id: taskId,
-    applicant_id: user.id,
+    applicant_id: userId,
     message: message || null,
     status: "pending",
   });
@@ -121,8 +119,8 @@ export async function applyToTaskAction(
 
 export async function withdrawApplicationAction(applicationId: string) {
   if (!isUuid(applicationId)) return;
-  const { supabase, user } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId } = await loadActor();
+  if (!userId) redirect("/login");
 
   const { data: app } = await supabase
     .from("task_applications")
@@ -131,7 +129,7 @@ export async function withdrawApplicationAction(applicationId: string) {
     .maybeSingle();
 
   if (!app) return;
-  if (app.applicant_id !== user.id) return;
+  if (app.applicant_id !== userId) return;
 
   await supabase
     .from("task_applications")
@@ -148,8 +146,8 @@ export async function decideApplicationAction(
 ) {
   if (!isUuid(applicationId)) return;
   if (decision !== "accepted" && decision !== "rejected") return;
-  const { supabase, user, profile } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, profile } = await loadActor();
+  if (!userId) redirect("/login");
 
   const { data: app } = await supabase
     .from("task_applications")
@@ -166,7 +164,7 @@ export async function decideApplicationAction(
     .maybeSingle();
 
   const isAdmin = profile?.role === "admin";
-  if (!task || (task.creator_id !== user.id && !isAdmin)) return;
+    if (!task || (task.creator_id !== userId && !isAdmin)) return;
 
   await supabase
     .from("task_applications")
@@ -186,8 +184,8 @@ export async function decideApplicationAction(
 export async function restoreApplicationAction(applicationId: string) {
   if (!isUuid(applicationId)) return;
 
-  const { supabase, user, profile } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, profile } = await loadActor();
+  if (!userId) redirect("/login");
 
   const { data: app } = await supabase
     .from("task_applications")
@@ -210,7 +208,7 @@ export async function restoreApplicationAction(applicationId: string) {
   if (!task) return;
 
   const isAdmin = profile?.role === "admin";
-  const isOwner = task.creator_id === user.id;
+  const isOwner = task.creator_id === userId;
   if (!isAdmin && !isOwner) return;
 
   // Restore to "pending" so worker can submit work again
@@ -235,8 +233,8 @@ export async function createSubmissionAction(
   if (!isUuid(applicationId))
     return { status: "error", message: "Invalid application." };
 
-  const { supabase, user, profile } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, profile } = await loadActor();
+  if (!userId) redirect("/login");
   if (!profile) {
     return { status: "error", message: "Your profile is missing." };
   }
@@ -269,7 +267,7 @@ export async function createSubmissionAction(
   if (!app?.task_id) {
     return { status: "error", message: "Application not found." };
   }
-  if (app.applicant_id !== user.id) {
+  if (app.applicant_id !== userId) {
     return {
       status: "error",
       message: "You can only submit work for your own applications.",
@@ -295,7 +293,7 @@ export async function createSubmissionAction(
   const { error } = await supabase.from("task_submissions").insert({
     task_id: app.task_id,
     application_id: applicationId,
-    submitter_id: user.id,
+    submitter_id: userId,
     delivery_url,
     notes: notes || null,
     status: "pending_review",
@@ -318,8 +316,8 @@ export async function updateSubmissionAction(
   if (!isUuid(submissionId))
     return { status: "error", message: "Invalid submission." };
 
-  const { supabase, user, profile } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, profile } = await loadActor();
+  if (!userId) redirect("/login");
   if (!profile) {
     return { status: "error", message: "Your profile is missing." };
   }
@@ -350,7 +348,7 @@ export async function updateSubmissionAction(
   if (!row) {
     return { status: "error", message: "Submission not found." };
   }
-  if (row.submitter_id !== user.id) {
+  if (row.submitter_id !== userId) {
     return {
       status: "error",
       message: "You can only edit your own submissions.",
@@ -404,8 +402,8 @@ export async function reviewSubmissionAction(
   }
   const review_notes = String(formData.get("review_notes") ?? "").trim();
 
-  const { supabase, user, profile } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, profile } = await loadActor();
+  if (!userId) redirect("/login");
 
   const { data: row } = await supabase
     .from("task_submissions")
@@ -422,7 +420,7 @@ export async function reviewSubmissionAction(
     .maybeSingle();
 
   const isAdmin = profile?.role === "admin";
-  if (!task || (task.creator_id !== user.id && !isAdmin)) return;
+    if (!task || (task.creator_id !== userId && !isAdmin)) return;
 
   await supabase
     .from("task_submissions")
@@ -449,8 +447,8 @@ export async function setSubmissionRaffleEligibilityAction(
 ) {
   if (!isUuid(submissionId)) return;
 
-  const { supabase, user, profile } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, profile } = await loadActor();
+  if (!userId) redirect("/login");
 
   const { data: submission } = await supabase
     .from("task_submissions")
@@ -469,7 +467,7 @@ export async function setSubmissionRaffleEligibilityAction(
   if (!task || task.reward_mode !== "raffle") return;
 
   const isAdmin = profile?.role === "admin";
-  const isOwner = task.creator_id === user.id;
+  const isOwner = task.creator_id === userId;
   if (!isAdmin && !isOwner) return;
 
   if (!eligible && submission.raffle_winner_position !== null) {
@@ -504,8 +502,8 @@ export async function setSubmissionRaffleEligibilityAction(
 export async function selectRaffleWinnersAction(taskId: string) {
   if (!isUuid(taskId)) return;
 
-  const { supabase, user, profile } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, profile } = await loadActor();
+  if (!userId) redirect("/login");
 
   const { data: task } = await supabase
     .from("tasks")
@@ -516,7 +514,7 @@ export async function selectRaffleWinnersAction(taskId: string) {
   if (!task || task.reward_mode !== "raffle") return;
 
   const isAdmin = profile?.role === "admin";
-  const isOwner = task.creator_id === user.id;
+  const isOwner = task.creator_id === userId;
   if (!isAdmin && !isOwner) return;
 
   const { error } = await supabase.rpc("select_raffle_winners", {
@@ -546,8 +544,8 @@ export async function releaseEscrowAction(
     return { ok: false, message: "Invalid transaction hash." };
   }
 
-  const { supabase, user, profile } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, profile } = await loadActor();
+  if (!userId) redirect("/login");
 
   // Fetch submission + task + worker profile
   const { data: submission } = await supabase
@@ -574,7 +572,7 @@ export async function releaseEscrowAction(
 
   // Check permission: must be task owner or admin
   const isAdmin = profile?.role === "admin";
-  const isOwner = task.creator_id === user.id;
+  const isOwner = task.creator_id === userId;
   if (!isAdmin && !isOwner) {
     return { ok: false, message: "Permission denied." };
   }
@@ -658,8 +656,8 @@ export async function releaseRaffleEscrowAction(
     return { ok: false, message: "Invalid transaction hash." };
   }
 
-  const { supabase, user, profile } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, profile } = await loadActor();
+  if (!userId) redirect("/login");
 
   const { data: task } = await supabase
     .from("tasks")
@@ -674,7 +672,7 @@ export async function releaseRaffleEscrowAction(
   }
 
   const isAdmin = profile?.role === "admin";
-  const isOwner = task.creator_id === user.id;
+  const isOwner = task.creator_id === userId;
   if (!isAdmin && !isOwner) {
     return { ok: false, message: "Permission denied." };
   }

@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { DbTaskCard } from "@/components/marketplace/db-task-card";
 import { createTranslator } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 import { TASK_LIST_COLUMNS, type DbTask } from "@/lib/tasks";
 
 export const dynamic = "force-dynamic";
@@ -20,21 +20,19 @@ async function loadMyTasks(): Promise<{
   tasks: DbTask[];
 }> {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return { userId: null, tasks: [] };
+    const ctx = await getAuthCtx();
+    if (!ctx) return { userId: null, tasks: [] };
+    const { supabase, userId } = ctx;
 
     const { data, error } = await supabase
       .from("tasks")
       .select(TASK_LIST_COLUMNS)
-      .eq("creator_id", user.id)
+      .eq("creator_id", userId)
       .order("created_at", { ascending: false })
       .limit(50);
 
-    if (error || !data) return { userId: user.id, tasks: [] };
-    return { userId: user.id, tasks: data as DbTask[] };
+    if (error || !data) return { userId, tasks: [] };
+    return { userId, tasks: data as DbTask[] };
   } catch {
     return { userId: null, tasks: [] };
   }

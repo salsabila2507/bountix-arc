@@ -5,7 +5,7 @@ import { PostServiceForm } from "@/components/marketplace/post-service-form";
 import { SiteHeader } from "@/components/site-header";
 import { createTranslator } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 import {
   SERVICE_LIST_COLUMNS,
   type DbServiceOffer,
@@ -24,16 +24,14 @@ export const metadata = {
 async function loadEditableService(serviceId: string) {
   if (!isUuid(serviceId)) return null;
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+  const ctx = await getAuthCtx();
+  if (!ctx) return null;
+  const { supabase, userId } = ctx;
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("id, role")
-    .eq("id", user.id)
+    .eq("id", userId)
     .maybeSingle();
   if (!profile) return null;
 
@@ -45,7 +43,7 @@ async function loadEditableService(serviceId: string) {
   if (!service) return null;
 
   const isAdmin = profile.role === "admin";
-  const isOwner = service.creator_id === user.id;
+  const isOwner = service.creator_id === userId;
   if (!isAdmin && !isOwner) return null;
 
   return service as DbServiceOffer;
@@ -55,11 +53,8 @@ export default async function EditServicePage({ params }: RouteParams) {
   const locale = await getRequestLocale();
   const t = createTranslator(locale);
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
+  const ctx2 = await getAuthCtx();
+  if (!ctx2) {
     redirect("/login");
   }
 

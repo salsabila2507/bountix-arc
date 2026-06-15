@@ -15,22 +15,19 @@ function isInternalPath(value: string): boolean {
 }
 
 async function requireAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const ctx = await getAuthCtx();
+  if (!ctx) redirect("/login");
 
-  if (!user) redirect("/login");
-
+  const { supabase, userId } = ctx;
   const { data: actor } = await supabase
     .from("profiles")
     .select("role")
-    .eq("id", user.id)
+    .eq("id", userId)
     .maybeSingle();
 
   if (actor?.role !== "admin") redirect("/dashboard/profile");
 
-  return { supabase, user };
+  return { supabase, userId };
 }
 
 export async function setEarlyContributorAction(formData: FormData) {

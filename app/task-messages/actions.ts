@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 import { isUuid } from "@/lib/tasks";
 
 type MessageScopeInput = {
@@ -99,21 +100,19 @@ async function loadMessageScope(
 }
 
 async function loadActor() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { supabase, user: null, isAdmin: false };
+  const ctx = await getAuthCtx();
+  if (!ctx) return { supabase: null!, userId: null, isAdmin: false };
+  const { supabase, userId } = ctx;
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("id, role")
-    .eq("id", user.id)
+    .eq("id", userId)
     .maybeSingle();
 
   return {
     supabase,
-    user,
+    userId,
     isAdmin: profile?.role === "admin",
   };
 }
@@ -129,10 +128,10 @@ export async function sendTaskMessageAction(
   input: MessageScopeInput,
   formData: FormData,
 ) {
-  const { supabase, user, isAdmin } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, isAdmin } = await loadActor();
+  if (!userId) redirect("/login");
 
-  const scope = await loadMessageScope(supabase, user.id, isAdmin, input);
+  const scope = await loadMessageScope(supabase, userId, isAdmin, input);
   if (!scope) return;
 
   const messageText = String(formData.get("message_text") ?? "").trim();
@@ -142,7 +141,7 @@ export async function sendTaskMessageAction(
     task_id: scope.taskId,
     application_id: scope.applicationId,
     submission_id: scope.submissionId,
-    sender_id: user.id,
+    sender_id: userId,
     receiver_id: scope.receiverId,
     message_text: messageText,
   });
@@ -153,17 +152,17 @@ export async function sendTaskMessageAction(
 }
 
 export async function markTaskMessagesReadAction(input: MessageScopeInput) {
-  const { supabase, user, isAdmin } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, isAdmin } = await loadActor();
+  if (!userId) redirect("/login");
 
-  const scope = await loadMessageScope(supabase, user.id, isAdmin, input);
+  const scope = await loadMessageScope(supabase, userId, isAdmin, input);
   if (!scope) return;
 
   let query = supabase
     .from("task_messages")
     .update({ read_at: new Date().toISOString() })
     .eq("task_id", scope.taskId)
-    .neq("sender_id", user.id)
+    .neq("sender_id", userId)
     .is("read_at", null);
 
   if (scope.applicationId) {

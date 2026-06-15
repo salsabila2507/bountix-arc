@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 import type { ServiceFormState } from "@/lib/service-form-state";
 import {
   SERVICE_PAYMENT_METHODS,
@@ -115,21 +115,19 @@ function parseServiceInput(formData: FormData): {
 }
 
 async function loadActor() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { supabase, user: null, profile: null as null };
+  const ctx = await getAuthCtx();
+  if (!ctx) return { supabase: null!, userId: null, profile: null as null };
 
+  const { supabase, userId } = ctx;
   const { data: profile } = await supabase
     .from("profiles")
     .select("id, username, role")
-    .eq("id", user.id)
+    .eq("id", userId)
     .maybeSingle();
 
   return {
     supabase,
-    user,
+    userId,
     profile: profile as
       | {
           id: string;
@@ -150,8 +148,8 @@ export async function createServiceAction(
   _previous: ServiceFormState,
   formData: FormData,
 ): Promise<ServiceFormState> {
-  const { supabase, user, profile } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, profile } = await loadActor();
+  if (!userId) redirect("/login");
   if (!profile) {
     return {
       status: "error",
@@ -169,7 +167,7 @@ export async function createServiceAction(
   }
 
   const { error } = await supabase.from("services").insert({
-    creator_id: user.id,
+    creator_id: userId,
     title: data.title,
     category: data.category,
     description: data.description,
@@ -202,8 +200,8 @@ export async function updateServiceAction(
     return { status: "error", message: "Invalid service id." };
   }
 
-  const { supabase, user, profile } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, profile } = await loadActor();
+  if (!userId) redirect("/login");
   if (!profile) {
     return {
       status: "error",
@@ -254,8 +252,8 @@ export async function setServiceStatusAction(
   if (!isUuid(serviceId)) return;
   if (!(SERVICE_STATUSES as readonly string[]).includes(status)) return;
 
-  const { supabase, user, profile } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, profile } = await loadActor();
+  if (!userId) redirect("/login");
 
   await supabase.from("services").update({ status }).eq("id", serviceId);
   revalidateServicePaths(profile?.username);

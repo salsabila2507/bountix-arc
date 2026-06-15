@@ -33,6 +33,7 @@ import {
 import { getRequestLocale } from "@/lib/i18n/server";
 import { getTask, tasks as previewTasks } from "@/lib/marketplace";
 import { createClient } from "@/lib/supabase/server";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 import { formatUsdc } from "@/lib/payments";
 import { getServerNetworkSlug } from "@/lib/network-store";
 import { getNetworkConfig, getChainIcon } from "@/lib/networks";
@@ -73,11 +74,8 @@ async function fetchDbTask(id: string): Promise<DbTask | null> {
 
 async function loadActorContext(taskId: string) {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
+    const ctx = await getAuthCtx();
+    if (!ctx) {
       return {
         userId: null as string | null,
         isAdmin: false,
@@ -87,11 +85,12 @@ async function loadActorContext(taskId: string) {
         applicantCounts: { pending: 0, accepted: 0 },
       };
     }
+    const { supabase, userId } = ctx;
 
     const { data: profile } = await supabase
       .from("profiles")
       .select("id, role, is_early_contributor")
-      .eq("id", user.id)
+      .eq("id", userId)
       .maybeSingle();
 
     const isAdmin = profile?.role === "admin";
@@ -102,7 +101,7 @@ async function loadActorContext(taskId: string) {
       .from("task_applications")
       .select("id, task_id, applicant_id, message, status, created_at, updated_at")
       .eq("task_id", taskId)
-      .eq("applicant_id", user.id)
+      .eq("applicant_id", userId)
       .maybeSingle();
 
     let ownSubmissions: DbSubmission[] = [];
@@ -116,7 +115,7 @@ async function loadActorContext(taskId: string) {
     }
 
     return {
-      userId: user.id,
+      userId,
       isAdmin,
       hasEarlyContributorAccess,
       ownApplication: (app as DbApplication | null) ?? null,

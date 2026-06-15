@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 import {
   buildSocialLinks,
   parseSkills,
@@ -19,14 +19,11 @@ export async function saveProfileAction(
   _previous: ProfileEditState,
   formData: FormData,
 ): Promise<ProfileEditState> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  const ctx = await getAuthCtx();
+  if (!ctx) {
     redirect("/login");
   }
+  const { supabase, userId } = ctx;
 
   const username = String(formData.get("username") ?? "").trim().toLowerCase();
   const display_name = String(formData.get("display_name") ?? "").trim();
@@ -94,7 +91,7 @@ export async function saveProfileAction(
   const { error } = await supabase
     .from("profiles")
     .update(update)
-    .eq("id", user.id);
+    .eq("id", userId);
 
   if (error) {
     if (error.code === "23505") {

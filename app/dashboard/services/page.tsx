@@ -16,7 +16,7 @@ import { createTranslator, formatDate } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
 import { getServerNetworkSlug } from "@/lib/network-store";
 import { getNetworkConfig } from "@/lib/networks";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 import {
   SERVICE_LIST_COLUMNS,
   type DbServiceOffer,
@@ -36,35 +36,33 @@ async function loadMyServices(): Promise<{
   services: DbServiceOffer[];
 }> {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return { userId: null, username: null, services: [] };
+    const ctx = await getAuthCtx();
+    if (!ctx) return { userId: null, username: null, services: [] };
+    const { supabase, userId } = ctx;
 
     const { data: profile } = await supabase
       .from("profiles")
       .select("username")
-      .eq("id", user.id)
+      .eq("id", userId)
       .maybeSingle();
 
     const { data, error } = await supabase
       .from("services")
       .select(SERVICE_LIST_COLUMNS)
-      .eq("creator_id", user.id)
+      .eq("creator_id", userId)
       .order("created_at", { ascending: false })
       .limit(50);
 
     if (error || !data) {
       return {
-        userId: user.id,
+        userId,
         username: profile?.username ?? null,
         services: [],
       };
     }
 
     return {
-      userId: user.id,
+      userId,
       username: profile?.username ?? null,
       services: data as DbServiceOffer[],
     };

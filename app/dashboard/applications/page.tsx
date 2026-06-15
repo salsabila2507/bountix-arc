@@ -9,7 +9,7 @@ import {
   type TranslationKey,
 } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 import {
   APPLICATION_COLUMNS,
   APPLICATION_STATUS_COLOR,
@@ -38,16 +38,14 @@ type ProfileLite = {
 };
 
 async function loadMine() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+  const ctx = await getAuthCtx();
+  if (!ctx) return null;
+  const { supabase, userId } = ctx;
 
   const { data: apps } = await supabase
     .from("task_applications")
     .select(APPLICATION_COLUMNS)
-    .eq("applicant_id", user.id)
+    .eq("applicant_id", userId)
     .order("created_at", { ascending: false });
 
   const myApps = (apps ?? []) as DbApplication[];
@@ -67,7 +65,7 @@ async function loadMine() {
     const { data: subs } = await supabase
       .from("task_submissions")
       .select(SUBMISSION_COLUMNS)
-      .eq("submitter_id", user.id)
+      .eq("submitter_id", userId)
       .order("created_at", { ascending: false });
     mySubs = (subs ?? []) as DbSubmission[];
   }
@@ -96,7 +94,7 @@ async function loadMine() {
     messagesByApp.set(message.application_id, arr);
   }
 
-  const profileIds = new Set<string>([user.id]);
+  const profileIds = new Set<string>([userId]);
   for (const task of tasksById.values()) profileIds.add(task.creator_id);
   for (const message of taskMessages) {
     profileIds.add(message.sender_id);
@@ -118,7 +116,7 @@ async function loadMine() {
     subsByApp,
     messagesByApp,
     profilesByUser,
-    currentUserId: user.id,
+    currentUserId: userId,
   };
 }
 

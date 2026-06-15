@@ -7,7 +7,7 @@ import { createTranslator } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
 import { getServerNetworkSlug } from "@/lib/network-store";
 import { getNetworkConfig } from "@/lib/networks";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 
 export const dynamic = "force-dynamic";
 
@@ -19,21 +19,19 @@ export const metadata = {
 
 async function loadActor() {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return { user: null, profile: null as null };
+    const ctx = await getAuthCtx();
+    if (!ctx) return { userId: null, profile: null as null };
+    const { supabase, userId } = ctx;
 
     const { data: profile } = await supabase
       .from("profiles")
       .select("id, username")
-      .eq("id", user.id)
+      .eq("id", userId)
       .maybeSingle();
 
-    return { user, profile };
+    return { userId, profile };
   } catch {
-    return { user: null, profile: null as null };
+    return { userId: null, profile: null as null };
   }
 }
 
@@ -42,9 +40,9 @@ export default async function PostServicePage() {
   const t = createTranslator(locale);
   const networkSlug = await getServerNetworkSlug();
   const networkName = getNetworkConfig(networkSlug).name;
-  const { user, profile } = await loadActor();
+  const { userId, profile } = await loadActor();
 
-  if (!user) {
+  if (!userId) {
     redirect("/login");
   }
 

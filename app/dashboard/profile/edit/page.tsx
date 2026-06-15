@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { ProfileEditForm } from "@/components/profile/profile-edit-form";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 import type { Profile, ProfileLanguage, ProfileRole, SocialLinks } from "@/lib/profile";
 
 export const dynamic = "force-dynamic";
@@ -14,21 +14,18 @@ export const metadata = {
 };
 
 export default async function ProfileEditPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  const ctx = await getAuthCtx();
+  if (!ctx) {
     redirect("/login");
   }
+  const { supabase, userId } = ctx;
 
   const { data } = await supabase
     .from("profiles")
     .select(
       "id, username, display_name, bio, avatar_url, role, skills, wallet_address, social_links, preferred_language, can_use_platform, is_early_contributor, referral_code, created_at, updated_at",
     )
-    .eq("id", user.id)
+    .eq("id", userId)
     .maybeSingle();
 
   if (!data) {

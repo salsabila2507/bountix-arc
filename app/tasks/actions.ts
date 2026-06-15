@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 import {
   TASK_STATUSES,
   TASK_TYPES,
@@ -197,21 +197,19 @@ function parseTaskInput(formData: FormData): {
 
 /** Read actor role via dedicated query. */
 async function loadActor() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { supabase, user: null, profile: null as null };
+  const ctx = await getAuthCtx();
+  if (!ctx) return { supabase: null!, userId: null, profile: null as null };
 
+  const { supabase, userId } = ctx;
   const { data: profile } = await supabase
     .from("profiles")
     .select("id, role")
-    .eq("id", user.id)
+    .eq("id", userId)
     .maybeSingle();
 
   return {
     supabase,
-    user,
+    userId,
     profile: profile as | { id: string; role: string } | null,
   };
 }
@@ -220,8 +218,8 @@ export async function createTaskAction(
   _previous: TaskFormState,
   formData: FormData,
 ): Promise<TaskFormState> {
-  const { supabase, user, profile } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, profile } = await loadActor();
+  if (!userId) redirect("/login");
   if (!profile) {
     return {
       status: "error",
@@ -262,7 +260,7 @@ export async function createTaskAction(
   const { data: inserted, error } = await supabase
     .from("tasks")
     .insert({
-      creator_id: user.id,
+      creator_id: userId,
       title: data.title,
       description: data.description,
       category: data.category,
@@ -309,8 +307,8 @@ export async function updateTaskAction(
     return { status: "error", message: "Invalid task id." };
   }
 
-  const { supabase, user, profile } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, profile } = await loadActor();
+  if (!userId) redirect("/login");
   if (!profile) {
     return {
       status: "error",
@@ -350,7 +348,7 @@ export async function updateTaskAction(
     return { status: "error", message: "Task not found." };
   }
 
-  if (!isAdmin && existing.creator_id !== user.id) {
+  if (!isAdmin && existing.creator_id !== userId) {
     return {
       status: "error",
       message: "You can only edit your own tasks.",
@@ -430,8 +428,8 @@ export async function markTaskEscrowFundedAction(
     return { ok: false, message: "Invalid transaction hash." };
   }
 
-  const { supabase, user } = await loadActor();
-  if (!user) {
+  const { supabase, userId } = await loadActor();
+  if (!userId) {
     return { ok: false, message: "You must be signed in." };
   }
 
@@ -453,7 +451,7 @@ export async function markTaskEscrowFundedAction(
   if (!row) {
     return { ok: false, message: "Task not found." };
   }
-  if (row.creator_id !== user.id) {
+    if (row.creator_id !== userId) {
     return { ok: false, message: "Only the task owner can fund escrow." };
   }
   if (row.payment_method !== "escrow_base") {
@@ -494,8 +492,8 @@ export async function markTaskEscrowFundedAction(
 export async function deleteTaskAction(taskId: string): Promise<void> {
   if (!isUuid(taskId)) return;
 
-  const { supabase, user, profile } = await loadActor();
-  if (!user) redirect("/login");
+  const { supabase, userId, profile } = await loadActor();
+  if (!userId) redirect("/login");
 
   const { data: task } = await supabase
     .from("tasks")
@@ -506,7 +504,7 @@ export async function deleteTaskAction(taskId: string): Promise<void> {
   if (!task) return;
 
   const isAdmin = profile?.role === "admin";
-  if (!isAdmin && task.creator_id !== user.id) return;
+  if (!isAdmin && task.creator_id !== userId) return;
 
   const { error } = await supabase.from("tasks").delete().eq("id", taskId);
 

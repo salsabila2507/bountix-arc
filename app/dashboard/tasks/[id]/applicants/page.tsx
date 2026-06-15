@@ -20,7 +20,7 @@ import {
   selectRaffleWinnersAction,
   setSubmissionRaffleEligibilityAction,
 } from "@/app/applications/actions";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 import { TASK_LIST_COLUMNS, isUuid, type DbTask } from "@/lib/tasks";
 import { escrowContractForTask, explorerTxUrl } from "@/lib/escrow";
 import {
@@ -61,16 +61,14 @@ type ProfileLite = {
 async function loadPage(taskId: string) {
   if (!isUuid(taskId)) return null;
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+  const ctx = await getAuthCtx();
+  if (!ctx) return null;
+  const { supabase, userId } = ctx;
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("id, role")
-    .eq("id", user.id)
+    .eq("id", userId)
     .maybeSingle();
 
   const { data: task } = await supabase
@@ -81,7 +79,7 @@ async function loadPage(taskId: string) {
   if (!task) return null;
 
   const isAdmin = profile?.role === "admin";
-  const isOwner = task.creator_id === user.id;
+  const isOwner = task.creator_id === userId;
   if (!isAdmin && !isOwner) return null;
 
   const { data: applications } = await supabase
@@ -123,7 +121,7 @@ async function loadPage(taskId: string) {
   }
 
   const profileIds = new Set<string>([
-    user.id,
+    userId,
     (task as DbTask).creator_id,
     ...applicantIds,
   ]);
@@ -150,7 +148,7 @@ async function loadPage(taskId: string) {
     submissions: subs,
     subsByApp,
     messagesByApp,
-    currentUserId: user.id,
+    currentUserId: userId,
   };
 }
 
@@ -158,11 +156,8 @@ export default async function ApplicantsPage({ params }: RouteParams) {
   const locale = await getRequestLocale();
   const t = createTranslator(locale);
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const ctx2 = await getAuthCtx();
+  if (!ctx2) redirect("/login");
 
   const data = await loadPage(id);
   if (!data) notFound();
