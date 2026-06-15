@@ -1,8 +1,8 @@
 const hre = require("hardhat");
 
-// Base mainnet USDC address (Circle-issued native USDC).
-const BASE_MAINNET_USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
-const BASE_MAINNET_CHAIN_ID = 8453n;
+// ARC Testnet USDC address.
+const ARC_TESTNET_USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const ARC_TESTNET_CHAIN_ID = 5042002n;
 
 function requireAddress(name) {
   const value = process.env[name];
@@ -23,11 +23,11 @@ function optionalAddress(name, fallback) {
 
 async function main() {
   const net = await hre.ethers.provider.getNetwork();
-  if (net.chainId !== BASE_MAINNET_CHAIN_ID) {
-    throw new Error(`Refusing to deploy: expected Base mainnet (8453), got chainId ${net.chainId}`);
+  if (net.chainId !== ARC_TESTNET_CHAIN_ID) {
+    throw new Error(`Refusing to deploy: expected ARC Testnet (5042002), got chainId ${net.chainId}`);
   }
 
-  console.log("Deploying BountixEscrowV1 to Base mainnet...\n");
+  console.log("Deploying BountixEscrowV1 to ARC Testnet...\n");
 
   const [deployer] = await hre.ethers.getSigners();
   if (!deployer) {
@@ -42,7 +42,7 @@ async function main() {
   console.log("Deployer balance:", hre.ethers.formatEther(balance), "ETH\n");
 
   console.log("Constructor parameters:");
-  console.log("- USDC address:    ", BASE_MAINNET_USDC);
+  console.log("- USDC address:    ", ARC_TESTNET_USDC);
   console.log("- Initial resolver:", resolverAddress);
   console.log("- Treasury:        ", treasuryAddress);
   console.log("- Default fee bps: 250");
@@ -52,7 +52,7 @@ async function main() {
 
   console.log("Estimating deployment gas...");
   const deployTx = await BountixEscrowV1.getDeployTransaction(
-    BASE_MAINNET_USDC,
+    ARC_TESTNET_USDC,
     resolverAddress,
     treasuryAddress,
   );
@@ -74,7 +74,7 @@ async function main() {
 
   console.log("Deploying contract...");
   const escrow = await BountixEscrowV1.deploy(
-    BASE_MAINNET_USDC,
+    ARC_TESTNET_USDC,
     resolverAddress,
     treasuryAddress,
   );
@@ -110,17 +110,7 @@ async function main() {
   console.log("Contract:", contractAddress);
   console.log("Deployer:", deployer.address);
   console.log("Tx hash: ", deploymentTx.hash);
-  console.log("Basescan:", `https://basescan.org/address/${contractAddress}`);
   console.log("===================\n");
-
-  console.log("Optional verify command:");
-  console.log(
-    "npx hardhat verify --network base",
-    contractAddress,
-    BASE_MAINNET_USDC,
-    resolverAddress,
-    treasuryAddress,
-  );
 }
 
 main()

@@ -1,13 +1,13 @@
 const hre = require("hardhat");
 
-// Base mainnet USDC address (Circle-issued native USDC).
-const BASE_MAINNET_USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+// ARC Testnet USDC address.
+const ARC_TESTNET_USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
 // Read-only pre-deploy check: prints deployer address, balance, and the estimated
 // deployment gas/cost. Does NOT send any transaction or deploy anything.
 async function main() {
   const net = await hre.ethers.provider.getNetwork();
-  console.log("Network chainId:", net.chainId.toString(), net.chainId === 8453n ? "(Base mainnet)" : "(NOT Base mainnet!)");
+  console.log("Network chainId:", net.chainId.toString(), net.chainId === 5042002n ? "(ARC Testnet)" : "(NOT ARC Testnet!)");
 
   const signers = await hre.ethers.getSigners();
   if (signers.length === 0) {
@@ -21,7 +21,7 @@ async function main() {
 
   const resolverAddress = deployer.address;
   const BountixEscrowV0 = await hre.ethers.getContractFactory("BountixEscrowV0");
-  const deployTx = await BountixEscrowV0.getDeployTransaction(BASE_MAINNET_USDC, resolverAddress);
+  const deployTx = await BountixEscrowV0.getDeployTransaction(ARC_TESTNET_USDC, resolverAddress);
 
   const estimatedGas = await hre.ethers.provider.estimateGas(deployTx);
   const feeData = await hre.ethers.provider.getFeeData();

@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 
-// Base mainnet USDC address (Circle-issued native USDC).
-const BASE_MAINNET_USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+// ARC Testnet USDC address.
+const ARC_TESTNET_USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
 function requireAddress(name) {
   const value = process.env[name];
@@ -23,7 +23,7 @@ function optionalAddress(name, fallback) {
 // Read-only pre-deploy check. Does not send any transaction or deploy anything.
 async function main() {
   const net = await hre.ethers.provider.getNetwork();
-  console.log("Network chainId:", net.chainId.toString(), net.chainId === 8453n ? "(Base mainnet)" : "(NOT Base mainnet!)");
+  console.log("Network chainId:", net.chainId.toString(), net.chainId === 5042002n ? "(ARC Testnet)" : "(NOT ARC Testnet!)");
 
   const signers = await hre.ethers.getSigners();
   if (signers.length === 0) {
@@ -45,7 +45,7 @@ async function main() {
 
   const BountixEscrowV1 = await hre.ethers.getContractFactory("BountixEscrowV1");
   const deployTx = await BountixEscrowV1.getDeployTransaction(
-    BASE_MAINNET_USDC,
+    ARC_TESTNET_USDC,
     resolverAddress,
     treasuryAddress,
   );

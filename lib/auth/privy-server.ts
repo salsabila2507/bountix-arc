@@ -20,18 +20,12 @@ export async function getPrivyUser(): Promise<PrivyUser | null> {
     if (!token) return null;
 
     const claims = await privy.verifyAuthToken(token);
-
-    const walletAccount = claims.linked_accounts?.find(
-      (a) => a.type === "wallet",
-    );
-    const emailAccount = claims.linked_accounts?.find(
-      (a) => a.type === "email",
-    );
+    const user = await privy.getUser(claims.userId);
 
     return {
-      id: claims.userId,
-      email: emailAccount?.address ?? null,
-      walletAddress: (walletAccount?.address as `0x${string}`) ?? null,
+      id: user.id,
+      email: user.email?.address ?? null,
+      walletAddress: (user.wallet?.address as `0x${string}`) ?? null,
     };
   } catch {
     return null;

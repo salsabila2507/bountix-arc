@@ -90,7 +90,7 @@ export default async function AboutPage() {
           </div>
         </div>
 
-        {/* PROBLEM / SOLUTION / WHY BASE */}
+        {/* PROBLEM / SOLUTION / WHY USDC */}
         <div className="mt-10 grid gap-4 lg:grid-cols-3">
           <article className="comic-card-soft bg-white p-5">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border-2 border-[#140625] bg-[#ff4fb8] text-white shadow-[3px_3px_0_#140625]">
@@ -223,7 +223,7 @@ export default async function AboutPage() {
             coverage on top of the existing marketplace.
           </p>
           <ol className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <RoadmapStep n="1" title="USDC escrow" body="On-chain escrow is deployed on Base and ARC Testnet, wired for fund and release flows." />
+            <RoadmapStep n="1" title="USDC escrow" body="On-chain escrow is deployed on ARC Testnet, wired for fund and release flows." />
             <RoadmapStep n="2" title="Public soft open" body="Let signed-in creators and operators create, apply, submit, chat, and build initial task liquidity." />
             <RoadmapStep n="3" title="Services + deals" body="Long-running creator services and negotiated deals on top of the marketplace." />
             <RoadmapStep n="4" title="Reporting + safety" body="Report task / profile / submission. Admin review queue and audit trail." />

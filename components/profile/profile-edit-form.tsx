@@ -136,7 +136,7 @@ export function ProfileEditForm({ profile }: { profile: Profile }) {
 
         <label className="block">
           <span className="text-sm font-black text-[#140625]">
-            Wallet address (Base){" "}
+            Wallet address (ARC Testnet){" "}
             <span className="text-[#5a3b66]">optional</span>
           </span>
           <input

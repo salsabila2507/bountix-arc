@@ -1,15 +1,15 @@
 const hre = require("hardhat");
 
-// Base mainnet USDC address (Circle-issued native USDC).
-const BASE_MAINNET_USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+// ARC Testnet USDC address.
+const ARC_TESTNET_USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
 async function main() {
   const net = await hre.ethers.provider.getNetwork();
-  if (net.chainId !== 8453n) {
-    throw new Error(`Refusing to deploy: expected Base mainnet (8453), got chainId ${net.chainId}`);
+  if (net.chainId !== 5042002n) {
+    throw new Error(`Refusing to deploy: expected ARC Testnet (5042002), got chainId ${net.chainId}`);
   }
 
-  console.log("Deploying BountixEscrowV0 to Base mainnet...\n");
+  console.log("Deploying BountixEscrowV0 to ARC Testnet...\n");
 
   const [deployer] = await hre.ethers.getSigners();
   console.log("Deployer address:", deployer.address);
@@ -21,7 +21,7 @@ async function main() {
   const resolverAddress = deployer.address;
 
   console.log("Constructor parameters:");
-  console.log("- USDC address:    ", BASE_MAINNET_USDC);
+  console.log("- USDC address:    ", ARC_TESTNET_USDC);
   console.log("- Initial resolver:", resolverAddress);
   console.log("");
 
@@ -29,7 +29,7 @@ async function main() {
 
   // Estimate gas/cost and guard against insufficient balance before sending.
   console.log("Estimating deployment gas...");
-  const deployTx = await BountixEscrowV0.getDeployTransaction(BASE_MAINNET_USDC, resolverAddress);
+  const deployTx = await BountixEscrowV0.getDeployTransaction(ARC_TESTNET_USDC, resolverAddress);
   const estimatedGas = await hre.ethers.provider.estimateGas(deployTx);
   const feeData = await hre.ethers.provider.getFeeData();
   const gasPrice = feeData.gasPrice || feeData.maxFeePerGas;
@@ -46,7 +46,7 @@ async function main() {
   }
 
   console.log("Deploying contract...");
-  const escrow = await BountixEscrowV0.deploy(BASE_MAINNET_USDC, resolverAddress);
+  const escrow = await BountixEscrowV0.deploy(ARC_TESTNET_USDC, resolverAddress);
   await escrow.waitForDeployment();
 
   const contractAddress = await escrow.getAddress();
@@ -73,12 +73,10 @@ async function main() {
   console.log("Contract:", contractAddress);
   console.log("Deployer:", deployer.address);
   console.log("Tx hash: ", deploymentTx.hash);
-  console.log("Basescan:", `https://basescan.org/address/${contractAddress}`);
   console.log("=================\n");
 
   console.log("Next steps:");
   console.log("1. Record the address + tx hash in docs/escrow-contract.md");
-  console.log("2. (Optional) Verify: npx hardhat verify --network base", contractAddress, BASE_MAINNET_USDC, resolverAddress);
 }
 
 main()

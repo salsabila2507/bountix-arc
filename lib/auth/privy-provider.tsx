@@ -17,7 +17,9 @@ export function PrivyProvider({ children }: { children: ReactNode }) {
           logo: "/bountix-comic/bountix_assets_ready/bountix-app-icon.png",
         },
         embeddedWallets: {
-          createOnLogin: "users-without-wallets",
+          ethereum: {
+            createOnLogin: "users-without-wallets",
+          },
         },
         defaultChain: {
           id: 5042002,
