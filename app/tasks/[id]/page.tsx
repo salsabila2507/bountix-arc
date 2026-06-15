@@ -487,7 +487,7 @@ export default async function TaskDetailPage({ params }: RouteParams) {
                     <p className="mt-2 inline-flex items-center gap-1.5 text-lg font-black text-[#140625]">
                       {value}
                         {index === 0 && (
-                        <Image src="/bountix-comic/base-icon.png" alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" />
+                        <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-full bg-[#140625] text-[10px] font-black text-white">A</span>
                       )}
                     </p>
                   </div>

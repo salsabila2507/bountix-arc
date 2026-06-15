@@ -134,13 +134,7 @@ function CarouselCard({
       <div className="mt-auto flex items-center justify-between gap-2 border-t-2 border-dashed border-[#17072b]/30 pt-3">
         <span className="inline-flex items-center gap-1.5 rounded-md border-2 border-[#17072b] bg-[#ffdd3d] px-2.5 py-1 text-xs font-black text-[#17072b] shadow-[2px_2px_0_#17072b]">
           {task.reward}
-          <Image
-            src="/bountix-comic/base-icon.png"
-            alt=""
-            width={14}
-            height={14}
-            className="h-3.5 w-3.5 object-contain"
-          />
+          <span className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#17072b] text-[8px] font-black text-white">A</span>
         </span>
         <span className="text-[0.65rem] font-black uppercase text-[#7c3cff]">
           {t("common.reward")}

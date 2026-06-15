@@ -47,7 +47,7 @@ export function EscrowReleasePanel({
   rewardAmount,
   workerWalletAddress,
   contractAddress,
-  networkSlug = "base",
+  networkSlug = "arc-testnet",
   locale = DEFAULT_LOCALE,
 }: {
   submissionId: string;
@@ -262,7 +262,7 @@ export function EscrowRaffleReleasePanel({
   taskId,
   winners,
   contractAddress,
-  networkSlug = "base",
+  networkSlug = "arc-testnet",
   locale = DEFAULT_LOCALE,
 }: {
   taskId: string;

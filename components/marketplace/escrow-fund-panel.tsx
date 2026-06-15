@@ -43,7 +43,7 @@ export function EscrowFundPanel({
   rewardAmount,
   rewardMode = "fixed",
   winnerCount = 1,
-  networkSlug = "base",
+  networkSlug = "arc-testnet",
   locale = DEFAULT_LOCALE,
 }: {
   taskId: string;

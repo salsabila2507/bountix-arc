@@ -43,7 +43,7 @@ function FieldError({ message }: { message?: string }) {
 export function PostServiceForm({
   mode,
   initialService,
-  networkSlug = "base",
+  networkSlug = "arc-testnet",
   locale = DEFAULT_LOCALE,
 }: {
   mode: "create" | "edit";

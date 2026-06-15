@@ -145,7 +145,7 @@ export default async function DashboardServicesPage() {
                   deliveryTime: t("service.deliveryTime"),
                   noDelivery: t("service.noDeliveryTime"),
                   manual: t("service.payment.manual"),
-                  escrow: t("service.payment.escrow_base", { network: networkName }),
+                  escrow: t("payment.escrow"),
                   updated: t("service.updatedOn", {
                     date: formatDate(service.updated_at, locale),
                   }),

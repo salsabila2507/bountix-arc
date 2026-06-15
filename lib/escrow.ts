@@ -38,19 +38,16 @@ export function escrowUsdcAddress(slug: string): string {
   return getNetworkConfig(slug).contracts.usdc;
 }
 
-/**
- * @deprecated Base-only fallback addresses. New code must use
- * escrowContractAddress(slug), escrowUsdcAddress(slug), or
- * getNetworkConfig(slug).contracts.* to be network-agnostic.
- * These will be removed once all consumers are migrated.
- */
-export const ESCROW_CONTRACT_ADDRESS = "0x81AcFAbb2D7f99fC68d764f720c731a0fA5C0995";
-export const ESCROW_V1_CONTRACT_ADDRESS = "0x81AcFAbb2D7f99fC68d764f720c731a0fA5C0995";
-export const ESCROW_V0_CONTRACT_ADDRESS = "0x89FAF386c052B55363fdEe45B04c48fcDcb5A692";
-export const ESCROW_USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
-export const ESCROW_CHAIN_ID = 8453;
-export const ESCROW_CHAIN_ID_HEX = "0x2105";
-export const ESCROW_V2_CONTRACT_ADDRESS = "0x81AcFAbb2D7f99fC68d764f720c731a0fA5C0995";
+const DEFAULT_SLUG = "arc-testnet";
+const defaultConfig = getNetworkConfig(DEFAULT_SLUG);
+
+export const ESCROW_CONTRACT_ADDRESS = defaultConfig.contracts.escrowV1;
+export const ESCROW_V1_CONTRACT_ADDRESS = defaultConfig.contracts.escrowV1;
+export const ESCROW_V0_CONTRACT_ADDRESS = defaultConfig.contracts.escrowV0;
+export const ESCROW_USDC_ADDRESS = defaultConfig.contracts.usdc;
+export const ESCROW_CHAIN_ID = defaultConfig.id;
+export const ESCROW_CHAIN_ID_HEX = defaultConfig.chainIdHex;
+export const ESCROW_V2_CONTRACT_ADDRESS = defaultConfig.contracts.escrowV1;
 
 export const ESCROW_CONTRACT_VERSION = "v1";
 export const ESCROW_DEFAULT_FEE_BPS = 250;
@@ -60,13 +57,13 @@ export const ESCROW_MAX_FEE_BPS = 1000;
 export const MIN_ESCROW_USDC = 1;
 
 /** Minimum escrow reward in base units for the given network. */
-export function minEscrowUnits(networkSlug: string = "base"): bigint {
+export function minEscrowUnits(networkSlug: string = DEFAULT_SLUG): bigint {
   const d = getNetworkConfig(networkSlug).usdcDecimals;
   return BigInt(MIN_ESCROW_USDC) * BigInt(10) ** BigInt(d);
 }
 
 /** Convert a human USDC amount (e.g. 50.00) to network-specific base units. */
-export function usdcToUnits(amount: number, networkSlug: string = "base"): bigint {
+export function usdcToUnits(amount: number, networkSlug: string = DEFAULT_SLUG): bigint {
   if (!Number.isFinite(amount) || amount < 0) return BigInt(0);
   const decimals = getNetworkConfig(networkSlug).usdcDecimals;
   const cents = Math.round(amount * 100);

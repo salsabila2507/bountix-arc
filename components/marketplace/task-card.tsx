@@ -81,13 +81,7 @@ export function TaskCard({ task, locale = DEFAULT_LOCALE }: TaskCardProps) {
           </div>
           <p className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border-2 border-[#140625] bg-[#ffdd3d] px-3 py-2 text-sm font-black text-[#140625] shadow-[3px_3px_0_#140625]">
             {task.budget}
-            <Image
-              src="/bountix-comic/base-icon.png"
-              alt=""
-              width={16}
-              height={16}
-              className="h-4 w-4 object-contain"
-            />
+            <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#140625] text-[9px] font-black text-white">A</span>
           </p>
         </div>
 

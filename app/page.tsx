@@ -363,7 +363,7 @@ export default async function Home() {
     ["LIVE", "landing.stats.live"],
     ["OPEN", "landing.stats.gated"],
     ["USDC", "landing.stats.usdc"],
-    [networkName, "landing.stats.base"],
+    ["ARC Testnet", "landing.stats.live"],
   ];
 
   return (
@@ -654,83 +654,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section
-          id="base-ready"
-          className="relative overflow-hidden border-y-2 border-[#17072b] bg-[#0d3a86] px-4 py-10 text-white sm:px-6 sm:py-12 lg:px-10"
-        >
-          <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.18)_1px,transparent_1.6px)] bg-[length:14px_14px] opacity-50" />
-          <div className="relative mx-auto max-w-[1180px]">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="inline-flex items-center gap-2 rounded-lg border-2 border-[#17072b] bg-[#38e7ff] px-3 py-1.5 text-xs font-black uppercase text-[#17072b] shadow-[3px_3px_0_#17072b]">
-                  <Coins aria-hidden="true" className="h-4 w-4" />
-                  {t("landing.base.badge", { network: networkName })}
-                </p>
-                <h2 className="mt-3 text-3xl font-black uppercase leading-none drop-shadow-[3px_3px_0_#17072b] sm:text-5xl">
-                  {t("landing.base.title", { network: networkName })}
-                </h2>
-                <p className="mt-3 max-w-2xl text-sm font-bold leading-7 text-white/90 sm:text-base">
-                  {t("landing.base.body", { network: networkName })}
-                </p>
-              </div>
-              <div className="hidden items-center gap-2 rounded-lg border-2 border-[#17072b] bg-white px-3 py-2 text-xs font-black uppercase text-[#17072b] shadow-[3px_3px_0_#17072b] sm:inline-flex">
-                <Globe2 aria-hidden="true" className="h-4 w-4" />
-                {t("landing.base.onchain", { network: networkName })}
-              </div>
-            </div>
 
-            <div className="mt-7 grid gap-4 lg:grid-cols-3">
-              <article className="rounded-[1rem] border-2 border-[#17072b] bg-[#fff7e8] p-5 text-[#17072b] shadow-[6px_6px_0_#17072b]">
-                <span className="flex h-12 w-12 items-center justify-center rounded-lg border-2 border-[#17072b] bg-[#38e7ff] shadow-[3px_3px_0_#17072b]">
-                  <Coins aria-hidden="true" className="h-6 w-6" />
-                </span>
-                <h3 className="mt-4 text-2xl font-black uppercase leading-tight">
-                  {t("landing.base.usdc.title", { network: networkName })}
-                </h3>
-                <p className="mt-2 text-sm font-bold leading-6 text-[#5a3b66]">
-                  {t("landing.base.usdc.body", { network: networkName })}
-                </p>
-                <span className="mt-4 inline-flex rounded-md border-2 border-[#17072b] bg-[#38e7ff] px-2 py-0.5 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#17072b]">
-                  {t("common.live")}
-                </span>
-              </article>
-
-              <article className="rounded-[1rem] border-2 border-[#17072b] bg-[#fff7e8] p-5 text-[#17072b] shadow-[6px_6px_0_#17072b]">
-                <span className="flex h-12 w-12 items-center justify-center rounded-lg border-2 border-[#17072b] bg-[#ffdd3d] shadow-[3px_3px_0_#17072b]">
-                  <LockKeyhole aria-hidden="true" className="h-6 w-6" />
-                </span>
-                <h3 className="mt-4 text-2xl font-black uppercase leading-tight">
-                  {t("landing.base.escrow.title", { network: networkName })}
-                </h3>
-                <p className="mt-2 text-sm font-bold leading-6 text-[#5a3b66]">
-                  {t("landing.base.escrow.body", { network: networkName })}
-                </p>
-                <span className="mt-4 inline-flex rounded-md border-2 border-[#17072b] bg-[#38e7ff] px-2 py-0.5 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#17072b]">
-                  {t("common.live")}
-                </span>
-              </article>
-
-              <article className="rounded-[1rem] border-2 border-[#17072b] bg-[#fff7e8] p-5 text-[#17072b] shadow-[6px_6px_0_#17072b]">
-                <span className="flex h-12 w-12 items-center justify-center rounded-lg border-2 border-[#17072b] bg-[#f0d7ff] shadow-[3px_3px_0_#17072b]">
-                  <ShieldCheck aria-hidden="true" className="h-6 w-6" />
-                </span>
-                <h3 className="mt-4 text-2xl font-black uppercase leading-tight">
-                  {t("landing.base.reputation.title", { network: networkName })}
-                </h3>
-                <p className="mt-2 text-sm font-bold leading-6 text-[#5a3b66]">
-                  {t("landing.base.reputation.body", { network: networkName })}
-                </p>
-                <span className="mt-4 inline-flex rounded-md border-2 border-[#17072b] bg-white px-2 py-0.5 text-[0.65rem] font-black uppercase shadow-[2px_2px_0_#17072b]">
-                  {t("common.roadmap")}
-                </span>
-              </article>
-            </div>
-
-            <p className="mt-6 max-w-3xl text-xs font-bold leading-6 text-white/75">
-              {t("landing.base.previewNote", { network: networkName })}
-            </p>
-          </div>
-        </section>
 
         <section
           id="how"

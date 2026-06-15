@@ -271,7 +271,7 @@ export default async function PublicProfilePage({ params }: RouteParams) {
                   className="h-5 w-5 text-[#7c3cff]"
                 />
                 <h2 className="text-lg font-black text-[#140625]">
-                  {t("profile.walletBase", { network: networkName })}
+                  {t("dashboard.profile.wallet")}
                 </h2>
               </div>
               <p className="mt-3 break-all text-sm font-semibold leading-6 text-[#3c214b]">

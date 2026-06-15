@@ -35,7 +35,7 @@ function formatPrice(service: PublicServiceOffer, negotiableLabel: string) {
 
 export function ServiceOfferCard({
   service,
-  networkSlug = "base",
+  networkSlug = "arc-testnet",
   locale = DEFAULT_LOCALE,
   viewerIsAuthed,
 }: {
@@ -67,7 +67,7 @@ export function ServiceOfferCard({
           </span>
           <span className="inline-flex min-h-8 items-center gap-1.5 rounded-lg border-2 border-[#140625] bg-white px-2.5 py-1 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625]">
             {service.payment_method === "escrow_base"
-              ? t("service.payment.escrow_base", { network: networkName })
+              ? t("payment.escrow")
               : t("service.payment.manual")}
           </span>
           {isNegotiable ? (

@@ -480,7 +480,7 @@ export function TaskForm({
             className="mr-2 inline h-4 w-4 text-[#7c3cff]"
           />
           {t("form.postTask.paymentNote", {
-            emphasis: t("common.usdcOnBase", { network: networkName }),
+            emphasis: t("payment.usdcRewards"),
             network: networkName,
           })}
         </div>

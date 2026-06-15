@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     "global task marketplace",
     "task rewards",
     "USDC",
-    "Base",
+    "ARC Testnet",
     "online tasks",
     "local help",
     "creator marketplace",

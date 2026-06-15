@@ -688,7 +688,7 @@ export async function releaseRaffleEscrowAction(
   if (task.raffle_winner_count <= 1) {
     return { ok: false, message: "Use the single-worker release flow." };
   }
-  const expectedV1 = getNetworkConfig(task.chain ?? "base").contracts.escrowV1;
+  const expectedV1 = getNetworkConfig(task.chain ?? "arc-testnet").contracts.escrowV1;
   if (
     (task.escrow_contract_address ?? "").toLowerCase() !==
     expectedV1.toLowerCase()

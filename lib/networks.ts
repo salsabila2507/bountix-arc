@@ -1,4 +1,4 @@
-import { base, type Chain } from "viem/chains";
+import type { Chain } from "viem/chains";
 
 export type NetworkConfig = {
   id: number;
@@ -35,23 +35,6 @@ const arcTestnet = {
 } as Chain;
 
 const NETWORKS: Record<string, NetworkConfig> = {
-  base: {
-    id: 8453,
-    name: "Base",
-    slug: "base",
-    chain: base,
-    chainIdHex: "0x2105",
-    explorerUrl: "https://basescan.org",
-    explorerApiUrl: "https://api.basescan.org/api",
-    rpcUrl: "https://mainnet.base.org",
-    contracts: {
-      escrowV0: "0x89FAF386c052B55363fdEe45B04c48fcDcb5A692",
-      escrowV1: "0x81AcFAbb2D7f99fC68d764f720c731a0fA5C0995",
-      usdc: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-    },
-    usdcDecimals: 6,
-    iconPath: "/bountix-comic/base-icon.png",
-  },
   "arc-testnet": {
     id: 5042002,
     name: "ARC Testnet",
@@ -72,7 +55,7 @@ const NETWORKS: Record<string, NetworkConfig> = {
 };
 
 export function getNetworkConfig(slug: string): NetworkConfig {
-  return NETWORKS[slug] ?? NETWORKS.base;
+  return NETWORKS[slug] ?? NETWORKS["arc-testnet"];
 }
 
 export function getExplorerTxUrl(slug: string, txHash: string): string {
@@ -86,8 +69,8 @@ export function getChainIcon(slug: string): string | null {
 export const NETWORK_COOKIE = "bountix_network";
 
 export function parseNetworkSlug(value: string | null | undefined): string {
-  if (value === "base" || value === "arc-testnet") return value;
-  return "base";
+  if (value === "arc-testnet") return value;
+  return "arc-testnet";
 }
 
 export { NETWORKS };
