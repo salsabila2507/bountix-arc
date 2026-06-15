@@ -3,9 +3,10 @@
 import { PrivyProvider as PrivyProviderBase } from "@privy-io/react-auth";
 import type { ReactNode } from "react";
 
-const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? "";
+const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID;
 
 export function PrivyProvider({ children }: { children: ReactNode }) {
+  if (!PRIVY_APP_ID) return <>{children}</>;
   return (
     <PrivyProviderBase
       appId={PRIVY_APP_ID}
