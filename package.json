@@ -26,6 +26,8 @@
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "@privy-io/react-auth": "^3.30.0",
+    "@privy-io/server-auth": "^1.5.0",
     "viem": "^2.51.3"
   },
   "devDependencies": {

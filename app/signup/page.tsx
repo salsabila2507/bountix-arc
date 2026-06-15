@@ -1,15 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { SignupForm } from "@/components/auth/signup-form";
-import { normalizeReferralCode } from "@/lib/referrals";
-import { createClient } from "@/lib/supabase/server";
-
-type SignupPageProps = {
-  searchParams: Promise<{
-    ref?: string | string[];
-  }>;
-};
+import { PrivyLoginButton } from "@/components/auth/privy-login-button";
+import { getPrivyUser } from "@/lib/auth/privy-server";
 
 export const dynamic = "force-dynamic";
 
@@ -18,22 +11,9 @@ export const metadata = {
   description: "Create your Bountix account.",
 };
 
-export default async function SignupPage({ searchParams }: SignupPageProps) {
-  const params = await searchParams;
-  const referralParam = Array.isArray(params.ref) ? params.ref[0] : params.ref;
-  const referralCode = normalizeReferralCode(referralParam ?? null);
-
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      redirect("/dashboard/profile");
-    }
-  } catch {
-    // Env missing — render form anyway so the page doesn't break.
-  }
+export default async function SignupPage() {
+  const user = await getPrivyUser();
+  if (user) redirect("/dashboard/profile");
 
   return (
     <main className="comic-page min-h-screen overflow-hidden text-[#140625]">
@@ -47,7 +27,27 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
         </Link>
 
         <section className="mx-auto mt-10 max-w-md">
-          <SignupForm referralCode={referralCode} />
+          <div className="comic-card bg-white p-5 sm:p-6">
+            <p className="comic-chip bg-[#38e7ff]">Create account</p>
+            <h1 className="mt-5 text-2xl font-black text-[#140625]">
+              Sign up for Bountix
+            </h1>
+            <p className="mt-3 text-sm font-medium leading-6 text-[#5a3b66]">
+              Sign in with your email or crypto wallet to get started.
+            </p>
+            <div className="mt-6">
+              <PrivyLoginButton />
+            </div>
+            <p className="mt-4 text-center text-sm font-medium leading-6 text-[#5a3b66]">
+              Already on Bountix?{" "}
+              <Link
+                href="/login"
+                className="font-black text-[#7c3cff] underline decoration-2 underline-offset-2"
+              >
+                Log in
+              </Link>
+            </p>
+          </div>
         </section>
       </div>
     </main>

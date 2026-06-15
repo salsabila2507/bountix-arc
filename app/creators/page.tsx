@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { ServiceOfferCard } from "@/components/marketplace/service-offer-card";
 import { createTranslator } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 import {
   SERVICE_LIST_COLUMNS,
   type DbServiceOffer,
@@ -28,11 +28,10 @@ async function fetchActiveServiceOffers(): Promise<{
   viewerIsAuthed: boolean;
 }> {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const ctx = await getAuthCtx();
+    if (!ctx) return { services: [], viewerIsAuthed: false };
 
+    const supabase = ctx.supabase;
     const { data, error } = await supabase
       .from("services")
       .select(SERVICE_LIST_COLUMNS)
@@ -41,7 +40,7 @@ async function fetchActiveServiceOffers(): Promise<{
       .limit(48);
 
     if (error || !data) {
-      return { services: [], viewerIsAuthed: Boolean(user) };
+      return { services: [], viewerIsAuthed: !!ctx };
     }
 
     const rows = data as DbServiceOffer[];
@@ -49,7 +48,7 @@ async function fetchActiveServiceOffers(): Promise<{
       new Set(rows.map((row) => row.creator_id).filter(Boolean) as string[]),
     );
     if (creatorIds.length === 0) {
-      return { services: [], viewerIsAuthed: Boolean(user) };
+      return { services: [], viewerIsAuthed: !!ctx };
     }
 
     const { data: profiles } = await supabase
@@ -79,7 +78,7 @@ async function fetchActiveServiceOffers(): Promise<{
         if (!creator) return [];
         return [{ ...row, creator }];
       }),
-      viewerIsAuthed: Boolean(user),
+      viewerIsAuthed: !!ctx,
     };
   } catch {
     return { services: [], viewerIsAuthed: false };

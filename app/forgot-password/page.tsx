@@ -1,8 +1,5 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
-import { createClient } from "@/lib/supabase/server";
+import { getPrivyUser } from "@/lib/auth/privy-server";
 
 export const dynamic = "force-dynamic";
 
@@ -12,33 +9,10 @@ export const metadata = {
 };
 
 export default async function ForgotPasswordPage() {
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      redirect("/dashboard/profile");
-    }
-  } catch {
-    // Env missing — render form anyway so the page doesn't break.
-  }
+  const user = await getPrivyUser();
+  if (user) redirect("/dashboard/profile");
 
-  return (
-    <main className="comic-page min-h-screen overflow-hidden text-[#140625]">
-      <div className="container-page py-8 sm:py-10">
-        <Link
-          href="/login"
-          className="inline-flex items-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-sm font-black text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#38e7ff]"
-        >
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          Back to Login
-        </Link>
-
-        <section className="mx-auto mt-10 max-w-md">
-          <ForgotPasswordForm />
-        </section>
-      </div>
-    </main>
-  );
+  // Privy handles password reset through its own UI.
+  // Redirect to login where users can sign in with email OTP / magic link.
+  redirect("/login");
 }

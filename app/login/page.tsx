@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { LoginForm } from "@/components/auth/login-form";
-import { createClient } from "@/lib/supabase/server";
+import { PrivyLoginButton } from "@/components/auth/privy-login-button";
+import { getPrivyUser } from "@/lib/auth/privy-server";
 
 export const dynamic = "force-dynamic";
 
@@ -12,17 +12,8 @@ export const metadata = {
 };
 
 export default async function LoginPage() {
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      redirect("/dashboard/profile");
-    }
-  } catch {
-    // Env missing — render form anyway so the page doesn't break.
-  }
+  const user = await getPrivyUser();
+  if (user) redirect("/dashboard/profile");
 
   return (
     <main className="comic-page min-h-screen overflow-hidden text-[#140625]">
@@ -36,7 +27,27 @@ export default async function LoginPage() {
         </Link>
 
         <section className="mx-auto mt-10 max-w-md">
-          <LoginForm />
+          <div className="comic-card bg-white p-5 sm:p-6">
+            <p className="comic-chip bg-[#ffdd3d]">Welcome back</p>
+            <h1 className="mt-5 text-2xl font-black text-[#140625]">
+              Log in to Bountix
+            </h1>
+            <p className="mt-3 text-sm font-medium leading-6 text-[#5a3b66]">
+              Sign in with your email or crypto wallet to continue.
+            </p>
+            <div className="mt-6">
+              <PrivyLoginButton />
+            </div>
+            <p className="mt-4 text-center text-sm font-medium leading-6 text-[#5a3b66]">
+              New to Bountix?{" "}
+              <Link
+                href="/signup"
+                className="font-black text-[#7c3cff] underline decoration-2 underline-offset-2"
+              >
+                Create account
+              </Link>
+            </p>
+          </div>
         </section>
       </div>
     </main>

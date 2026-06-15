@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getPrivyUser } from "@/lib/auth/privy-server";
 
 export const NOTIFICATION_LIMIT = 50;
 
@@ -33,12 +34,9 @@ function sortByCreatedDesc(a: DbNotification, b: DbNotification) {
 }
 
 export async function loadNotifications(limit = NOTIFICATION_LIMIT) {
+  const privyUser = await getPrivyUser();
+  if (!privyUser) return null;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
 
   const safeLimit = Math.min(Math.max(limit, 1), NOTIFICATION_LIMIT);
 
@@ -46,7 +44,7 @@ export async function loadNotifications(limit = NOTIFICATION_LIMIT) {
     supabase
       .from("notifications")
       .select(NOTIFICATION_COLUMNS)
-      .eq("user_id", user.id)
+      .eq("user_id", privyUser.id)
       .order("created_at", { ascending: false })
       .limit(safeLimit),
     supabase
@@ -66,7 +64,7 @@ export async function loadNotifications(limit = NOTIFICATION_LIMIT) {
     const { data: receipts } = await supabase
       .from("notification_reads")
       .select("notification_id, read_at")
-      .eq("user_id", user.id)
+      .eq("user_id", privyUser.id)
       .in("notification_id", globalIds);
 
     for (const receipt of (receipts ?? []) as NotificationReadReceipt[]) {
@@ -91,7 +89,7 @@ export async function loadNotifications(limit = NOTIFICATION_LIMIT) {
     .slice(0, safeLimit);
 
   return {
-    userId: user.id,
+    userId: privyUser.id,
     notifications,
     unreadCount: notifications.filter(
       (notification) => !notification.effective_read_at,

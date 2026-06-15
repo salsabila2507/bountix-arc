@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Bell, LogOut, Menu, User } from "lucide-react";
+import { Bell, Menu, User } from "lucide-react";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { NetworkSelector } from "@/components/ui/network-selector";
 import { getServerNetworkSlug } from "@/lib/network-store";
 import { ButtonLink } from "@/components/ui/button";
-import { logoutAction } from "@/app/auth/actions";
+import { getPrivyUser } from "@/lib/auth/privy-server";
+import { LogoutButton } from "@/components/auth/logout-button";
 import { createTranslator, type TranslationKey } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
 import { getUnreadNotificationCount } from "@/lib/notifications";
@@ -36,23 +37,6 @@ const authedMenuLinks: NavLink[] = [
   { href: "/dashboard/profile", labelKey: "dashboard.nav.profile" },
 ];
 
-/**
- * Read the current Supabase user without throwing if env vars are missing
- * (public pages must keep rendering even before auth is fully wired).
- */
-async function getCurrentUser() {
-  try {
-    const { createClient } = await import("@/lib/supabase/server");
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    return user;
-  } catch {
-    return null;
-  }
-}
-
 function getDisplayHandle(
   user: { email?: string | null } | null,
   fallback: string,
@@ -65,11 +49,11 @@ function getDisplayHandle(
 export async function SiteHeader() {
   const locale = await getRequestLocale();
   const t = createTranslator(locale);
-  const user = await getCurrentUser();
-  const displayHandle = getDisplayHandle(user, t("common.account"));
-  const unreadCount = user ? await getUnreadNotificationCount() : 0;
+  const privyUser = await getPrivyUser();
+  const displayHandle = getDisplayHandle(privyUser, t("common.account"));
+  const unreadCount = privyUser ? await getUnreadNotificationCount() : 0;
   const unreadLabel = unreadCount > 99 ? "99+" : String(unreadCount);
-  const navLinks: NavLink[] = user ? authedNavLinks : guestNavLinks;
+  const navLinks: NavLink[] = privyUser ? authedNavLinks : guestNavLinks;
 
   const networkSlug = await getServerNetworkSlug();
 
@@ -113,7 +97,7 @@ export async function SiteHeader() {
           <div className="hidden items-center gap-2 lg:flex">
             <NetworkSelector currentSlug={networkSlug} />
             <LanguageSwitcher locale={locale} />
-            {user ? (
+            {privyUser ? (
               <details className="relative">
                 <summary className="inline-flex min-h-10 cursor-pointer list-none items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-white px-3 py-2 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#38e7ff] [&::-webkit-details-marker]:hidden">
                   <Menu aria-hidden="true" className="h-4 w-4" />
@@ -148,15 +132,7 @@ export async function SiteHeader() {
                         ) : null}
                       </Link>
                     ))}
-                    <form action={logoutAction}>
-                      <button
-                        type="submit"
-                        className="flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ffdd3d] px-3 py-2 text-xs font-black uppercase text-[#140625] shadow-[3px_3px_0_#140625] transition hover:-translate-y-0.5 hover:bg-[#ff4fb8] hover:text-white"
-                      >
-                        <LogOut aria-hidden="true" className="h-4 w-4" />
-                        {t("common.logout")}
-                      </button>
-                    </form>
+                    <LogoutButton label={t("common.logout")} />
                   </div>
                 </div>
               </details>
@@ -184,7 +160,7 @@ export async function SiteHeader() {
               <span className="sr-only">Menu</span>
             </summary>
             <div className="absolute right-0 top-full z-50 mt-3 w-[min(20rem,calc(100vw-2rem))] rounded-lg border-2 border-[#140625] bg-[#fffaf4] p-3 shadow-[7px_7px_0_#140625]">
-              {user ? (
+              {privyUser ? (
                 <div className="truncate rounded-lg border-2 border-[#140625] bg-[#f2e6ff] px-3 py-2 text-xs font-black uppercase text-[#140625]">
                   {displayHandle}
                 </div>
@@ -210,7 +186,7 @@ export async function SiteHeader() {
                 />
               </div>
               <div className="mt-3 grid gap-2 border-t-2 border-[#140625]/20 pt-3">
-                {user ? (
+                {privyUser ? (
                   <>
                     {authedMenuLinks.map((link) => (
                       <Link
@@ -236,15 +212,7 @@ export async function SiteHeader() {
                         ) : null}
                       </Link>
                     ))}
-                    <form action={logoutAction}>
-                      <button
-                        type="submit"
-                        className="flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border-2 border-[#140625] bg-[#ffdd3d] px-3 py-2 text-sm font-black text-[#140625] shadow-[3px_3px_0_#140625] transition hover:bg-[#ff4fb8] hover:text-white"
-                      >
-                        <LogOut aria-hidden="true" className="h-4 w-4" />
-                        {t("common.logout")}
-                      </button>
-                    </form>
+                    <LogoutButton label={t("common.logout")} />
                   </>
                 ) : (
                   <>

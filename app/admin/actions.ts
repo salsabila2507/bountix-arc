@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 import { isUuid } from "@/lib/tasks";
 
 function isInternalPath(value: string): boolean {

@@ -30,3 +30,9 @@ export async function createClient() {
     },
   });
 }
+
+export type DbContext = {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  userId: string;
+  email: string | null;
+};

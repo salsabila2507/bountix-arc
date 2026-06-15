@@ -15,6 +15,7 @@ import { createTranslator, formatDate } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
 import { getServerNetworkSlug } from "@/lib/network-store";
 import { getNetworkConfig } from "@/lib/networks";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 import { createClient } from "@/lib/supabase/server";
 import {
   PROFILE_LANGUAGE_LABEL,
@@ -92,11 +93,8 @@ async function fetchProfileServices(
 
 async function getViewerIsAuthed(): Promise<boolean> {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    return Boolean(user);
+    const ctx = await getAuthCtx();
+    return !!ctx;
   } catch {
     return false;
   }

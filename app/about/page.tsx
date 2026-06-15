@@ -13,6 +13,7 @@ import {
   Zap,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 
 export const metadata = {
   title: "About",
@@ -22,14 +23,10 @@ export const metadata = {
 
 async function getCurrentUser() {
   try {
-    const { createClient } = await import("@/lib/supabase/server");
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    return user;
+    const ctx = await getAuthCtx();
+    return !!ctx;
   } catch {
-    return null;
+    return false;
   }
 }
 

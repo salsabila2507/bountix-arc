@@ -21,6 +21,7 @@ import { createTranslator, type TranslationKey } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
 import { getServerNetworkSlug } from "@/lib/network-store";
 import { getNetworkConfig, getChainIcon } from "@/lib/networks";
+import { getAuthCtx } from "@/lib/auth/db-ctx";
 
 const assetBase = "/bountix-comic/bountix_assets_ready";
 const telegramGroupUrl = "https://t.me/+V78fuYlQNvcxYTNl";
@@ -199,14 +200,10 @@ const whyItems = [
  */
 async function getCurrentUser() {
   try {
-    const { createClient } = await import("@/lib/supabase/server");
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    return user;
+    const ctx = await getAuthCtx();
+    return !!ctx;
   } catch {
-    return null;
+    return false;
   }
 }
 
@@ -363,7 +360,6 @@ export default async function Home() {
     ["LIVE", "landing.stats.live"],
     ["OPEN", "landing.stats.gated"],
     ["USDC", "landing.stats.usdc"],
-    ["ARC Testnet", "landing.stats.live"],
   ];
 
   return (
@@ -653,8 +649,6 @@ export default async function Home() {
             ))}
           </div>
         </section>
-
-
 
         <section
           id="how"
